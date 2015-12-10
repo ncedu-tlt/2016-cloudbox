@@ -1,3 +1,4 @@
 /cloudbox-ejb/target/
 /cloudbox-web/target/
 /cloudbox-ear/target/
+/cloudbox-web/nb-configuration.xml
