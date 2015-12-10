@@ -16,7 +16,6 @@
 package ru.ncedu.tlt.cloudbox;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -27,8 +26,25 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author zvyagintsev
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
-public class LoginServlet extends HttpServlet {
+@WebServlet(name = "LogoutServlet", urlPatterns = {"/logout"})
+public class LogoutServlet extends HttpServlet {
+
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        request.getSession().removeAttribute("userName");
+        
+        response.sendRedirect("index.jsp");
+    }
 
     /**
      * Handles the HTTP <code>POST</code> method.
@@ -41,29 +57,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        String userName = request.getParameter("userName");        
-        if (userName == null || userName.isEmpty()) {
-             request.getRequestDispatcher("login.jsp").forward(request, response); 
-        }
-        else {
-            request.getSession().setAttribute("userName", userName);
-            response.sendRedirect("index.jsp");
-        }     
-    }
-    
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        request.getRequestDispatcher("login.jsp").forward(request, response);
+        throw new IllegalArgumentException("POST method");
     }
 
     /**
