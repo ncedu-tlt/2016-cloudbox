@@ -20,6 +20,7 @@
             </c:when>
             <c:otherwise>
                 <h1>Hello ${userName}</h1>
+                <p><a href="userFiles">Your file storage</a></p>
                 <p><a href="logout">Logout</a></p>
             </c:otherwise>
         </c:choose>
