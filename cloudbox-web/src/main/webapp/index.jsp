@@ -13,6 +13,7 @@
         <title>Home</title>
     </head>
     <body>
+        <c:redirect url="login"/>
         <c:choose>
             <c:when test="${empty userName}">
                 <h1>Who are you?</h1>
