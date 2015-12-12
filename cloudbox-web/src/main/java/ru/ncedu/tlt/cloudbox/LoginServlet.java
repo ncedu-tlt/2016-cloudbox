@@ -48,7 +48,7 @@ public class LoginServlet extends HttpServlet {
         }
         else {
             request.getSession().setAttribute("userName", userName);
-            response.sendRedirect("app.jsp");
+            response.sendRedirect("drive.jsp");
         }     
     }
     
