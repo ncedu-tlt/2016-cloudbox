@@ -18,6 +18,8 @@
         <!--<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>-->
         <link href="lib/bootstrap/css/bootstrap-paper.min.css" rel="stylesheet"/>
         <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        
+        <link href="app/css/drive.css" rel="stylesheet">
 
 
         <script src="lib/jquery/jquery.min.js"></script>
@@ -99,8 +101,9 @@
                         <!--<div class="panel-body">-->
 
 
-
-                        <table class="table table-striped table-hover " style="overflow: auto">
+                        <div >
+                            
+                        <table class="table table-striped table-hover " >
                             <thead>
                                 <tr>
                                     <th><input type="text" class="form-control" placeholder="Поиск..."> </th>
@@ -110,7 +113,7 @@
                                             <option>JPG</option>
                                             <option>DOC</option>
                                         </select></th>
-                                    <th style="width: 150px">
+                                    <th >
                                         <div class="input-group date" data-provide="datepicker">
                                             <input type="text" class="form-control" value="31.12.15">
                                             <div class="input-group-addon">
@@ -122,12 +125,12 @@
                                     </th>
                                 </tr>
                                 <tr>
-                                    <th>Имя</th>
+                                    <th >Имя</th>
                                     <th>Расширение</th>
                                     <th>Дата</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody >
                                 <tr>
                                     <td>Война и мир</td>
                                     <td>doc</td>
@@ -376,7 +379,7 @@
                             </tbody>
                         </table>   
                         <!--</div>--> 
-
+</div>
                     </div>
 
 
@@ -384,7 +387,18 @@
                 </div>
 
                 <div class="col-lg-3">
-                    <div class="panel panel-default">
+                    <a href="#" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>
+                            <p>Файл.тхт</p>
+                            <a href="#" class="col-lg-3 col-lg-offset-6"><i class="fa fa-share-alt fa-3x"></i></a>
+                            <a href="#" class="col-lg-3"><i class="fa fa-trash fa-3x"></i></a>
+                            <div class="form-group">
+                                <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
+                                <div class="col-lg-12"style="padding: 0px">
+                                    <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
+                                </div>
+                            </div>
+                    
+<!--                    <div class="panel panel-default">
                         <div class="panel-body" style="padding: 7px">
                             <a href="#" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>
                             <p>Файл.тхт</p>
@@ -397,7 +411,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
 
                 </div>
 
