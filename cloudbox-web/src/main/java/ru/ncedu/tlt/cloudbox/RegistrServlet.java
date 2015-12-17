@@ -6,12 +6,13 @@
 package ru.ncedu.tlt.cloudbox;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import ru.ncedu.tlt.contorllers.UserController;
+import ru.ncedu.tlt.entity.User;
 
 /**
  *
@@ -31,12 +32,41 @@ public class RegistrServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String userName = request.getParameter("userName");
-         if (userName == null || userName.isEmpty()) {
-             request.getRequestDispatcher("registr.jsp").forward(request, response); 
-        }else if (userName != null || !userName.isEmpty()) {
-             response.sendRedirect("drive.jsp");
-        } 
+        String userId = request.getParameter("userId");
+
+        if (userName != null && userId != null) {
+            response.sendRedirect("drive.jsp");
+        }
+
+
+        String userNameNew = request.getParameter("regUserName");
+        String userPassNew = request.getParameter("regUserPass");
+        String userPassNew2 = request.getParameter("regUserPass");
+        String userEmailNew = request.getParameter("regEmail");
+
+
+        if (userNameNew == null || userPassNew == null || userPassNew2 == null || userEmailNew == null ||"".equals(userNameNew)||"".equals(userPassNew)||"".equals(userPassNew2)||"".equals(userEmailNew)) {
+            request.getRequestDispatcher("registr.jsp").forward(request, response);
+        }
+
+        if (!userPassNew.equals(userPassNew2)) {
+            request.getRequestDispatcher("registr.jsp").forward(request, response);
+        }
+
+        UserController uC = UserController.getInstance();
+
+        if (uC.isUserExist(userName)) {
+            request.getRequestDispatcher("registr.jsp").forward(request, response);
+        } else {
+
+            User user = uC.addUser(new User(0, userNameNew, userPassNew, userEmailNew));
+            System.out.println("new user " + user.toString());
+            request.getSession().setAttribute("userName", user.getName());
+            request.getSession().setAttribute("userId", user.getId());
+            response.sendRedirect("drive.jsp");
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

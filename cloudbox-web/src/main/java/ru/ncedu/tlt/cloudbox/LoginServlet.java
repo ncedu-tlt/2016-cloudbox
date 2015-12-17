@@ -16,12 +16,13 @@
 package ru.ncedu.tlt.cloudbox;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import ru.ncedu.tlt.contorllers.UserController;
+import ru.ncedu.tlt.entity.User;
 
 /**
  *
@@ -41,17 +42,24 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        String userName = request.getParameter("userName");
+        String userPass = request.getParameter("userPass");
         
-        String userName = request.getParameter("userName");        
-        if (userName == null || userName.isEmpty()) {
-             request.getRequestDispatcher("login.jsp").forward(request, response); 
-        }
-        else {
-            request.getSession().setAttribute("userName", userName);
+        UserController uC = UserController.getInstance();
+        
+        User user = uC.getUserByName(userName, userPass);
+      
+
+        if (user != null) {
+            request.getSession().setAttribute("userName", user.getName());
+            request.getSession().setAttribute("userId", user.getId());
             response.sendRedirect("drive.jsp");
-        }     
+        } else {
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+        }
     }
-    
+
     /**
      * Handles the HTTP <code>GET</code> method.
      *
