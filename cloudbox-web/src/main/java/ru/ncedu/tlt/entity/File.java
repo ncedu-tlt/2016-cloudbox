@@ -6,7 +6,6 @@
 package ru.ncedu.tlt.entity;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  *
@@ -19,7 +18,7 @@ public class File {
     private String ext;
     private String hash;
     private Date date;
-    private List<User> ownersList;
+    private Integer owner;
     
 
     public File() {
@@ -65,22 +64,17 @@ public class File {
         this.hash = hash;
     }
 
-    public List<User> getOwnersList() {
-        return ownersList;
+    public Integer getOwner() {
+        return owner;
     }
 
-    public void setOwnersList(List<User> ownersList) {
-        this.ownersList = ownersList;
-    }
-    
-    
-    public void addOwner(User user){
-        ownersList.add(user);
+    public void setOwner(Integer owner) {
+        this.owner = owner;
     }
 
     @Override
     public String toString() {
-        return "File{" + "id=" + id + ", name=" + name + ", ext=" + ext + ", date=" + date + '}';
+        return "File{" + "id=" + id + ", name=" + name + ", ext=" + ext + ", hash=" + hash + ", date=" + date + ", owner=" + owner + '}';
     }
     
     public String getJSON() {              // TODO перевести все на рельсы какой- нибудь библиотеки

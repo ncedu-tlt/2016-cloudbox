@@ -71,6 +71,7 @@ public class FileController {
 
             while (rs.next()) {
                 file.setId(rs.getInt("FILEID"));
+                file.setOwner(rs.getInt("FILEUSERID"));
                 file.setName(rs.getString("FILENAME"));
                 file.setExt(rs.getString("FILEEXT"));
                 file.setDate(rs.getTimestamp("FILEDATE"));
