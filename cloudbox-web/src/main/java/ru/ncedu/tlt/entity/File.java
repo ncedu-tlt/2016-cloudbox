@@ -83,6 +83,10 @@ public class File {
         return "File{" + "id=" + id + ", name=" + name + ", ext=" + ext + ", date=" + date + '}';
     }
     
+    public String getJSON() {              // TODO перевести все на рельсы какой- нибудь библиотеки
+        return "{\"id\":" + id + "," +"\"name\":" +"\""+ name +"\""+ "," + "\"ext\":" + "\"" + ext +  
+                "\"" + "," + "\"date\":" + "\"" + date.toString() + "\""+ '}';
+    }
     
     
 }
