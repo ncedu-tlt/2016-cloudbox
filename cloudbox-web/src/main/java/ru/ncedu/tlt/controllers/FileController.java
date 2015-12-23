@@ -44,7 +44,7 @@ public class FileController {
     public static FileController getInstance() {
         FileController localInstance = instance;
         if (localInstance == null) {
-            synchronized (UserController.class) {
+            synchronized (FileController.class) {
                 localInstance = instance;
                 if (localInstance == null) {
                     instance = localInstance = new FileController();
