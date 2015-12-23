@@ -24,6 +24,27 @@
 
         <script src="lib/jquery/jquery.min.js"></script>
         <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+        <script language="javascript" type="text/javascript">
+            xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = 
+            function()
+            {
+                if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                {
+                    console.log(xmlhttp.responseText);
+                    filesList = JSON.parse(xmlhttp.responseText);
+                    document.getElementById("fileTable").getElementsByTagName("tbody")[0].innerHTML = "";
+                    filesList.forEach(function(item, i, arr){
+                        var d = document.createElement('tr');
+                        console.log(item.id);
+                        d.innerHTML = "<td>" + item.name + "</td>" + "<td>" + item.ext + "</td>" + + "<td>" + item.date + "</td>";
+                        document.getElementById("fileTable").getElementsByTagName("tbody")[0].appendChild(d);
+                    });
+                }
+            };
+            xmlhttp.open("GET","http://localhost:8080/cloudbox-web/fileProcess/getFilesList",true);
+            xmlhttp.send();
+        </script>
     </head>
     <body>
 
@@ -103,7 +124,7 @@
 
                         <div >
                             
-                        <table class="table table-striped table-hover " >
+                        <table class="table table-striped table-hover " id="fileTable">
                             <thead>
                                 <tr>
                                     <th><input type="text" class="form-control" placeholder="Поиск..."> </th>
