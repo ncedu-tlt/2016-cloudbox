@@ -5,6 +5,11 @@
  */
 package ru.ncedu.tlt.controllers;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import ru.ncedu.tlt.entity.File;
 import ru.ncedu.tlt.entity.User;
@@ -15,8 +20,27 @@ import ru.ncedu.tlt.entity.User;
  */
 public class FileController {
     
+    private Connection dbConnection = null;
+    private Statement statement = null;
     private static volatile FileController instance;
     
+//-----Коннект к базе через JDBC
+    private Connection getDBConnection() {
+        try {
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+        } catch (ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+        try {
+            dbConnection = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:cloudbox","cloudbox","cloudbox");
+            return dbConnection;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return dbConnection;
+    }
+    
+//----Получение instance контроллера
     public static FileController getInstance() {
         FileController localInstance = instance;
         if (localInstance == null) {
@@ -29,7 +53,8 @@ public class FileController {
         }
         return localInstance;
     }
-//---    
+    
+//---Получение файла по айди
     public File getFileById(int fileId)
     {
         File file = new File();
@@ -38,8 +63,24 @@ public class FileController {
                 + "where fileid = "
                 + fileId
                 +";";
-        
-    return file;
+        try {
+            dbConnection = getDBConnection();
+            statement = dbConnection.createStatement();
+
+            ResultSet rs = statement.executeQuery(query);
+
+            while (rs.next()) {
+                file.setId(rs.getInt("FILEID"));
+                file.setOwner(rs.getInt("FILEUSERID"));
+                file.setName(rs.getString("FILENAME"));
+                file.setExt(rs.getString("FILEEXT"));
+                file.setDate(rs.getTimestamp("FILEDATE"));
+                file.setHash(rs.getString("FILEHASH"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return file;
     }
 
 //---    
@@ -118,7 +159,18 @@ public class FileController {
 //---    
     public void addFile(File file)
     {
-        String query = "";
+        String query = "insert into cb_file"
+                + "values ('"
+                + file.getName()
+                +"', '"
+                + file.getExt()
+                +"', "
+                + "SYSDATE"
+                +", '"
+                + file.getHash()
+                + "',"
+                + file.getOwner()
+                + ");";
         
     }
 

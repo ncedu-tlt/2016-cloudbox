@@ -125,14 +125,14 @@
                                     </th>
                                 </tr>
                                 <tr>
-                                    <th >Имя</th>
+                                    <th>Имя</th>
                                     <th>Расширение</th>
                                     <th>Дата</th>
                                 </tr>
                             </thead>
                             <tbody >
                                 <tr>
-                                    <td>Война и мир</td>
+                                    <td><a href="./filetest">Война и мир</a></td>
                                     <td>doc</td>
                                     <td>31.12.15</td>
                                 </tr>

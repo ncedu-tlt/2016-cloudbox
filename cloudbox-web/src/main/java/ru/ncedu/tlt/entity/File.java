@@ -6,7 +6,6 @@
 package ru.ncedu.tlt.entity;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  *
@@ -19,7 +18,7 @@ public class File {
     private String ext;
     private String hash;
     private Date date;
-    private User owner;
+    private Integer owner;
     
 
     public File() {
@@ -65,11 +64,11 @@ public class File {
         this.hash = hash;
     }
 
-    public User getOwner() {
+    public Integer getOwner() {
         return owner;
     }
 
-    public void setOwner(User owner) {
+    public void setOwner(Integer owner) {
         this.owner = owner;
     }
     
