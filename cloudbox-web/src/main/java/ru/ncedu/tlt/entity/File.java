@@ -19,7 +19,7 @@ public class File {
     private String ext;
     private String hash;
     private Date date;
-    private List<User> ownersList;
+    private User owner;
     
 
     public File() {
@@ -65,19 +65,14 @@ public class File {
         this.hash = hash;
     }
 
-    public List<User> getOwnersList() {
-        return ownersList;
+    public User getOwner() {
+        return owner;
     }
 
-    public void setOwnersList(List<User> ownersList) {
-        this.ownersList = ownersList;
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
     
-    
-    public void addOwner(User user){
-        ownersList.add(user);
-    }
-
     @Override
     public String toString() {
         return "File{" + "id=" + id + ", name=" + name + ", ext=" + ext + ", date=" + date + '}';

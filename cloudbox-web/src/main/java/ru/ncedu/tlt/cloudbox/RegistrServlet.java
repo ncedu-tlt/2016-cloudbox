@@ -11,7 +11,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import ru.ncedu.tlt.contorllers.UserController;
+import ru.ncedu.tlt.controllers.UserController;
 import ru.ncedu.tlt.entity.User;
 
 /**
