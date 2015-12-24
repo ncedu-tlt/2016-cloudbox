@@ -3,7 +3,6 @@
     Created on : Dec 13, 2015, 12:54:57 AM
     Author     : pavel.tretyakov
 --%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -23,24 +22,24 @@
         <script language="javascript" type="text/javascript">
             function getAllUsers()
             {
-            xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = 
-            function()
-            {
-                if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
-                {
-                    console.log(xmlhttp.responseText);
-                    usersList = JSON.parse(xmlhttp.responseText);
-                    document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = "";
-                    usersList.forEach(function(item, i, arr){
-                        var d = document.createElement('tr');
-                        console.log(item.id);
-                                    d.innerHTML = "<td>" + item.name + "</td>" + "<td>" + item.ext + "</td>" + +"<td>" + item.date + "</td>";
-                                    document.getElementById("contentTable").getElementsByTagName("tbody")[0].appendChild(d);
-                                });
-                            }
-                        };
-                xmlhttp.open("GET", "http://localhost:8080/cloudbox-web/fileProcess/getFilesList", true);
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange=function(){
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    {
+                        usersList = JSON.parse(xmlhttp.responseText);
+                        document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = usersList;
+                       
+                        
+                        usersList.forEach(function(item, i, arr)
+                        {
+                            var d = document.createElement('tr');
+                            console.log(item.id);
+                            d.innerHTML = "<td>" + item + "</td>" + "<td>" + item + "</td><td>" + item + "</td>";
+                            document.getElementById("contentTable").getElementsByTagName("tbody")[0].appendChild(d);
+                        });
+                    }
+                };
+                xmlhttp.open("GET", "./userProcess/getAllUsers", true);
                 xmlhttp.send();
             }
         </script>
@@ -94,8 +93,8 @@
             <div class="row">
                 
                 <div class="col-lg-2">
-                    <a href="#" class="btn btn-link col-lg-12" onclick="getAllUsers()">Пользователи</a>
-                    <a href="#" class="btn btn-link col-lg-12" onclick="getAllFiles()">Файлы</a>
+                    <p class="btn btn-link col-lg-12" onclick="getAllUsers()">Пользователи</p>
+                    <p class="btn btn-link col-lg-12" onclick="getAllFiles()">Файлы</p>
                 </div>
                 
                 <div class="col-lg-8">
