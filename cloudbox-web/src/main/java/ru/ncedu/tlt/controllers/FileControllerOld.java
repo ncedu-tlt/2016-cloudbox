@@ -18,11 +18,11 @@ import ru.ncedu.tlt.entity.User;
  *
  * @author pavel.tretyakov
  */
-public class FileController {
+public class FileControllerOld {
     
     private Connection dbConnection = null;
     private Statement statement = null;
-    private static volatile FileController instance;
+    private static volatile FileControllerOld instance;
     
 //-----Коннект к базе через JDBC
     private Connection getDBConnection() {
@@ -41,13 +41,13 @@ public class FileController {
     }
     
 //----Получение instance контроллера
-    public static FileController getInstance() {
-        FileController localInstance = instance;
+    public static FileControllerOld getInstance() {
+        FileControllerOld localInstance = instance;
         if (localInstance == null) {
-            synchronized (FileController.class) {
+            synchronized (FileControllerOld.class) {
                 localInstance = instance;
                 if (localInstance == null) {
-                    instance = localInstance = new FileController();
+                    instance = localInstance = new FileControllerOld();
                 }
             }
         }
