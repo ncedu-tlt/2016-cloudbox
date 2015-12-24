@@ -31,12 +31,54 @@
                         usersList.forEach(function(item, i, arr)
                         {
                             var d = document.createElement('tr');
-                            d.innerHTML = "<td>" +item.userPic + "</td>"+"<td>" +item.userName + "</td>"+"<td>" +item.userMail + "</td>";
+                            d.innerHTML = "<td>" +item.userPic + "</td>"+"<td onclick=\"getUserData("+item.userId+")\">" +item.userName + "</td>";
                             document.getElementById("contentTable").getElementsByTagName("tbody")[0].appendChild(d);
                         });
                     }
                 };
                 xmlhttp.open("GET", "./userProcess/getAllUsers", true);
+                xmlhttp.send();
+            }
+
+            function getUserData(userId)
+            {
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange=function(){
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    {
+                        document.getElementById("paramsTable").innerHTML = "";
+                        paramList = JSON.parse(xmlhttp.responseText);
+                        for(var key in paramList)
+                        {
+                            var d = document.createElement('p');
+                            d.innerHTML += key+"<input type=\"text\" size=20 value=\""+paramList[key]+"\">";
+                            document.getElementById("paramsTable").appendChild(d);
+                        }
+                    }
+                };
+                xmlhttp.open("GET", "./userProcess/getUserData?userId="+userId, true);
+                xmlhttp.send();
+            }
+
+            function getAllFiles()
+            {
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = 
+                function()
+                {
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    {
+                        filesList = JSON.parse(xmlhttp.responseText);
+                        document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = "";
+                        filesList.forEach(function(item, i, arr)
+                        {
+                            var d = document.createElement('tr');
+                            d.innerHTML = "<td>" + item.name + "</td>" + "<td>" + item.ext + "</td>" + + "<td>" + item.date + "</td>";
+                            document.getElementById("contentTable").getElementsByTagName("tbody")[0].appendChild(d);
+                        });
+                    }
+                };
+                xmlhttp.open("GET", "./fileProcess/getFilesList", true);
                 xmlhttp.send();
             }
         </script>
@@ -101,6 +143,13 @@
                             </tbody>
                         </table>                      
                     </div>
+                </div>
+                <div class="col-lg-3">
+                    <div id="paramsTable">
+                        <div>
+                            
+                        </div>
+                    </div>                      
                 </div>
             </div>
         </div>
