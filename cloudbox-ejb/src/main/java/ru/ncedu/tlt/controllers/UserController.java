@@ -5,13 +5,12 @@
  */
 package ru.ncedu.tlt.controllers;
 
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -102,6 +101,39 @@ public class UserController {
 
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
+    public ArrayList<User> getAllUsers() throws SQLException {
+        User user = null;
+        ArrayList<User> userList = new ArrayList<>();
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+        String query = "SELECT * FROM CB_USER";
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                user = new User();
+                user.setId(rs.getInt("USERID"));
+                user.setName(rs.getString("USERNAME"));
+                user.setEmail(rs.getString("USERMAIL"));
+                user.setHash(rs.getString("USERPASSHASH"));
+                user.setNote(rs.getString("USERNOTES"));
+                user.setPicPath(rs.getString("USERPIC"));
+                userList.add(user);
+            }
+        } catch (Exception e) {
+            System.out.println("findUser " + e.getMessage());
+            return null;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return userList;
+    }
+//----
     public User findUser(String userName) throws SQLException {
         User user = null;
 
