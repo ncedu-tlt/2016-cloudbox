@@ -21,8 +21,8 @@ import javax.ejb.Stateless;
 public class HashGenerator {
 
     //Используем метод 1
-    public boolean checkHash(String dateToCheck, String hash)   {
-        return hash.equals(generateHashMetod1(dateToCheck));
+    public boolean checkHash(String dataToCheck, String hash)   {
+        return hash.equals(generateHashMetod1(dataToCheck));
     }
     
     public String getHash(String toHash){

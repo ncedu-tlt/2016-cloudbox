@@ -109,13 +109,13 @@ public class UserController {
 
         PreparedStatement preparedStatement = null;
 
-        String query = "SELECT * FROM CB_USER WHERE UPPER(USERNAME) = ?";
+        String query = "SELECT * FROM CB_USER WHERE USERNAME = ?";
 
         
         System.out.println("trying to find user by name " +  userName);
         try {
             preparedStatement = connection.prepareStatement(query);
-            userName = userName.toUpperCase();
+           
             preparedStatement.setString(1, userName);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
