@@ -11,6 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.ejb.EJB;
 import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.servlet.ServletException;
@@ -42,11 +44,32 @@ public class UserControllerServlet extends HttpServlet {
             case "getAllUsers": {
                 ArrayList<User> userList;
                 try {
-                    JsonBuilderFactory factory = Json.createBuilderFactory(null);
                     userList = userController.getAllUsers();
+                    JsonBuilderFactory factory = Json.createBuilderFactory(null);
+                    JsonArrayBuilder jAB = factory.createArrayBuilder();
+                    JsonArray jA;
                     for (User user : userList)
                     {
-                        JsonObject jO = factory.createObjectBuilder()
+                        jAB.add(factory.createObjectBuilder()
+                            .add("userId", user.getId())
+                            .add("userName", user.getName())
+                        );
+                    }   
+                    jA=jAB.build();
+                    rs.print(jA);
+                } catch (SQLException ex) {
+                    System.out.println(ex);
+                }
+                break;
+            }
+            case "getUserData": 
+            {
+            try {
+                Integer userId = Integer.valueOf(request.getParameter("userId"));
+                System.out.println(userId);
+                User user = userController.findUser(userId);
+                JsonBuilderFactory factory = Json.createBuilderFactory(null);
+                JsonObject jO = factory.createObjectBuilder()
                             .add("userId", user.getId())
                             .add("userName", user.getName())
                             .add("userMail", user.getEmail())
@@ -54,15 +77,12 @@ public class UserControllerServlet extends HttpServlet {
                             .add("userNote", user.getNote())
                             .add("userPic", user.getPicPath())
                             .build();
-                        rs.print(jO);
-                    }   
-                } catch (SQLException ex) {
-                    System.out.println(ex);
-                }
-            }
-            case "getUser": 
+                rs.print(jO);
+            } catch (SQLException ex) 
             {
-                
+                System.out.println(ex);
+            }
+            break;
             }
         }
     }

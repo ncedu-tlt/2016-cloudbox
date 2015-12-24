@@ -26,20 +26,59 @@
                 xmlhttp.onreadystatechange=function(){
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
+                        document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = "";
                         usersList = JSON.parse(xmlhttp.responseText);
-                        document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = usersList;
-                       
-                        
                         usersList.forEach(function(item, i, arr)
                         {
                             var d = document.createElement('tr');
-                            console.log(item.id);
-                            d.innerHTML = "<td>" + item + "</td>" + "<td>" + item + "</td><td>" + item + "</td>";
+                            d.innerHTML = "<td>" +item.userPic + "</td>"+"<td onclick=\"getUserData("+item.userId+")\">" +item.userName + "</td>";
                             document.getElementById("contentTable").getElementsByTagName("tbody")[0].appendChild(d);
                         });
                     }
                 };
                 xmlhttp.open("GET", "./userProcess/getAllUsers", true);
+                xmlhttp.send();
+            }
+
+            function getUserData(userId)
+            {
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange=function(){
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    {
+                        document.getElementById("paramsTable").innerHTML = "";
+                        paramList = JSON.parse(xmlhttp.responseText);
+                        for(var key in paramList)
+                        {
+                            var d = document.createElement('p');
+                            d.innerHTML += key+"<input type=\"text\" size=20 value=\""+paramList[key]+"\">";
+                            document.getElementById("paramsTable").appendChild(d);
+                        }
+                    }
+                };
+                xmlhttp.open("GET", "./userProcess/getUserData?userId="+userId, true);
+                xmlhttp.send();
+            }
+
+            function getAllFiles()
+            {
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = 
+                function()
+                {
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    {
+                        filesList = JSON.parse(xmlhttp.responseText);
+                        document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = "";
+                        filesList.forEach(function(item, i, arr)
+                        {
+                            var d = document.createElement('tr');
+                            d.innerHTML = "<td>" + item.name + "</td>" + "<td>" + item.ext + "</td>" + + "<td>" + item.date + "</td>";
+                            document.getElementById("contentTable").getElementsByTagName("tbody")[0].appendChild(d);
+                        });
+                    }
+                };
+                xmlhttp.open("GET", "./fileProcess/getFilesList", true);
                 xmlhttp.send();
             }
         </script>
@@ -100,32 +139,17 @@
                 <div class="col-lg-8">
                     <div class="panel panel-default">
                         <table id="contentTable" class="table table-striped table-hover " cellspacing="0" width="80%">
-                            <thead>
-                                <tr>
-                                    <th>Заголовок раз</th>
-                                    <th>Второй заголовок</th>
-                                    <th>Последний заголовок</th>
-                                </tr>
-                            </thead>
                             <tbody>
-                                <tr>
-                                    <td>Котики</td>
-                                    <td>.jpg</td>
-                                    <td>11.11.2015</td>
-                                </tr>
-                                <tr>
-                                    <td>Владимирский централ</td>
-                                    <td>.mp3</td>
-                                    <td>10.10.2014</td>
-                                </tr>
-                                <tr>
-                                    <td>ХХХ</td>
-                                    <td>.doc</td>
-                                    <td>20.06.2015</td>
-                                </tr>
                             </tbody>
                         </table>                      
                     </div>
+                </div>
+                <div class="col-lg-3">
+                    <div id="paramsTable">
+                        <div>
+                            
+                        </div>
+                    </div>                      
                 </div>
             </div>
         </div>

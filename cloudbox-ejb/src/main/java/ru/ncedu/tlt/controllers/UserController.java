@@ -136,18 +136,12 @@ public class UserController {
 //----
     public User findUser(String userName) throws SQLException {
         User user = null;
-
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
-
         PreparedStatement preparedStatement = null;
-
         String query = "SELECT * FROM CB_USER WHERE USERNAME = ?";
-
-        
         System.out.println("trying to find user by name " +  userName);
         try {
             preparedStatement = connection.prepareStatement(query);
-           
             preparedStatement.setString(1, userName);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
@@ -166,19 +160,48 @@ public class UserController {
             if (preparedStatement != null) {
                 preparedStatement.close();
             }
-
             if (connection != null) {
                 connection.close();
             }
-
         }
-
         return user;
-
     }
 
     public boolean login(User user) {
         return hg.checkHash(user.getPass(), user.getHash());
 
+    }
+
+    public User findUser(Integer userId) throws SQLException {
+        User user = null;
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+        String query = "SELECT * FROM CB_USER WHERE USERID = ?";
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, userId);
+            System.out.println();
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                user = new User();
+                user.setId(rs.getInt("USERID"));
+                user.setName(rs.getString("USERNAME"));
+                user.setEmail(rs.getString("USERMAIL"));
+                user.setHash(rs.getString("USERPASSHASH"));
+                user.setNote(rs.getString("USERNOTES"));
+                user.setPicPath(rs.getString("USERPIC"));
+                
+            }
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return user;
     }
 }
