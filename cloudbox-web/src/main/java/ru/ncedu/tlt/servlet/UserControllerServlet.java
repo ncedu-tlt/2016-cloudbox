@@ -11,8 +11,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.ejb.EJB;
 import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -43,19 +44,21 @@ public class UserControllerServlet extends HttpServlet {
                 ArrayList<User> userList;
                 try {
                     JsonBuilderFactory factory = Json.createBuilderFactory(null);
+                    JsonArrayBuilder jAB = factory.createArrayBuilder();
+                    JsonArray jA;
                     userList = userController.getAllUsers();
                     for (User user : userList)
                     {
-                        JsonObject jO = factory.createObjectBuilder()
+                        jAB.add(factory.createObjectBuilder()
                             .add("userId", user.getId())
                             .add("userName", user.getName())
                             .add("userMail", user.getEmail())
                             .add("userHash", user.getHash())
                             .add("userNote", user.getNote())
-                            .add("userPic", user.getPicPath())
-                            .build();
-                        rs.print(jO);
+                            .add("userPic", user.getPicPath()));
                     }   
+                    jA=jAB.build();
+                    rs.print(jA);
                 } catch (SQLException ex) {
                     System.out.println(ex);
                 }

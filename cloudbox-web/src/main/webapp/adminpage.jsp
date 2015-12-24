@@ -26,15 +26,12 @@
                 xmlhttp.onreadystatechange=function(){
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
+                        document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = "";
                         usersList = JSON.parse(xmlhttp.responseText);
-                        document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = usersList;
-                       
-                        
                         usersList.forEach(function(item, i, arr)
                         {
                             var d = document.createElement('tr');
-                            console.log(item.id);
-                            d.innerHTML = "<td>" + item + "</td>" + "<td>" + item + "</td><td>" + item + "</td>";
+                            d.innerHTML = "<td>" +item.userPic + "</td>"+"<td>" +item.userName + "</td>"+"<td>" +item.userMail + "</td>";
                             document.getElementById("contentTable").getElementsByTagName("tbody")[0].appendChild(d);
                         });
                     }
@@ -100,29 +97,7 @@
                 <div class="col-lg-8">
                     <div class="panel panel-default">
                         <table id="contentTable" class="table table-striped table-hover " cellspacing="0" width="80%">
-                            <thead>
-                                <tr>
-                                    <th>Заголовок раз</th>
-                                    <th>Второй заголовок</th>
-                                    <th>Последний заголовок</th>
-                                </tr>
-                            </thead>
                             <tbody>
-                                <tr>
-                                    <td>Котики</td>
-                                    <td>.jpg</td>
-                                    <td>11.11.2015</td>
-                                </tr>
-                                <tr>
-                                    <td>Владимирский централ</td>
-                                    <td>.mp3</td>
-                                    <td>10.10.2014</td>
-                                </tr>
-                                <tr>
-                                    <td>ХХХ</td>
-                                    <td>.doc</td>
-                                    <td>20.06.2015</td>
-                                </tr>
                             </tbody>
                         </table>                      
                     </div>
