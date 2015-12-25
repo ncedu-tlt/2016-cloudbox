@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -51,8 +53,8 @@ public class UserControllerServlet extends HttpServlet {
                     for (User user : userList)
                     {
                         jAB.add(factory.createObjectBuilder()
-                            .add("userId", user.getId())
-                            .add("userName", user.getName())
+                            .add("USERID", user.getId())
+                            .add("USERNAME", user.getName())
                         );
                     }   
                     jA=jAB.build();
@@ -69,12 +71,12 @@ public class UserControllerServlet extends HttpServlet {
                 User user = userController.findUser(userId);
                 JsonBuilderFactory factory = Json.createBuilderFactory(null);
                 JsonObject jO = factory.createObjectBuilder()
-                            .add("userId", user.getId())
-                            .add("userName", user.getName())
-                            .add("userMail", user.getEmail())
-                            .add("userHash", user.getHash())
-                            .add("userNote", user.getNote())
-                            .add("userPic", user.getPicPath())
+                            .add("USERID", user.getId())
+                            .add("USERNAME", user.getName())
+                            .add("USERMAIL", user.getEmail())
+                            .add("USERPASSHASH", user.getHash())
+                            .add("USERNOTES", user.getNote())
+                            .add("USERPIC", user.getPicPath())
                             .build();
                 rs.print(jO);
             } catch (SQLException ex) 
@@ -82,6 +84,18 @@ public class UserControllerServlet extends HttpServlet {
                 System.out.println(ex);
             }
             break;
+            }
+            case "updateUserData":
+            {
+            try {
+                Integer userId = Integer.valueOf(request.getParameter("userId"));
+                String column = request.getParameter("column");
+                String value = request.getParameter("value");
+                userController.updateUserData(userId, column, value);
+                break;
+            } catch (SQLException ex) {
+                Logger.getLogger(UserControllerServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
             }
         }
     }

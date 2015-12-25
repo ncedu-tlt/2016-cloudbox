@@ -29,11 +29,12 @@
                     {
                         var contentTable = document.getElementById("contentTable");
                         contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
+//                        contentTable.innerHTML=xmlhttp.responseText;
                         usersList = JSON.parse(xmlhttp.responseText);
                         usersList.forEach(function(item, i, arr)
                         {
                             var d = document.createElement('tr');
-                            d.innerHTML = "<td onclick=\"getUserData("+item.userId+")\">" +item.userName + "</td>";
+                            d.innerHTML = "<td onclick=\"getUserData("+item.USERID+")\">" +item.USERNAME + "</td>";
                             contentTable.getElementsByTagName("tbody")[0].appendChild(d);
                         });
                     }
@@ -54,12 +55,32 @@
                         for(var key in paramList)
                         {
                             var d = document.createElement('tr');
-                            d.innerHTML += "<td><input title=\""+key+"\" type=\"text\" value=\""+paramList[key]+"\"></td>";
+                            d.innerHTML += "<td><input onchange=\"updateUserData()\" id="+key+" title=\""+key+"\" type=\"text\" value=\""+paramList[key]+"\"></td>";
                             paramsTable.appendChild(d);
                         }
                     }
                 };
                 xmlhttp.open("GET", "./userProcess/getUserData?userId="+userId, true);
+                xmlhttp.send();
+            }
+//---------
+            function updateUserData()
+            {
+                var userId = document.getElementById("USERID").value;
+                var elem = window.event.target;
+                var column = elem.id;
+                var value = elem.value;
+                var link = "./userProcess/updateUserData?userId="+userId
+                        +"&column="+column
+                        +"&value="+value;
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange=function(){
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    {
+                       getAllUsers();
+                    }
+                    };
+                xmlhttp.open("GET", link, true);
                 xmlhttp.send();
             }
 //---------
