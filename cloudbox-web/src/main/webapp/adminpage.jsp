@@ -26,13 +26,14 @@
                 xmlhttp.onreadystatechange=function(){
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
-                        document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = "";
+                        var contentTable = document.getElementById("contentTable");
+                        contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
                         usersList = JSON.parse(xmlhttp.responseText);
                         usersList.forEach(function(item, i, arr)
                         {
                             var d = document.createElement('tr');
                             d.innerHTML = "<td>" +item.userPic + "</td>"+"<td onclick=\"getUserData("+item.userId+")\">" +item.userName + "</td>";
-                            document.getElementById("contentTable").getElementsByTagName("tbody")[0].appendChild(d);
+                            contentTable.getElementsByTagName("tbody")[0].appendChild(d);
                         });
                     }
                 };
@@ -50,8 +51,8 @@
                         paramList = JSON.parse(xmlhttp.responseText);
                         for(var key in paramList)
                         {
-                            var d = document.createElement('p');
-                            d.innerHTML += key+"<input type=\"text\" size=20 value=\""+paramList[key]+"\">";
+                            var d = document.createElement('tr');
+                            d.innerHTML += "<td><input title=\""+key+"\" type=\"text\" size=20 value=\""+paramList[key]+"\"></td>";
                             document.getElementById("paramsTable").appendChild(d);
                         }
                     }
@@ -69,12 +70,13 @@
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
                         filesList = JSON.parse(xmlhttp.responseText);
-                        document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = "";
+                        var contentTable = document.getElementById("contentTable");
+                        contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
                         filesList.forEach(function(item, i, arr)
                         {
                             var d = document.createElement('tr');
                             d.innerHTML = "<td>" + item.name + "</td>" + "<td>" + item.ext + "</td>" + + "<td>" + item.date + "</td>";
-                            document.getElementById("contentTable").getElementsByTagName("tbody")[0].appendChild(d);
+                            contentTable.getElementsByTagName("tbody")[0].appendChild(d);
                         });
                     }
                 };
@@ -136,7 +138,7 @@
                     <p class="btn btn-link col-lg-12" onclick="getAllFiles()">Файлы</p>
                 </div>
                 
-                <div class="col-lg-8">
+                <div class="col-lg-6">
                     <div class="panel panel-default">
                         <table id="contentTable" class="table table-striped table-hover " cellspacing="0" width="80%">
                             <tbody>
@@ -144,12 +146,11 @@
                         </table>                      
                     </div>
                 </div>
-                <div class="col-lg-3">
-                    <div id="paramsTable">
-                        <div>
-                            
-                        </div>
-                    </div>                      
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <table id="paramsTable" class="table table-striped table-hover">
+                        </table>                      
+                    </div>
                 </div>
             </div>
         </div>
