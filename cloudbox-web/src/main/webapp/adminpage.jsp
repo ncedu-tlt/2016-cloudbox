@@ -20,6 +20,7 @@
         <script src="lib/bootstrap/js/bootstrap.min.js"></script>
         
         <script language="javascript" type="text/javascript">
+//---------            
             function getAllUsers()
             {
                 xmlhttp = new XMLHttpRequest();
@@ -32,7 +33,7 @@
                         usersList.forEach(function(item, i, arr)
                         {
                             var d = document.createElement('tr');
-                            d.innerHTML = "<td>" +item.userPic + "</td>"+"<td onclick=\"getUserData("+item.userId+")\">" +item.userName + "</td>";
+                            d.innerHTML = "<td onclick=\"getUserData("+item.userId+")\">" +item.userName + "</td>";
                             contentTable.getElementsByTagName("tbody")[0].appendChild(d);
                         });
                     }
@@ -40,27 +41,28 @@
                 xmlhttp.open("GET", "./userProcess/getAllUsers", true);
                 xmlhttp.send();
             }
-
+//---------
             function getUserData(userId)
             {
                 xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange=function(){
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
-                        document.getElementById("paramsTable").innerHTML = "";
+                        var paramsTable = document.getElementById("paramsTable");
+                        paramsTable.innerHTML = "";
                         paramList = JSON.parse(xmlhttp.responseText);
                         for(var key in paramList)
                         {
                             var d = document.createElement('tr');
-                            d.innerHTML += "<td><input title=\""+key+"\" type=\"text\" size=20 value=\""+paramList[key]+"\"></td>";
-                            document.getElementById("paramsTable").appendChild(d);
+                            d.innerHTML += "<td><input title=\""+key+"\" type=\"text\" value=\""+paramList[key]+"\"></td>";
+                            paramsTable.appendChild(d);
                         }
                     }
                 };
                 xmlhttp.open("GET", "./userProcess/getUserData?userId="+userId, true);
                 xmlhttp.send();
             }
-
+//---------
             function getAllFiles()
             {
                 xmlhttp = new XMLHttpRequest();
@@ -75,7 +77,7 @@
                         filesList.forEach(function(item, i, arr)
                         {
                             var d = document.createElement('tr');
-                            d.innerHTML = "<td>" + item.name + "</td>" + "<td>" + item.ext + "</td>" + + "<td>" + item.date + "</td>";
+                            d.innerHTML = "<td onclick=\"getFileData("+item.id+")\">" + item.name + "</td>" + "<td>" + item.ext + "</td>" + + "<td>" + item.date + "</td>";
                             contentTable.getElementsByTagName("tbody")[0].appendChild(d);
                         });
                     }
@@ -83,12 +85,29 @@
                 xmlhttp.open("GET", "./fileProcess/getFilesList", true);
                 xmlhttp.send();
             }
+//---------
+            function getFileData(fileId)
+            {
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange=function(){
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    {
+                        var paramsTable = document.getElementById("paramsTable");
+                        paramsTable.innerHTML = "";
+                        paramList = JSON.parse(xmlhttp.responseText);
+                        for(var key in paramList)
+                        {
+                            var d = document.createElement('tr');
+                            d.innerHTML += "<td><input title=\""+key+"\" type=\"text\" value=\""+paramList[key]+"\"></td>";
+                            paramsTable.appendChild(d);
+                        }
+                    }
+                };
+                xmlhttp.open("GET", "./fileProcess/getFileData?fileId="+fileId, true);
+                xmlhttp.send();
+            }
+//---------
         </script>
-
-        
-        
-        
-        
     </head>
     <body>
         <div class="container">

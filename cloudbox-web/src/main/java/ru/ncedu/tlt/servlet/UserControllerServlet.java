@@ -66,7 +66,6 @@ public class UserControllerServlet extends HttpServlet {
             {
             try {
                 Integer userId = Integer.valueOf(request.getParameter("userId"));
-                System.out.println(userId);
                 User user = userController.findUser(userId);
                 JsonBuilderFactory factory = Json.createBuilderFactory(null);
                 JsonObject jO = factory.createObjectBuilder()

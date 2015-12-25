@@ -7,8 +7,15 @@ package ru.ncedu.tlt.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Date;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -16,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ru.ncedu.tlt.beans.FileWorkerBean;
 import ru.ncedu.tlt.entity.File;
+import ru.ncedu.tlt.entity.User;
 /**
  *
  * @author Andrey
@@ -70,8 +78,26 @@ public class FileControllerServlet extends HttpServlet{
                     rs.print(",");               
                 }
                 rs.print("{}]");                  // TODO убрать последнюю запятую
+                break;
             }
-            case "somthTODOwithFILES":{                
+            case "getFileData": 
+            {
+                try {
+                    Integer fileId = Integer.valueOf(request.getParameter("fileId"));
+                    File file = fileWorker.findFile(fileId);
+                    JsonBuilderFactory factory = Json.createBuilderFactory(null);
+                    JsonObject jO = factory.createObjectBuilder()
+                            .add("fileId", file.getId())
+                            .add("fileName", file.getName())
+                            .add("fileExt", file.getExt())
+                            .add("fileDate", String.valueOf(file.getDate()))
+                            .add("fileHash", file.getHash())
+                            .build();
+                    rs.print(jO);
+                    break;
+                } catch (SQLException ex) {
+                    System.out.println(ex);
+                }
             }
         }       
     }    
