@@ -7,7 +7,9 @@ package ru.ncedu.tlt.beans;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import javax.ejb.LocalBean;
@@ -22,8 +24,9 @@ import ru.ncedu.tlt.properties.PropertiesCB;
 @Stateless
 @LocalBean
 public class FileWorkerBean {           // TODO перенести бин в соответствующий проект, добавить зависимотей
-
-
+    
+    Connection connection;
+    
     public boolean deleteFile(String fileID){
         return true;
     }
@@ -33,25 +36,17 @@ public class FileWorkerBean {           // TODO перенести бин в с�
         TODO : change fake functionality with real
          */
         ArrayList<File> fileList= new ArrayList();
-
         String sqlQuery = "SELECT * FROM CB_FILE";
         String url = PropertiesCB.CB_JDBC_URL;
-        Connection connection = null;
         ResultSet result;
-
-        try {
-            System.out.println("try to get connection");
+         try {
             connection = DriverManager.getConnection(url);
             Statement statement = null;
-
             statement = connection.createStatement();
             //Выполним запрос
             result = statement.executeQuery(sqlQuery);
-
-            System.out.println("Выводим statement");
             while (result.next()) {
                 File file = new File();
-
                 file.setId(result.getInt("fileid"));
                 file.setName(result.getString("filename"));
                 file.setExt(result.getString("fileext"));
@@ -64,7 +59,71 @@ public class FileWorkerBean {           // TODO перенести бин в с�
             e.printStackTrace();
         }
         return fileList;
+    }
 
+    public File findFile(String fileName) throws SQLException
+    {
+        File file = null;
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+        String query = "SELECT * FROM CB_FILE WHERE FILENAME = ?";
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, fileName);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                file = new File();
+                file.setId(rs.getInt("FILEID"));
+                file.setName(rs.getString("FILENAME"));
+                file.setExt(rs.getString("FILEEXT"));
+                file.setDate(rs.getDate("FILEDATE"));
+                file.setHash(rs.getString("FILEHASH"));
+            }
+        } catch (Exception e) {
+            System.out.println("findFile " + e.getMessage());
+            return null;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return file;
+    }
+
+    public File findFile(Integer fileId) throws SQLException
+    {
+        File file = null;
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+        String query = "SELECT * FROM CB_FILE WHERE FILEID = ?";
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, fileId);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                file = new File();
+                file.setId(rs.getInt("FILEID"));
+                file.setName(rs.getString("FILENAME"));
+                file.setExt(rs.getString("FILEEXT"));
+                file.setDate(rs.getDate("FILEDATE"));
+                file.setHash(rs.getString("FILEHASH"));
+            }
+        } catch (Exception e) {
+            System.out.println("findFile " + e.getMessage());
+            return null;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return file;
+    }
         // <FAKE>
         /*
         File file1 = new File();
@@ -82,6 +141,5 @@ public class FileWorkerBean {           // TODO перенести бин в с�
         fileList.add(file2);
         
         return fileList;
-         */
-    }
+        */
 }

@@ -20,46 +20,70 @@
         <script src="lib/bootstrap/js/bootstrap.min.js"></script>
         
         <script language="javascript" type="text/javascript">
+//---------            
             function getAllUsers()
             {
                 xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange=function(){
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
-                        document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = "";
+                        var contentTable = document.getElementById("contentTable");
+                        contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
+//                        contentTable.innerHTML=xmlhttp.responseText;
                         usersList = JSON.parse(xmlhttp.responseText);
                         usersList.forEach(function(item, i, arr)
                         {
                             var d = document.createElement('tr');
-                            d.innerHTML = "<td>" +item.userPic + "</td>"+"<td onclick=\"getUserData("+item.userId+")\">" +item.userName + "</td>";
-                            document.getElementById("contentTable").getElementsByTagName("tbody")[0].appendChild(d);
+                            d.innerHTML = "<td onclick=\"getUserData("+item.USERID+")\">" +item.USERNAME + "</td>";
+                            contentTable.getElementsByTagName("tbody")[0].appendChild(d);
                         });
                     }
                 };
                 xmlhttp.open("GET", "./userProcess/getAllUsers", true);
                 xmlhttp.send();
             }
-
+//---------
             function getUserData(userId)
             {
                 xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange=function(){
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
-                        document.getElementById("paramsTable").innerHTML = "";
+                        var paramsTable = document.getElementById("paramsTable");
+                        paramsTable.innerHTML = "";
                         paramList = JSON.parse(xmlhttp.responseText);
                         for(var key in paramList)
                         {
-                            var d = document.createElement('p');
-                            d.innerHTML += key+"<input type=\"text\" size=20 value=\""+paramList[key]+"\">";
-                            document.getElementById("paramsTable").appendChild(d);
+                            var d = document.createElement('tr');
+                            d.innerHTML += "<td><input onchange=\"updateUserData()\" id="+key+" title=\""+key+"\" type=\"text\" value=\""+paramList[key]+"\"></td>";
+                            paramsTable.appendChild(d);
                         }
                     }
                 };
                 xmlhttp.open("GET", "./userProcess/getUserData?userId="+userId, true);
                 xmlhttp.send();
             }
-
+//---------
+            function updateUserData()
+            {
+                var userId = document.getElementById("USERID").value;
+                var elem = window.event.target;
+                var column = elem.id;
+                var value = elem.value;
+                var link = "./userProcess/updateUserData?userId="+userId
+                        +"&column="+column
+                        +"&value="+value;
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange=function(){
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    {
+                       getAllUsers();
+                    }
+                    };
+                xmlhttp.open("GET", link, true);
+                xmlhttp.send();
+            }
+//---------
             function getAllFiles()
             {
                 xmlhttp = new XMLHttpRequest();
@@ -69,24 +93,42 @@
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
                         filesList = JSON.parse(xmlhttp.responseText);
-                        document.getElementById("contentTable").getElementsByTagName("tbody")[0].innerHTML = "";
+                        var contentTable = document.getElementById("contentTable");
+                        contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
                         filesList.forEach(function(item, i, arr)
                         {
                             var d = document.createElement('tr');
-                            d.innerHTML = "<td>" + item.name + "</td>" + "<td>" + item.ext + "</td>" + + "<td>" + item.date + "</td>";
-                            document.getElementById("contentTable").getElementsByTagName("tbody")[0].appendChild(d);
+                            d.innerHTML = "<td onclick=\"getFileData("+item.id+")\">" + item.name + "</td>" + "<td>" + item.ext + "</td>" + + "<td>" + item.date + "</td>";
+                            contentTable.getElementsByTagName("tbody")[0].appendChild(d);
                         });
                     }
                 };
                 xmlhttp.open("GET", "./fileProcess/getFilesList", true);
                 xmlhttp.send();
             }
+//---------
+            function getFileData(fileId)
+            {
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange=function(){
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    {
+                        var paramsTable = document.getElementById("paramsTable");
+                        paramsTable.innerHTML = "";
+                        paramList = JSON.parse(xmlhttp.responseText);
+                        for(var key in paramList)
+                        {
+                            var d = document.createElement('tr');
+                            d.innerHTML += "<td><input title=\""+key+"\" type=\"text\" value=\""+paramList[key]+"\"></td>";
+                            paramsTable.appendChild(d);
+                        }
+                    }
+                };
+                xmlhttp.open("GET", "./fileProcess/getFileData?fileId="+fileId, true);
+                xmlhttp.send();
+            }
+//---------
         </script>
-
-        
-        
-        
-        
     </head>
     <body>
         <div class="container">
@@ -136,7 +178,7 @@
                     <p class="btn btn-link col-lg-12" onclick="getAllFiles()">Файлы</p>
                 </div>
                 
-                <div class="col-lg-8">
+                <div class="col-lg-6">
                     <div class="panel panel-default">
                         <table id="contentTable" class="table table-striped table-hover " cellspacing="0" width="80%">
                             <tbody>
@@ -144,12 +186,11 @@
                         </table>                      
                     </div>
                 </div>
-                <div class="col-lg-3">
-                    <div id="paramsTable">
-                        <div>
-                            
-                        </div>
-                    </div>                      
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <table id="paramsTable" class="table table-striped table-hover">
+                        </table>                      
+                    </div>
                 </div>
             </div>
         </div>
