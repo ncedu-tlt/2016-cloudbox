@@ -22,24 +22,24 @@ import ru.ncedu.tlt.properties.PropertiesCB;
 @Stateless
 @LocalBean
 public class FileWorkerBean {           // TODO перенести бин в соответствующий проект, добавить зависимотей
-    
-    
+
+
     public boolean deleteFile(String fileID){
         return true;
     }
-    
+
     public ArrayList<File> getFilesList(String userID){
         /*
         TODO : change fake functionality with real
-        */
+         */
         ArrayList<File> fileList= new ArrayList();
-        
+
         String sqlQuery = "SELECT * FROM CB_FILE";
         String url = PropertiesCB.CB_JDBC_URL;
         Connection connection = null;
         ResultSet result;
-                
-         try {
+
+        try {
             System.out.println("try to get connection");
             connection = DriverManager.getConnection(url);
             Statement statement = null;
@@ -47,24 +47,24 @@ public class FileWorkerBean {           // TODO перенести бин в с�
             statement = connection.createStatement();
             //Выполним запрос
             result = statement.executeQuery(sqlQuery);
-            
+
             System.out.println("Выводим statement");
             while (result.next()) {
                 File file = new File();
-                
+
                 file.setId(result.getInt("fileid"));
                 file.setName(result.getString("filename"));
                 file.setExt(result.getString("fileext"));
                 file.setDate(result.getDate("filedate"));
                 fileList.add(file);
-            }                               
+            }
          }
          catch(Exception e){
-             System.out.println(e.getMessage());
-             e.printStackTrace();
-         }
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
         return fileList;
-       
+
         // <FAKE>
         /*
         File file1 = new File();
@@ -82,6 +82,6 @@ public class FileWorkerBean {           // TODO перенести бин в с�
         fileList.add(file2);
         
         return fileList;
-        */
+         */
     }
 }

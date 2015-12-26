@@ -189,8 +189,7 @@ public class UserController {
                 user.setEmail(rs.getString("USERMAIL"));
                 user.setHash(rs.getString("USERPASSHASH"));
                 user.setNote(rs.getString("USERNOTES"));
-                user.setPicPath(rs.getString("USERPIC"));
-                
+                user.setPicPath(rs.getString("USERPIC"));               
             }
         } catch (Exception e) {
             return null;
