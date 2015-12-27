@@ -8,6 +8,7 @@ package ru.ncedu.tlt.servlet;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -80,6 +81,7 @@ public class RegistrServlet extends HttpServlet {
             request.getSession().setAttribute("userName", user.getName());
             request.getSession().setAttribute("userId", user.getId());
             request.getSession().setAttribute("logged", true);
+            request.getSession().setAttribute("userroles", user.rolesToString());
             response.sendRedirect("drive.jsp");
         }
     }

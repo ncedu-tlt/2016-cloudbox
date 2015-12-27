@@ -5,6 +5,8 @@
  */
 package ru.ncedu.tlt.entity;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -12,7 +14,7 @@ import java.util.List;
  * @author Andrew
  */
 public class User {
-    
+
     private Integer id;
     private String name;
     private String pass;
@@ -20,7 +22,7 @@ public class User {
     private String email;
     private String note;
     private String picPath;
-    
+
     private List<File> userFiles;
     private List<UserRole> userRoles;
 
@@ -34,9 +36,6 @@ public class User {
         this.email = email;
     }
 
-    
-    
-    
     public Integer getId() {
         return id;
     }
@@ -100,8 +99,8 @@ public class User {
     public void setUserFiles(List<File> userFiles) {
         this.userFiles = userFiles;
     }
-    
-    public void addFile(File file){
+
+    public void addFile(File file) {
         userFiles.add(file);
     }
 
@@ -112,8 +111,8 @@ public class User {
     public void setUserRoles(List<UserRole> userRoles) {
         this.userRoles = userRoles;
     }
-    
-    public void addRole(UserRole role){
+
+    public void addRole(UserRole role) {
         userRoles.add(role);
     }
 
@@ -121,8 +120,36 @@ public class User {
     public String toString() {
         return "User{" + "id=" + id + ", name=" + name + ", pass=" + pass + ", email=" + email + ", note=" + note + '}';
     }
-    
-    
-    
-    
+
+    public String rolesToString() {
+        StringBuilder roles = new StringBuilder();
+        for (int i = 0; i < userRoles.size(); i++) {
+            roles.append(userRoles.get(i).getId());
+
+            if (userRoles.size() - 1 != i) {
+                roles.append(",");
+            }
+
+        }
+
+        return roles.toString();
+    }
+
+    public List<UserRole> setUserRoles(String userRoles) {
+        ArrayList<UserRole> roles = new ArrayList<>();
+
+        List<String> roleStrString = Arrays.asList(userRoles.split(","));
+        for (String roleS : roleStrString) {
+            UserRole uRole = new UserRole();
+            uRole.setId(Integer.valueOf(roleS));
+            uRole.setName("");
+
+            roles.add(uRole);
+
+        }
+
+        return roles;
+
+    }
+
 }

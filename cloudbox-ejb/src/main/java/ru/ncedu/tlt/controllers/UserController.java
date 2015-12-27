@@ -18,6 +18,7 @@ import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import ru.ncedu.tlt.entity.User;
+import ru.ncedu.tlt.entity.UserRole;
 import ru.ncedu.tlt.hash.HashGenerator;
 import ru.ncedu.tlt.properties.PropertiesCB;
 
@@ -28,6 +29,9 @@ import ru.ncedu.tlt.properties.PropertiesCB;
 @Singleton
 @LocalBean
 public class UserController {
+
+    @EJB
+    private RoleController rC;
 
     @EJB
     HashGenerator hg;
@@ -41,7 +45,7 @@ public class UserController {
     public User createUser(User user) {
         user.setHash(hg.getHash(user.getPass()));
         user.setPass("");
-         System.out.println("getted userhash");
+        System.out.println("getted userhash");
 
         PreparedStatement preparedStatement = null;
 
@@ -49,9 +53,10 @@ public class UserController {
                 + "(USERMAIL, USERPASSHASH, USERSALT, USERNAME, USERNOTES, USERPIC) VALUES"
                 + "(?,?,?,?,?,?)";
 
+        int key = 0;
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
-            preparedStatement = connection.prepareStatement(insertTableSQL);
+            preparedStatement = connection.prepareStatement(insertTableSQL, Statement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setString(1, user.getEmail());
             preparedStatement.setString(2, user.getHash());
@@ -64,12 +69,16 @@ public class UserController {
             preparedStatement.executeUpdate();
 
             System.out.println("retriving new id for user");
-//            ResultSet rs = preparedStatement.getGeneratedKeys();
+            try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
+                keys.next();
+                
+                user.setId(keys.getInt(1));
+            }
+
 //            if (rs.next()) {
 //                System.out.println("rs int " + rs.getInt(1));
 //                user.setId(rs.getInt(1));
 //            }
-
             //обнуляем пароль
             System.out.println("Record is inserted into CB_USER table!");
 
@@ -96,12 +105,20 @@ public class UserController {
 
         }
 
+        //Установка ролей для нового пользователя
+        ArrayList<UserRole> userRoles = new ArrayList<>();
+        UserRole uRole = new UserRole();
+        uRole.setId(3);
+        userRoles.add(uRole);
+        userRoles = rC.setAndCreateUserRole(userRoles, user);
+        user.setUserRoles(userRoles);
+
         return user;
 
     }
 //------
-    public boolean login(User user) 
-    {
+
+    public boolean login(User user) {
         return hg.checkHash(user.getPass(), user.getHash());
     }
 
@@ -135,6 +152,7 @@ public class UserController {
         return userList;
     }
 //------
+
     public User findUser(String userName) throws SQLException {
         User user = null;
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -164,6 +182,9 @@ public class UserController {
                 connection.close();
             }
         }
+        
+        user.setUserRoles(rC.getUserRoles(user));
+        
         return user;
     }
 
@@ -177,8 +198,7 @@ public class UserController {
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
-            while (rs.next()) 
-            {
+            while (rs.next()) {
                 user = new User();
                 user.setId(rs.getInt("USERID"));
                 user.setName(rs.getString("USERNAME"));
@@ -187,7 +207,7 @@ public class UserController {
                 user.setNote(rs.getString("USERNOTES"));
                 user.setPicPath(rs.getString("USERPIC"));
             }
-            
+
         } catch (Exception e) {
             return null;
         } finally {
@@ -201,17 +221,17 @@ public class UserController {
         return user;
     }
 //------    
-    public void updateUserData(Integer userId, String column, String value) throws SQLException
-    {
+
+    public void updateUserData(Integer userId, String column, String value) throws SQLException {
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         Statement statement = connection.createStatement();
         String query = "UPDATE CB_USER"
-                + " SET "+column+"='"+value+"'"
-                + " WHERE USERID="+userId;
+                + " SET " + column + "='" + value + "'"
+                + " WHERE USERID=" + userId;
         try {
             statement.executeUpdate(query);
         } catch (Exception e) {
-            System.out.println("UpdateUser - "+query+e);
+            System.out.println("UpdateUser - " + query + e);
         } finally {
             if (statement != null) {
                 statement.close();
@@ -221,5 +241,5 @@ public class UserController {
             }
         }
     }
-    
+
 }
