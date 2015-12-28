@@ -16,7 +16,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.management.relation.Role;
 import ru.ncedu.tlt.entity.User;
 import ru.ncedu.tlt.entity.UserRole;
 import ru.ncedu.tlt.properties.PropertiesCB;
@@ -95,25 +94,27 @@ public class RoleController {
     }
 
     public List<UserRole> getUserRoles(User user) {
-        List<UserRole> roles = new ArrayList<UserRole>();
-        UserRole role = null;
-        
-        if(user.getId()==null)user.setId(-1);
-
-        String query = "SELECT * FROM CB_USERROLE WHERE UR_USERID = ?";
+        List<UserRole> roles = new ArrayList<>();
+        UserRole role;
+        if(user.getId()==null) 
+        {
+            user.setId(-1);
+        }
+        String query = "SELECT CB_USERROLE.UR_ROLEID, CB_ROLE.ROLELABEL "
+                + "FROM CB_USERROLE "
+                + "INNER JOIN CB_ROLE ON CB_USERROLE.UR_ROLEID = CB_ROLE.ROLEID "
+                + "WHERE UR_USERID = ? "
+                + "ORDER BY ROLEID";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
-            preparedStatement = null;
-
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, user.getId());
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 role = new UserRole();
-                role.setId(rs.getInt("UR_ROLEID"));
-                role.setName("");
+                role.setId(rs.getInt(1));
+                role.setName(rs.getString(2));
                 roles.add(role);
-
             }
         } catch (Exception e) {
             System.out.println("findUser " + e.getMessage());
@@ -122,8 +123,7 @@ public class RoleController {
                 role.setId(-1);
                 roles.add(role);
             }
-
-            return roles;
+          return roles;
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -151,4 +151,35 @@ public class RoleController {
         return roles;
     }
 
+//------
+    public List<UserRole> getAllUserRoles() throws SQLException {
+        UserRole role;
+        ArrayList<UserRole> rolesList = new ArrayList<>();
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        preparedStatement = null;
+        String query = "SELECT ROLEID, ROLELABEL FROM CB_ROLE ORDER BY ROLEID";
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                role = new UserRole();
+                role.setId(rs.getInt("ROLEID"));
+                role.setName(rs.getString("ROLELABEL"));
+                rolesList.add(role);
+            }
+        } catch (Exception e) {
+            System.out.println("getAllRoles " + e.getMessage());
+            return null;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return rolesList;
+    }
+    
+    
 }

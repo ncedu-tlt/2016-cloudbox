@@ -172,8 +172,8 @@ public class AuthFilter implements Filter {
         User user = new User();
         user.setUserRoles(userRoles);
 
-        System.out.println(" __ " + userRoles);
-        System.out.println("user filter logged roles : " + user.rolesToString());
+//        System.out.println(" __ " + userRoles);
+//        System.out.println("user filter logged roles : " + user.rolesToString());
 //        System.out.println("userId : " + userId);
 
         String url = req.getRequestURI();
@@ -182,15 +182,15 @@ public class AuthFilter implements Filter {
 
             if (!logged) {
                 if (url.contains("login") || url.contains("registr") || url.contains("lib") || url.contains("app")) {
-                    System.out.println("var1");
+//                    System.out.println("var1");
                     chain.doFilter(wrappedRequest, wrappedResponse);
                 } else {
-                    System.out.println("var2");
+//                    System.out.println("var2");
                     resp.sendRedirect(req.getServletContext().getContextPath() + "/login.jsp");
                 }
 
             } else if (logged) {
-                System.out.println("var logged");
+//                System.out.println("var logged");
                 if (url.contains("login")) {
                     resp.sendRedirect(req.getServletContext().getContextPath() + "/drive.jsp");
                 } else if (url.contains("logout")) {
@@ -206,7 +206,7 @@ public class AuthFilter implements Filter {
                 }
 
             } else {
-                System.out.println("redirected");
+//                System.out.println("redirected");
                 resp.sendRedirect(req.getServletContext().getContextPath() + "/login.jsp");
             }
 

@@ -48,7 +48,7 @@ public class UserController {
         user.setPass("");
         System.out.println("getted userhash");
 
-        PreparedStatement preparedStatement = null;
+        preparedStatement = null;
 
         String insertTableSQL = "INSERT INTO CB_USER"
                 + "(USERMAIL, USERPASSHASH, USERSALT, USERNAME, USERNOTES, USERPIC) VALUES"
@@ -128,7 +128,7 @@ public class UserController {
         User user = null;
         ArrayList<User> userList = new ArrayList<>();
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
-        PreparedStatement preparedStatement = null;
+        preparedStatement = null;
         String query = "SELECT USERID, USERNAME FROM CB_USER";
         try {
             preparedStatement = connection.prepareStatement(query);
@@ -204,12 +204,12 @@ public class UserController {
     public User findUser(Integer userId) throws SQLException {
         User user = null;
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
-        PreparedStatement preparedStatement = null;
+        PreparedStatement statement = null;
         String query = "SELECT * FROM CB_USER WHERE USERID = ?";
         try {
-            preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, userId);
-            ResultSet rs = preparedStatement.executeQuery();
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, userId);
+            ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 user = new User();
                 user.setId(rs.getInt("USERID"));
@@ -223,9 +223,9 @@ public class UserController {
         } catch (Exception e) {
             return null;
         } finally {
-            if (preparedStatement != null) {
+            if (statement != null) {
                 try {
-                    preparedStatement.close();
+                    statement.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
                 }

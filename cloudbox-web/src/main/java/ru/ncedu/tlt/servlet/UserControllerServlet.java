@@ -12,18 +12,21 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
-import javax.json.Json;
+import javax.json.*;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import ru.ncedu.tlt.controllers.RoleController;
 import ru.ncedu.tlt.controllers.UserController;
 import ru.ncedu.tlt.entity.User;
+import ru.ncedu.tlt.entity.UserRole;
 
 /**
  *
@@ -34,7 +37,9 @@ public class UserControllerServlet extends HttpServlet {
 
     @EJB
     UserController userController;
-    
+    @EJB
+    RoleController roleController;    
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -69,16 +74,42 @@ public class UserControllerServlet extends HttpServlet {
             try {
                 Integer userId = Integer.valueOf(request.getParameter("userId"));
                 User user = userController.findUser(userId);
+
+                ArrayList<UserRole> allRolesList = (ArrayList) roleController.getAllUserRoles();
+                ArrayList<UserRole> userRolesList = (ArrayList) user.getUserRoles();
                 JsonBuilderFactory factory = Json.createBuilderFactory(null);
-                JsonObject jO = factory.createObjectBuilder()
+                JsonObjectBuilder jOB = factory.createObjectBuilder();
+                        jOB
                             .add("USERID", user.getId())
                             .add("USERNAME", user.getName())
                             .add("USERMAIL", user.getEmail())
                             .add("USERPASSHASH", user.getHash())
                             .add("USERNOTES", user.getNote())
-                            .add("USERPIC", user.getPicPath())
-                            .build();
+                            .add("USERPIC", user.getPicPath());
+                            JsonArrayBuilder roles = factory.createArrayBuilder();
+                            UserRole role;
+                            for(int i=0; i<allRolesList.size();i++)
+                            {
+                                role=allRolesList.get(i);
+                                String c="";
+                                for(int j=0; j<userRolesList.size();j++)
+                                {
+                                    if(userRolesList.get(j).getId() == allRolesList.get(i).getId())
+                                    {
+                                        c = "checked";
+                                        break;
+                                    }
+                                }
+                                roles.add(factory.createObjectBuilder()
+                                            .add("ROLEID",role.getId())
+                                            .add("ROLENAME",role.getName())
+                                            .add("CHECKED",c)
+                                );
+                            }
+                        jOB.add("ROLES",roles);
+                        JsonObject jO = jOB.build();
                 rs.print(jO);
+                System.out.println(jO);
             } catch (SQLException ex) 
             {
                 System.out.println(ex);

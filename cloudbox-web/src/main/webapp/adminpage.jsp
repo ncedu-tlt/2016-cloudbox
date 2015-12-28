@@ -50,14 +50,24 @@
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
                         var paramsTable = document.getElementById("paramsTable");
-                        paramsTable.innerHTML = "";
+                        paramsTable.innerHTML = '';
                         paramList = JSON.parse(xmlhttp.responseText);
-                        for(var key in paramList)
+                        var d='';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERID" type="hidden" value="'+paramList.USERID+'"></td></tr>';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERNAME" type="text" value="'+paramList.USERNAME+'"></td></tr>';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERMAIL" type="text" value="'+paramList.USERMAIL+'"></td></tr>';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERPASSHASH" type="text" value="'+paramList.USERPASSHASH+'"></td></tr>';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERNOTES" type="text" value="'+paramList.USERNOTES+'"></td></tr>';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERPIC" type="text" value="'+paramList.USERPIC+'"></td></tr>';
+
+                        d+='<fieldset>';
+                        for(var key in paramList.ROLES)
                         {
-                            var d = document.createElement('tr');
-                            d.innerHTML += "<td><input onchange=\"updateUserData()\" id="+key+" title=\""+key+"\" type=\"text\" value=\""+paramList[key]+"\"></td>";
-                            paramsTable.appendChild(d);
+                            d+='<input '+paramList.ROLES[key].CHECKED+' type="checkbox" id="ROLEID'+paramList.ROLES[key].ROLEID+'">'
+                                    +paramList.ROLES[key].ROLENAME;
                         }
+                        d+='</fieldset>';
+                        paramsTable.innerHTML=d;
                     }
                 };
                 xmlhttp.open("GET", "./userProcess/getUserData?userId="+userId, true);
@@ -188,7 +198,9 @@
                 </div>
                 <div class="col-lg-4">
                     <div class="panel panel-default">
-                        <table id="paramsTable" class="table table-striped table-hover">
+                        <table id="paramsTable" class="table table-striped">
+                            <tbody>
+                            </tbody>
                         </table>                      
                     </div>
                 </div>
