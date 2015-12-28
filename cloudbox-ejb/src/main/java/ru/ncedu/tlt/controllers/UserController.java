@@ -36,6 +36,7 @@ public class UserController {
     @EJB
     HashGenerator hg;
 
+    PreparedStatement preparedStatement;
     Connection connection;
 
     public UserController() {
@@ -71,7 +72,7 @@ public class UserController {
             System.out.println("retriving new id for user");
             try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
                 keys.next();
-                
+
                 user.setId(keys.getInt(1));
             }
 
@@ -153,12 +154,14 @@ public class UserController {
     }
 //------
 
-    public User findUser(String userName) throws SQLException {
+    public User findUser(String userName) {
         User user = null;
-        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
-        PreparedStatement preparedStatement = null;
+
         String query = "SELECT * FROM CB_USER WHERE USERNAME = ?";
         try {
+            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            preparedStatement = null;
+
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, userName);
             ResultSet rs = preparedStatement.executeQuery();
@@ -171,20 +174,29 @@ public class UserController {
                 user.setNote(rs.getString("USERNOTES"));
                 user.setPicPath(rs.getString("USERPIC"));
             }
+
+            user.setUserRoles(rC.getUserRoles(user));
         } catch (Exception e) {
             System.out.println("findUser " + e.getMessage());
             return null;
         } finally {
             if (preparedStatement != null) {
-                preparedStatement.close();
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
+
             if (connection != null) {
-                connection.close();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
-        
-        user.setUserRoles(rC.getUserRoles(user));
-        
+
         return user;
     }
 
@@ -207,17 +219,28 @@ public class UserController {
                 user.setNote(rs.getString("USERNOTES"));
                 user.setPicPath(rs.getString("USERPIC"));
             }
-
+            user.setUserRoles(rC.getUserRoles(user));
         } catch (Exception e) {
             return null;
         } finally {
             if (preparedStatement != null) {
-                preparedStatement.close();
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
+
             if (connection != null) {
-                connection.close();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
+
+
         return user;
     }
 //------    
@@ -233,11 +256,20 @@ public class UserController {
         } catch (Exception e) {
             System.out.println("UpdateUser - " + query + e);
         } finally {
-            if (statement != null) {
-                statement.close();
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
+
             if (connection != null) {
-                connection.close();
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }

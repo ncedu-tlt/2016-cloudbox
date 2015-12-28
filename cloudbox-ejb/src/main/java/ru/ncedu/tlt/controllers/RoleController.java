@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.LocalBean;
@@ -93,13 +94,16 @@ public class RoleController {
         return userRoles;
     }
 
-   public ArrayList<UserRole> getUserRoles(User user) {
-        ArrayList<UserRole> roles = new ArrayList<>();
+    public List<UserRole> getUserRoles(User user) {
+        List<UserRole> roles = new ArrayList<UserRole>();
         UserRole role = null;
+        
+        if(user.getId()==null)user.setId(-1);
 
         String query = "SELECT * FROM CB_USERROLE WHERE UR_USERID = ?";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            preparedStatement = null;
 
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, user.getId());
@@ -113,7 +117,13 @@ public class RoleController {
             }
         } catch (Exception e) {
             System.out.println("findUser " + e.getMessage());
-            return null;
+            if (roles.isEmpty()) {
+                role = new UserRole();
+                role.setId(-1);
+                roles.add(role);
+            }
+
+            return roles;
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -130,6 +140,12 @@ public class RoleController {
                     Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+        }
+
+        if (roles.isEmpty()) {
+            role = new UserRole();
+            role.setId(-1);
+            roles.add(role);
         }
 
         return roles;

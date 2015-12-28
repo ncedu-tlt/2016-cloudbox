@@ -43,6 +43,8 @@ public class LogoutServlet extends HttpServlet {
 
         request.getSession().removeAttribute("userName");
         request.getSession().removeAttribute("userId");
+        request.getSession().removeAttribute("logged");
+        request.getSession().removeAttribute("userroles");
 
         response.sendRedirect("index.jsp");
     }

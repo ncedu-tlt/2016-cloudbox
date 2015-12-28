@@ -5,6 +5,8 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -18,7 +20,7 @@
         <!--<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>-->
         <link href="lib/bootstrap/css/bootstrap-paper.min.css" rel="stylesheet"/>
         <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-        
+
         <link href="app/css/drive.css" rel="stylesheet">
 
 
@@ -26,23 +28,23 @@
         <script src="lib/bootstrap/js/bootstrap.min.js"></script>
         <script language="javascript" type="text/javascript">
             xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = 
-            function()
-            {
-                if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
-                {
-                    console.log(xmlhttp.responseText);
-                    filesList = JSON.parse(xmlhttp.responseText);
-                    document.getElementById("fileTable").getElementsByTagName("tbody")[0].innerHTML = "";
-                    filesList.forEach(function(item, i, arr){
-                        var d = document.createElement('tr');
-                        console.log(item.id);
-                        d.innerHTML = "<td>" + item.name + "</td>" + "<td>" + item.ext + "</td>" + + "<td>" + item.date + "</td>";
-                        document.getElementById("fileTable").getElementsByTagName("tbody")[0].appendChild(d);
-                    });
-                }
-            };
-            xmlhttp.open("GET","http://localhost:8080/cloudbox-web/fileProcess/getFilesList",true);
+            xmlhttp.onreadystatechange =
+                    function ()
+                    {
+                        if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                        {
+                            console.log(xmlhttp.responseText);
+                            filesList = JSON.parse(xmlhttp.responseText);
+                            document.getElementById("fileTable").getElementsByTagName("tbody")[0].innerHTML = "";
+                            filesList.forEach(function (item, i, arr) {
+                                var d = document.createElement('tr');
+                                console.log(item.id);
+                                d.innerHTML = "<td>" + item.name + "</td>" + "<td>" + item.ext + "</td>" + +"<td>" + item.date + "</td>";
+                                document.getElementById("fileTable").getElementsByTagName("tbody")[0].appendChild(d);
+                            });
+                        }
+                    };
+            xmlhttp.open("GET", "http://localhost:8080/cloudbox-web/fileProcess/getFilesList", true);
             xmlhttp.send();
         </script>
     </head>
@@ -69,23 +71,26 @@
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <ul class="nav navbar-nav">
                             <li class="active"><a href="#">Мой диск<span class="sr-only">(current)</span></a></li>
-                            <li class="active">
+                            <!--                            <li class="active">-->
 
 
-                                <div class="col-lg-12" style="margin-top: 8px">
-                                    <select class="form-control" id="select">
+                            <!--                                <div class="col-lg-12" style="margin-top: 8px">
+                                                                <select class="form-control" id="select">
+                            
+                                                                    <option> Мой диск</option>
+                                                                    <option>Диск пользователя 1</option>
+                                                                    <option>Диск пользователя 2</option>
+                                                                    <option>Диск пользователя 3</option>
+                                                                    <option>Диск пользователя 4</option>
+                                                                    <option>Диск пользователя 5</option>
+                                                                </select>
+                                                            </div>-->
 
-                                        <option> Мой диск</option>
-                                        <option>Диск пользователя 1</option>
-                                        <option>Диск пользователя 2</option>
-                                        <option>Диск пользователя 3</option>
-                                        <option>Диск пользователя 4</option>
-                                        <option>Диск пользователя 5</option>
-                                    </select>
-                                </div>
-
-                            </li>
-                            <li><a href="adminpage.jsp">Администрирование</a></li>
+                            <!--</li>-->
+                            <c:set var="theString" value="${userroles}"/>
+                            <c:if test="${fn:contains(theString, '1')}">
+                                <li><a href="adminpage.jsp">Администрирование</a></li>
+                            </c:if>
 
                         </ul>
 
@@ -121,63 +126,63 @@
                     <div class="panel panel-default">
                         <!--<div class="panel-body">-->
                         <div>
-                        <table class="table table-striped table-hover " id="fileTable">
-                            <thead>
-                                <tr>
-                                    <th><input type="text" class="form-control" placeholder="Поиск..."> </th>
-                                    <th><select class="form-control" id="select">
-                                            <option>Все</option>
-                                            <option>TXT</option>
-                                            <option>JPG</option>
-                                            <option>DOC</option>
-                                        </select></th>
-                                    <th >
-                                        <div class="input-group date" data-provide="datepicker">
-                                            <input type="text" class="form-control" value="31.12.15">
-                                            <div class="input-group-addon">
-                                                <span class="glyphicon glyphicon-th"></span>
-                                            </div>
-                                        </div>  
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th >Имя</th>
-                                    <th>Расширение</th>
-                                    <th>Дата</th>
-                                </tr>
-                            </thead>
-                            <tbody >
-                            </tbody>
-                        </table>   
+                            <table class="table table-striped table-hover " id="fileTable">
+                                <thead>
+                                    <tr>
+                                        <th><input type="text" class="form-control" placeholder="Поиск..."> </th>
+                                        <th><select class="form-control" id="select">
+                                                <option>Все</option>
+                                                <option>TXT</option>
+                                                <option>JPG</option>
+                                                <option>DOC</option>
+                                            </select></th>
+                                        <th >
+                                            <div class="input-group date" data-provide="datepicker">
+                                                <input type="text" class="form-control" value="31.12.15">
+                                                <div class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-th"></span>
+                                                </div>
+                                            </div>  
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th >Имя</th>
+                                        <th>Расширение</th>
+                                        <th>Дата</th>
+                                    </tr>
+                                </thead>
+                                <tbody >
+                                </tbody>
+                            </table>   
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-3">
                     <a href="#" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>
-                            <p>Файл.тхт</p>
-                            <a href="#" class="col-lg-3 col-lg-offset-6"><i class="fa fa-share-alt fa-3x"></i></a>
-                            <a href="#" class="col-lg-3"><i class="fa fa-trash fa-3x"></i></a>
-                            <div class="form-group">
-                                <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
-                                <div class="col-lg-12"style="padding: 0px">
-                                    <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
-                                </div>
-                            </div>
-                    
-<!--                    <div class="panel panel-default">
-                        <div class="panel-body" style="padding: 7px">
-                            <a href="#" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>
-                            <p>Файл.тхт</p>
-                            <a href="#" class="col-lg-3 col-lg-offset-6"><i class="fa fa-share-alt fa-3x"></i></a>
-                            <a href="#" class="col-lg-3"><i class="fa fa-trash fa-3x"></i></a>
-                            <div class="form-group">
-                                <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
-                                <div class="col-lg-12"style="padding: 0px">
-                                    <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
-                                </div>
-                            </div>
+                    <p>Файл.тхт</p>
+                    <a href="#" class="col-lg-3 col-lg-offset-6"><i class="fa fa-share-alt fa-3x"></i></a>
+                    <a href="#" class="col-lg-3"><i class="fa fa-trash fa-3x"></i></a>
+                    <div class="form-group">
+                        <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
+                        <div class="col-lg-12"style="padding: 0px">
+                            <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
                         </div>
-                    </div>-->
+                    </div>
+
+                    <!--                    <div class="panel panel-default">
+                                            <div class="panel-body" style="padding: 7px">
+                                                <a href="#" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>
+                                                <p>Файл.тхт</p>
+                                                <a href="#" class="col-lg-3 col-lg-offset-6"><i class="fa fa-share-alt fa-3x"></i></a>
+                                                <a href="#" class="col-lg-3"><i class="fa fa-trash fa-3x"></i></a>
+                                                <div class="form-group">
+                                                    <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
+                                                    <div class="col-lg-12"style="padding: 0px">
+                                                        <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>-->
 
                 </div>
 

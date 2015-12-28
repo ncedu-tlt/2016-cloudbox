@@ -17,7 +17,6 @@ package ru.ncedu.tlt.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -55,30 +54,27 @@ public class LoginServlet extends HttpServlet {
         String userPass = request.getParameter("userPass");
 
         User user = null;
-        try {
-            user = ucEjb.findUser(userName);
-
-            if (user != null) {
-                System.out.println("finded user " + user.toString());
-                user.setPass(userPass);
-                if (!ucEjb.login(user)) {
-                    user = null;
-                }
+        if (userName != null) {
+            if (!"".equals(userName)) {
+                user = ucEjb.findUser(userName);
             }
+        }
 
-        } catch (SQLException ex) {
-            Logger.getLogger(LoginServlet.class.getName()).log(Level.SEVERE, null, ex);
+        if (user != null) {
+            System.out.println("finded user " + user.toString());
+            user.setPass(userPass);
+            if (!ucEjb.login(user)) {
+                user = null;
+            }
         }
 
         if (user != null) {
             System.out.println("user logged roles: " + user.rolesToString());
-            
+
             request.getSession().setAttribute("userName", user.getName());
             request.getSession().setAttribute("userId", user.getId());
             request.getSession().setAttribute("logged", true);
             request.getSession().setAttribute("userroles", user.rolesToString());
-
-            
 
             response.sendRedirect("drive.jsp");
         } else {

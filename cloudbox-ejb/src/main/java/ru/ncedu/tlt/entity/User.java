@@ -122,6 +122,15 @@ public class User {
     }
 
     public String rolesToString() {
+        if (userRoles == null) {
+            System.out.println("rolesnull");
+            return "";
+        }
+        if (userRoles.isEmpty()) {
+            System.out.println("rolempty");
+            return "";
+        }
+
         StringBuilder roles = new StringBuilder();
         for (int i = 0; i < userRoles.size(); i++) {
             roles.append(userRoles.get(i).getId());
@@ -135,21 +144,49 @@ public class User {
         return roles.toString();
     }
 
-    public List<UserRole> setUserRoles(String userRoles) {
-        ArrayList<UserRole> roles = new ArrayList<>();
+    /**
+     *
+     * @param stringUserRoles
+     * @return
+     */
+    public void setUserRoles(String stringUserRoles) {
+        userRoles = new ArrayList<>();
 
-        List<String> roleStrString = Arrays.asList(userRoles.split(","));
+        if (stringUserRoles == null) {
+            return;
+        }
+
+        if ("".equals(stringUserRoles)) {
+            return;
+        }
+
+        List<String> roleStrString = Arrays.asList(stringUserRoles.split(","));
         for (String roleS : roleStrString) {
             UserRole uRole = new UserRole();
             uRole.setId(Integer.valueOf(roleS));
             uRole.setName("");
 
-            roles.add(uRole);
+            userRoles.add(uRole);
 
         }
 
-        return roles;
+    }
 
+    public boolean isHavingRole(int i) {
+        if (userRoles == null) {
+            return false;
+        }
+        if (userRoles.isEmpty()) {
+            return false;
+        }
+
+        for (UserRole role : userRoles) {
+            if (role.getId() == i) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
