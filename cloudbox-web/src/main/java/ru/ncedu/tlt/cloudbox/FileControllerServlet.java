@@ -62,7 +62,7 @@ public class FileControllerServlet extends HttpServlet{
         
         switch (fileManageRequest){
             case "getFilesList":{
-                ArrayList<File> filesList = fileWorker.getFilesList(fileManageRequest);
+                ArrayList<File> filesList = fileWorker.getFilesList(userID);
                 rs.print("[");
                 for(File file: filesList){                    
                     rs.println(file.getJSON());

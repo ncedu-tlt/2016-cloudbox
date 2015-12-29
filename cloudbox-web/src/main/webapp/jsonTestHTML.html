@@ -9,44 +9,75 @@ and open the template in the editor.
         <title>TODO supply a title</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script language="javascript" type="text/javascript">
-            xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = 
-            function()
-            {
-                if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
-                {
-                    console.log(xmlhttp.responseText);
-                    filesList = JSON.parse(xmlhttp.responseText);
-                    document.getElementById("fileTable").innerHTML = "";   
-                    filesList.forEach(function(item, i, arr){
-                        var d = document.createElement('tr');
-                        console.log(item.id);
-                        d.innerHTML = "<td>" + item.name + "</td>" + "<td>" + item.ext + "</td>" + + "<td>" + item.date + "</td>";
-                        document.getElementById("fileTable").appendChild(d);
-                    }); 
-                }
-            };
-            xmlhttp.open("GET","http://localhost:8080/cloudbox-web/fileProcess/getFilesList",true);
-            xmlhttp.send();
-        </script>
+        
+        <link href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css" rel="stylesheet"/>
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+        
+        <script src="app/js/testJS.js"></script>
+
     </head>
     <body>
         <div>add content below</div>
-        <table id="fileTable">
-                            <thead> </thead>
-        <tbody>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-        </tbody> 
-        </table>
+        <div>
+                <table id="fileTable">
+                                    <thead> </thead>
+                <tbody>
+                                        <tr>
+                                            <td>Война и мир</td>
+                                            <td>doc</td>
+                                            <td>31.12.15</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Война и мир</td>
+                                            <td>doc</td>
+                                            <td>31.12.15</td>
+                                        </tr>
+                </tbody> 
+                </table>
+                <p></p>
+                <p></p>
+                <form id="loader" onsubmit="app/js/testJS.js" method="post" enctype="multipart/form-data">
+                    <input type="text" name="description" />
+                    <input type="file" name="file" id="file"/>
+                    <input type="submit" />
+                </form>
+                <p></p>
+                <p></p>
+
+                <table id="example" class="display" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>name</th>
+                                            <th>type</th>
+                                            <th>date</th>
+                                        </tr>                            
+                                    </thead>
+                <tbody>
+                                        <tr>
+                                            <td>Война и мир</td>
+                                            <td>doc</td>
+                                            <td>31.12.15</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Война и мир</td>
+                                            <td>doc</td>
+                                            <td>31.12.15</td>
+                                        </tr>
+                </tbody> 
+                </table>
+        </div>
+        <div>
+                <form enctype="multipart/form-data" action="TestFileServlet" method="get">
+                        <input name="file_name" type="file" >
+                        <input type="submit" value="закачать">
+                </form>    
+        </div>
+        <div> 
+            <input type="button" value=" Нажми меня нежно " id="getFileButton">
+        </div>
+        <div>
+            <a href="TestFileServlet" id="test_link" download hidden></a>    
+        </div>
     </body>
 </html>

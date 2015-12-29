@@ -21,36 +21,25 @@
         
         <link href="app/css/drive.css" rel="stylesheet">
 
-
         <script src="lib/jquery/jquery.min.js"></script>
         <script src="lib/bootstrap/js/bootstrap.min.js"></script>
-        <script language="javascript" type="text/javascript">
-            xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = 
-            function()
-            {
-                if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
-                {
-                    console.log(xmlhttp.responseText);
-                    filesList = JSON.parse(xmlhttp.responseText);
-                    document.getElementById("fileTable").getElementsByTagName("tbody")[0].innerHTML = "";
-                    filesList.forEach(function(item, i, arr){
-                        var d = document.createElement('tr');
-                        console.log(item.id);
-                        d.innerHTML = "<td>" + item.name + "</td>" + "<td>" + item.ext + "</td>" + + "<td>" + item.date + "</td>";
-                        document.getElementById("fileTable").getElementsByTagName("tbody")[0].appendChild(d);
-                    });
-                }
-            };
-            xmlhttp.open("GET","http://localhost:8080/cloudbox-web/fileProcess/getFilesList",true);
-            xmlhttp.send();
-        </script>
+        
+        <!-- about loader -->
+        <script src="http://malsup.github.com/jquery.form.js"></script>
+        <!-- about table -->
+        <link href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css" rel="stylesheet"/>
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+
+        
+        <script src="app/js/userFilePage.js"></script>
+        <script>
+            preparePage ();
+        </script>        
     </head>
     <body>
 
         <div class="container">
-
-
 
             <nav class="navbar navbar-default">
                 <div class="container-fluid">
@@ -107,7 +96,6 @@
             </nav>
 
             <div class="row">
-
                 <div class="col-lg-2">
                     <a href="#" class="btn btn-danger col-lg-12">Загрузить файл <i class="fa fa-cloud-upload"></i></a>
                     <a href="#" class="btn btn-link col-lg-12">Мои файлы</a>
@@ -117,15 +105,11 @@
 
 
 
-                <div class="col-lg-7">
-                    <div class="panel panel-default">
-                        <!--<div class="panel-body">-->
-
-
-                        <div >
-                            
-                        <table class="table table-striped table-hover " id="fileTable">
+                <div class="col-lg-8">
+                    <div class="panel panel-default">                      
+                        <table id="example" class="display" cellspacing="0" width="100%">
                             <thead>
+                                <!--
                                 <tr>
                                     <th><input type="text" class="form-control" placeholder="Поиск..."> </th>
                                     <th><select class="form-control" id="select">
@@ -141,257 +125,15 @@
                                                 <span class="glyphicon glyphicon-th"></span>
                                             </div>
                                         </div>  
-
-
                                     </th>
-                                </tr>
+                                </tr>  -->
                                 <tr>
-                                    <th >Имя</th>
+                                    <th>Имя</th>
                                     <th>Расширение</th>
                                     <th>Дата</th>
                                 </tr>
                             </thead>
-                            <tbody >
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr>
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
-                                <tr >
-                                    <td>Война и мир</td>
-                                    <td>doc</td>
-                                    <td>31.12.15</td>
-                                </tr>
+                            <tbody>  
                                 <tr>
                                     <td>Война и мир</td>
                                     <td>doc</td>
@@ -400,15 +142,24 @@
                             </tbody>
                         </table>   
                         <!--</div>--> 
-</div>
                     </div>
 
 
 
                 </div>
 
-                <div class="col-lg-3">
-                    <a href="#" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>
+                <div class="col-lg-2">
+                    <form id="loader" onsubmit="loadToServer()" method="post" enctype="multipart/form-data">
+                <!--    <input type="text" name="description" /> -->
+                        <input type="file" name="file"/>
+                        <input type="submit"/>
+                    </form>
+                    
+                    <p></p>
+                    <a href="#" id="getFileButton" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>                   
+                    <p></p>
+                    <a href="#" id="deleteButton" class="btn btn-warning col-lg-12">Удалить <i class="glyphicon glyphicon-remove"></i></a>
+                    <a href="TestFileServlet" id="hidden_link_get_file" download hidden></a>   
                             <p>Файл.тхт</p>
                             <a href="#" class="col-lg-3 col-lg-offset-6"><i class="fa fa-share-alt fa-3x"></i></a>
                             <a href="#" class="col-lg-3"><i class="fa fa-trash fa-3x"></i></a>
