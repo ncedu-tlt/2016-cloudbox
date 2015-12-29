@@ -6,7 +6,6 @@
 package ru.ncedu.tlt.controllers;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,7 +18,6 @@ import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import ru.ncedu.tlt.entity.File;
 import ru.ncedu.tlt.entity.EntityFile;
 import ru.ncedu.tlt.hash.HashGenerator;
 import ru.ncedu.tlt.properties.PropertiesCB;
@@ -41,60 +39,99 @@ public class EntityFileController {           // TODO перенести бин 
         return true;
     }
 
-    public ArrayList<File> getFilesList(String userID) {
-        /*
-        TODO : change fake functionality with real
-         */
-        ArrayList<File> fileList = new ArrayList();
+    public ArrayList<EntityFile> getFilesList(String userID) {
+
+        ArrayList<EntityFile> entityFileList = new ArrayList();
 
         String sqlQuery = "SELECT * FROM CB_FILE";
         String url = PropertiesCB.CB_JDBC_URL;
-        Connection connection = null;
         ResultSet result;
-
         try {
             System.out.println("try to get connection");
             connection = DriverManager.getConnection(url);
-            Statement statement = null;
+            Statement statement;
 
             statement = connection.createStatement();
-            //Выполним запрос
             result = statement.executeQuery(sqlQuery);
 
             System.out.println("Выводим statement");
             while (result.next()) {
-                File file = new File();
-
-                file.setId(result.getInt("fileid"));
-                file.setName(result.getString("filename"));
-                file.setExt(result.getString("fileext"));
-                file.setDate(result.getDate("filedate"));
-                fileList.add(file);
+                EntityFile entityFile = new EntityFile();
+                entityFile.setId(result.getInt("fileid"));
+                entityFile.setName(result.getString("filename"));
+                entityFile.setExt(result.getString("fileext"));
+                entityFile.setDate((Timestamp)result.getObject("filedate"));
+                entityFileList.add(entityFile);
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            e.printStackTrace();
         }
-        return fileList;
+        return entityFileList;       
+    }
+    
+    public EntityFile findFile(String fileName) throws SQLException
+    {
+        EntityFile entityFile = null;
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+        String query = "SELECT * FROM CB_FILE WHERE FILENAME = ?";
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, fileName);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                entityFile = new EntityFile();
+                entityFile.setId(rs.getInt("FILEID"));
+                entityFile.setName(rs.getString("FILENAME"));
+                entityFile.setExt(rs.getString("FILEEXT"));
+                entityFile.setDate((Timestamp)rs.getObject("FILEDATE"));
+                entityFile.setHash(rs.getString("FILEHASH"));
+            }
+        } catch (Exception e) {
+            System.out.println("findFile " + e.getMessage());
+            return null;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return entityFile;
+    }
 
-        // <FAKE>
-        /*
-        File file1 = new File();
-        file1.setId(112);
-        file1.setExt("txt");
-        file1.setName("The Book");
-        file1.setDate(new Date(1988,5,1));        
-        fileList.add(file1);
-        
-        File file2 = new File();
-        file2.setId(285);
-        file2.setExt("mp3");
-        file2.setName("Drain");
-        file2.setDate(new Date(1999,2,6));        
-        fileList.add(file2);
-        
-        return fileList;
-         */
+    
+    public EntityFile findFile(Integer fileId) throws SQLException
+    {
+        EntityFile entityFile = null;
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+        String query = "SELECT * FROM CB_FILE WHERE FILEID = ?";
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, fileId);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                entityFile = new EntityFile();
+                entityFile.setId(rs.getInt("FILEID"));
+                entityFile.setName(rs.getString("FILENAME"));
+                entityFile.setExt(rs.getString("FILEEXT"));
+                entityFile.setDate((Timestamp)rs.getObject("FILEDATE"));
+                entityFile.setHash(rs.getString("FILEHASH"));
+            }
+        } catch (Exception e) {
+            System.out.println("findFile " + e.getMessage());
+            return null;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return entityFile;
     }
 
     public EntityFile createEntityFile(String fileName, Integer ownerId) {       
@@ -102,7 +139,7 @@ public class EntityFileController {           // TODO перенести бин 
         EntityFile entityFile = new EntityFile();
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());        
         
-        int indexOfFileExt = fileName.lastIndexOf('.');     //индекс последнего вхождения '.' в имени файла           
+        int indexOfFileExt = fileName.lastIndexOf('.');     //индекс последнего вхождения знака '.' в имени файла           
         entityFile.setName(fileName.substring(0, indexOfFileExt));
         entityFile.setExt(fileName.substring(indexOfFileExt, fileName.length()));    
         entityFile.setDate(timestamp);        
@@ -121,7 +158,7 @@ public class EntityFileController {           // TODO перенести бин 
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(insertTableSQL);
             
-            preparedStatement.setInt(1, entityFile.getId()); //!Id тут не сгенерено! Нету генератора id!
+            preparedStatement.setInt(1, entityFile.getId());
             preparedStatement.setString(2, entityFile.getName());
             preparedStatement.setString(3, entityFile.getExt());            
             preparedStatement.setString(4, timestamp.toString());
@@ -130,19 +167,11 @@ public class EntityFileController {           // TODO перенести бин 
             
             preparedStatement.executeUpdate();
 
-            System.out.println("retriving new id for file");
-//            ResultSet rs = preparedStatement.getGeneratedKeys("file");
-//            if (rs.next()) {
-//                System.out.println("rs int " + rs.getInt(1));
-//                user.setId(rs.getInt(1));
-//            }
-
-            //обнуляем пароль
             System.out.println("Record is inserted into CB_FILE table!");
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            return entityFile;              //TODO подумать про эксепшн
+            System.out.println("ERROR! createEntityFile: " + e.getMessage());
+            return null;
         } finally {
 
             if (preparedStatement != null) {
