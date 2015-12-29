@@ -1,0 +1,8 @@
+#message-container {
+    margin-top:50px;
+    position: fixed;
+    left: 40%;
+    width: 20%;
+    z-index:9999; 
+    
+}

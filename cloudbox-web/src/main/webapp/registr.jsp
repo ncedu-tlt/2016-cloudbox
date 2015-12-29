@@ -38,7 +38,7 @@
                                 <div class="panel panel-default">
 
 
-                                    <input class="form-control" id="userName" name="regEmail" placeholder="e-mail" type="text">
+                                    <input class="form-control" id="regEmail" name="regEmail" placeholder="e-mail" type="text">
                                 </div>
                             </div>
                             
@@ -46,7 +46,7 @@
                                 <div class="panel panel-default">
 
 
-                                    <input class="form-control" id="userName" name="regUserName" placeholder="Username" type="text">
+                                    <input class="form-control" id="regUserName" name="regUserName" placeholder="Username" type="text">
                                 </div>
                             </div>
 
@@ -54,14 +54,14 @@
                                 <div class="panel panel-default">
 
 
-                                    <input class="form-control" id="userPass" name="regUserPass" placeholder="Password" type="password">
+                                    <input class="form-control" id="regUserPass" name="regUserPass" placeholder="Password" type="password">
                                 </div>
                             </div>
                             <div class="col-lg-2 center-block" style="float: none;" >
                                 <div class="panel panel-default">
 
 
-                                    <input class="form-control" id="userPass" name="regUserPass2" placeholder="reEnter Password" type="password">
+                                    <input class="form-control" id="regUserPass2" name="regUserPass2" placeholder="reEnter Password" type="password">
                                 </div>
                             </div>
                             <div class="col-lg-2 center-block" style="float: none;">
