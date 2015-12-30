@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ru.ncedu.tlt.controllers.UserController;
-import ru.ncedu.tlt.controllers.UserControllerOld;
 import ru.ncedu.tlt.entity.User;
 
 /**
