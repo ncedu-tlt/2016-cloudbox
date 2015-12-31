@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-    <artifactId>cloudbox</artifactId>
-    <groupId>ru.ncedu.tlt</groupId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
+        <artifactId>cloudbox</artifactId>
+        <groupId>ru.ncedu.tlt</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-    <groupId>ru.ncedu.tlt</groupId>
     <artifactId>cloudbox-ear</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>ear</packaging>
 
     <name>cloudbox-ear</name>
@@ -17,7 +16,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-  
+
     <build>
         <plugins>
             <plugin>
@@ -36,15 +35,22 @@
                 <configuration>
                     <version>6</version>
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
+                    <finalName>${project.parent.artifactId}</finalName>
                 </configuration>
             </plugin>
         </plugins>
     </build>
     <dependencies>
         <dependency>
-            <groupId>ru.ncedu.tlt</groupId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>cloudbox-ejb</artifactId>
+            <version>${project.version}</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>cloudbox-web</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <type>war</type>
         </dependency>
     </dependencies>
