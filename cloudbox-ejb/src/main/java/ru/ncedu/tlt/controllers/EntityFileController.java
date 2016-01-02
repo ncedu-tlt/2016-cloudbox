@@ -36,7 +36,7 @@ public class EntityFileController {
     Connection connection;
 
     
-    public EntityFile createEntityFile(String fileName, Integer ownerId) throws SQLException {              
+        public EntityFile createEntityFile(String fileName, Integer ownerId) throws SQLException {              
         EntityFile entityFile = new EntityFile();
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());     
        
@@ -94,7 +94,7 @@ public class EntityFileController {
     }
     
     
-    public boolean insertIntoUserFiles(Integer idUser, Integer idFile) throws SQLException{       
+    public Boolean insertIntoUserFiles(Integer idUser, Integer idFile) throws SQLException{       
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         PreparedStatement preparedStatement = null;
         String insertTableSQL = "INSERT INTO CB_USERFILE "
@@ -130,14 +130,16 @@ public class EntityFileController {
     }
 
     
-    public boolean deleteFile(String fileID) {
-        String sqlQuery = "DELETE FROM CB_FILE WHERE FILEUSERID=?";
+    public boolean deleteFileToTrash(String fileID) {
+        String sqlQuery = "UPDATE CB_USERFILE" +
+                        "SET UF_DEL = SYSDATE" +
+                        "WHERE UF_FILEID = ? AND UF_USERID = ?";
         // а как удалять? из CB_FILE или установить метку в CB_USERFILES?       
         return true;
     }
 
     
-    public ArrayList<EntityFile> getFilesList(String userID) throws SQLException {
+    public ArrayList<EntityFile> getMyFilesList(String userID) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
         
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -146,6 +148,53 @@ public class EntityFileController {
         String sqlQuery = "SELECT * FROM CB_FILE" +
                         "JOIN CB_USERFILE ON CB_FILE.FILEID = CB_USERFILE.UF_FILEID" +
                         "WHERE (CB_USERFILE.UF_USERID = ?) AND (CB_USERFILE.UF_DEL IS NULL)" +
+                        "AND (CB_FILE.FILEUSERID = CB_USERFILE.UF_USERID)" +            // Только мои файлы
+                        "ORDER BY CB_FILE.FILENAME";
+        try {
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1, userID);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                EntityFile entityFile = new EntityFile();
+                entityFile.setId(rs.getInt("FILEID"));
+                entityFile.setName(rs.getString("FILENAME"));
+                entityFile.setExt(rs.getString("FILEEXT"));
+                entityFile.setDate((Timestamp)rs.getObject("FILEDATE"));
+                entityFile.setHash(rs.getString("FILEHASH"));
+                entityFileList.add(entityFile);
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR! getFilesList: " + e.getMessage());
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return entityFileList;       
+    }
+    
+    
+    public ArrayList<EntityFile> getMyDeletedFilesList(String userID) throws SQLException {
+        ArrayList<EntityFile> entityFileList = new ArrayList();
+        
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+        
+        String sqlQuery = "SELECT * FROM CB_FILE" +
+                        "JOIN CB_USERFILE ON CB_FILE.FILEID = CB_USERFILE.UF_FILEID" +
+                        "WHERE (CB_USERFILE.UF_USERID = ?) AND (CB_USERFILE.UF_DEL IS NOT NULL)" +
+                        "AND (CB_FILE.FILEUSERID = CB_USERFILE.UF_USERID)" +
                         "ORDER BY CB_FILE.FILENAME";
         try {
             preparedStatement = connection.prepareStatement(sqlQuery);
