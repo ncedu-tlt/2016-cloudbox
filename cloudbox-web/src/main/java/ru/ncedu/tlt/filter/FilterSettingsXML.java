@@ -46,19 +46,15 @@ public class FilterSettingsXML {
             readPageSettings(wrappedRequest.getServletContext());
         }
 
-        if (user.getUserRoles() == null || user.getUserRoles().size() == 0) {
+        if (user.getUserRoles() == null || user.getUserRoles().isEmpty()) {
             UserRole role = new UserRole();
             role.setId(0);
             user.addRole(role);
         }
 
-        String url = wrappedRequest.getRequestURI();
-        ArrayList<String> pagesToCheck = new ArrayList<>();
-
         for (UserRole userRole : user.getUserRoles()) {
-            pagesToCheck = (ArrayList<String>) pagesMap.get(userRole.getId());
-            for (String page : pagesToCheck) {
-                if (url.contains(page)) {
+            for (String page : (ArrayList<String>) pagesMap.get(userRole.getId())) {
+                if (wrappedRequest.getRequestURI().contains(page)) {
                     result = true;
                 } 
             }
@@ -80,7 +76,7 @@ public class FilterSettingsXML {
         pagesMap.put(3, adminPages);
 
         try {
-            String path = ctx.getRealPath("/WEB-INF/site_map_settings.xml");
+            String path = ctx.getRealPath("/WEB-INF/"+FilterParam.FILTER_FILE_SETTINGS_XML);
             File fXmlFile = new File(path);
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();

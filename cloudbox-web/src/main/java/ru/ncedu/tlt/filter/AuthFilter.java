@@ -87,14 +87,14 @@ public class AuthFilter implements Filter {
 
         String url = wrappedRequest.getRequestURI();
         
-        if(url.contains("logout")){
+        if(url.contains(FilterParam.LOGOUT)){
              chain.doFilter(wrappedRequest, wrappedResponse);
-        }else  if (logged && (url.contains("login") || url.contains("registr"))) {
-            wrappedResponse.sendRedirect(wrappedRequest.getServletContext().getContextPath() + "/drive.jsp");
+        }else  if (logged && (url.contains(FilterParam.LOGIN) || url.contains(FilterParam.REGISTR))) {
+            wrappedResponse.sendRedirect(wrappedRequest.getServletContext().getContextPath() + FilterParam.DRIVE_JSP);
         } else if (filtSettings.checkUserAccess(wrappedRequest, user)) {
             chain.doFilter(wrappedRequest, wrappedResponse);
         } else {
-            wrappedResponse.sendRedirect(wrappedRequest.getServletContext().getContextPath() + "/login.jsp");
+            wrappedResponse.sendRedirect(wrappedRequest.getServletContext().getContextPath() + FilterParam.LOGIN_JSP);
         }
 
     }
