@@ -7,6 +7,9 @@ package ru.ncedu.tlt.servlet;
 
 import java.io.IOException;
 import java.io.File;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,13 +21,13 @@ import javax.servlet.http.Part;
 import ru.ncedu.tlt.controllers.EntityFileController;
 import ru.ncedu.tlt.entity.EntityFile;
 
-
 /**
  *
  * @author victori
  */
 @WebServlet(name = "UploadServlet", urlPatterns = {"/UploadServlet"})
-@MultipartConfig /*(location="/tmp")(fileSizeThreshold=1024*1024*2, // 2MB - максимальный размер буфера для загрузки файла в оперативной памяти
+@MultipartConfig
+/*(location="/tmp")(fileSizeThreshold=1024*1024*2, // 2MB - максимальный размер буфера для загрузки файла в оперативной памяти
                  maxFileSize=1024*1024*10000,   // 10000MB
                  maxRequestSize=1024*1024*50)   // 50MB*/
 
@@ -36,7 +39,7 @@ public class UploadServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
-        
+
         if (request.getParameter("userId") != null) {   //проверка на логин сессии 
 
 //          String appPath = request.getServletContext().getRealPath("");   //можно задать путь до произвольной папки системы
@@ -48,12 +51,16 @@ public class UploadServlet extends HttpServlet {
 //          if (!fileSaveDir.exists()) {
 //            fileSaveDir.mkdir();
 //          }
-
-            for (Part part : request.getParts()) {              //TODO перенести в бин работы с хардом
-                String fileName = extractFileName(part);
-                Integer userId = Integer.valueOf(request.getParameter("userId"));
-                EntityFile eFile = entityFileController.createEntityFile(fileName, userId);
-                part.write(fileSaveDir + File.separator + eFile.getHash());
+            for (Part part : request.getParts()) {
+                try {
+                    //TODO перенести в бин работы с хардом
+                    String fileName = extractFileName(part);
+                    Integer userId = Integer.valueOf(request.getParameter("userId"));
+                    EntityFile eFile = entityFileController.createEntityFile(fileName, userId);
+                    part.write(fileSaveDir + File.separator + eFile.getHash());
+                } catch (SQLException ex) {
+                    Logger.getLogger(UploadServlet.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
 
             request.setAttribute("message", "Загрузка произведена успешно!");

@@ -101,6 +101,7 @@ public class User {
     }
 
     public void addFile(File file) {
+
         userFiles.add(file);
     }
 
@@ -109,15 +110,21 @@ public class User {
     }
 
     public void setUserRoles(List<UserRole> userRoles) {
+
         this.userRoles = userRoles;
     }
 
     public void addRole(UserRole role) {
+        
         userRoles.add(role);
     }
 
     @Override
     public String toString() {
+        System.out.println("user roles size: " + userRoles.size());
+        for (UserRole userRole : getUserRoles()) {
+            System.out.println("userRole id: " + userRole.toString());
+        }
         return "User{" + "id=" + id + ", name=" + name + ", pass=" + pass + ", email=" + email + ", note=" + note + '}';
     }
 

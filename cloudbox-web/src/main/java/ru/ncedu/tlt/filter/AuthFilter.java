@@ -15,6 +15,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import javax.ejb.EJB;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -35,94 +36,14 @@ import ru.ncedu.tlt.entity.User;
 @WebFilter(filterName = "AuthFilter", urlPatterns = {"/*"})
 public class AuthFilter implements Filter {
 
-    private static final boolean debug = false;
+    @EJB
+    FilterSettingsXML filtSettings;
 
-    // The filter configuration object we are associated with.  If
-    // this value is null, this filter instance is not currently
-    // configured. 
+    private static final boolean debug = false;
     private FilterConfig filterConfig = null;
 
     public AuthFilter() {
-    }
 
-    private void doBeforeProcessing(RequestWrapper request, ResponseWrapper response)
-            throws IOException, ServletException {
-        if (debug) {
-            log("AuthFilter:DoBeforeProcessing");
-        }
-
-        // Write code here to process the request and/or response before
-        // the rest of the filter chain is invoked.
-        // For example, a filter that implements setParameter() on a request
-        // wrapper could set parameters on the request before passing it on
-        // to the filter chain.
-        /*
-	String [] valsOne = {"val1a", "val1b"};
-	String [] valsTwo = {"val2a", "val2b", "val2c"};
-	request.setParameter("name1", valsOne);
-	request.setParameter("nameTwo", valsTwo);
-         */
-        // For example, a logging filter might log items on the request object,
-        // such as the parameters.
-        /*
-	for (Enumeration en = request.getParameterNames(); en.hasMoreElements(); ) {
-	    String name = (String)en.nextElement();
-	    String values[] = request.getParameterValues(name);
-	    int n = values.length;
-	    StringBuffer buf = new StringBuffer();
-	    buf.append(name);
-	    buf.append("=");
-	    for(int i=0; i < n; i++) {
-	        buf.append(values[i]);
-	        if (i < n-1)
-	            buf.append(",");
-	    }
-	    log(buf.toString());
-	}
-         */
-    }
-
-    private void doAfterProcessing(RequestWrapper request, ResponseWrapper response)
-            throws IOException, ServletException {
-        if (debug) {
-            log("AuthFilter:DoAfterProcessing");
-        }
-
-        // Write code here to process the request and/or response after
-        // the rest of the filter chain is invoked.
-        // For example, a logging filter might log the attributes on the
-        // request object after the request has been processed. 
-        /*
-	for (Enumeration en = request.getAttributeNames(); en.hasMoreElements(); ) {
-	    String name = (String)en.nextElement();
-	    Object value = request.getAttribute(name);
-	    log("attribute: " + name + "=" + value.toString());
-
-	}
-         */
-        // For example, a filter might append something to the response.
-        /*
-	PrintWriter respOut = new PrintWriter(response.getWriter());
-	respOut.println("<p><strong>This has been appended by an intrusive filter.</strong></p>");
-	
-	respOut.println("<p>Params (after the filter chain):<br>");
-	for (Enumeration en = request.getParameterNames(); en.hasMoreElements(); ) {
-		String name = (String)en.nextElement();
-		String values[] = request.getParameterValues(name);
-		int n = values.length;
-		StringBuffer buf = new StringBuffer();
-		buf.append(name);
-		buf.append("=");
-		for(int i=0; i < n; i++) {
-		    buf.append(values[i]);
-		    if (i < n-1)
-			buf.append(",");
-		}
-		log(buf.toString());
-		respOut.println(buf.toString() + "<br>");
-	}
-        respOut.println("</p>");
-         */
     }
 
     /**
@@ -154,82 +75,28 @@ public class AuthFilter implements Filter {
         RequestWrapper wrappedRequest = new RequestWrapper((HttpServletRequest) request);
         ResponseWrapper wrappedResponse = new ResponseWrapper((HttpServletResponse) response);
 
-        doBeforeProcessing(wrappedRequest, wrappedResponse);
-
-        Throwable problem = null;
-
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse resp = (HttpServletResponse) response;
-
-        Integer userId = (Integer) req.getSession().getAttribute("userId");
-        String userRoles = (String) req.getSession().getAttribute("userroles");
-        Boolean logged = (Boolean) req.getSession().getAttribute("logged");
+        Integer userId = (Integer) wrappedRequest.getSession().getAttribute("userId");
+        String userRoles = (String) wrappedRequest.getSession().getAttribute("userroles");
+        Boolean logged = (Boolean) wrappedRequest.getSession().getAttribute("logged");
         if (logged == null) {
             logged = false;
         }
 
-//        System.out.println("logged : " + logged);
         User user = new User();
         user.setUserRoles(userRoles);
 
-//        System.out.println(" __ " + userRoles);
-//        System.out.println("user filter logged roles : " + user.rolesToString());
-//        System.out.println("userId : " + userId);
-
-        String url = req.getRequestURI();
-
-        try {
-
-            if (!logged) {
-                if (url.contains("login") || url.contains("registr") || url.contains("lib") || url.contains("app")) {
-//                    System.out.println("var1");
-                    chain.doFilter(wrappedRequest, wrappedResponse);
-                } else {
-//                    System.out.println("var2");
-                    resp.sendRedirect(req.getServletContext().getContextPath() + "/login.jsp");
-                }
-
-            } else if (logged) {
-//                System.out.println("var logged");
-                if (url.contains("login")) {
-                    resp.sendRedirect(req.getServletContext().getContextPath() + "/drive.jsp");
-                } else if (url.contains("logout")) {
-                    chain.doFilter(wrappedRequest, wrappedResponse);
-                } //странички только для авторизованных пользователей / добавляйте через двойной вертикальный слеш (||) страницы своих рабочих сервлетов
-                else if (url.contains("drive") || url.contains("usersettings") || url.contains("lib") || url.contains("app")) {
-                    chain.doFilter(request, response);
-                } //странички только для админа  / добавляйте через двойной вертикальный слеш (||) страницы своих рабочих сервлетов
-                else if ((url.contains("adminpage")||url.contains("userProcess")||url.contains("fileProcess")) & user.isHavingRole(1)) {
-                    chain.doFilter(wrappedRequest, wrappedResponse);
-                } else {
-                    resp.sendRedirect(req.getServletContext().getContextPath() + "/login.sjp");
-                }
-
-            } else {
-//                System.out.println("redirected");
-                resp.sendRedirect(req.getServletContext().getContextPath() + "/login.jsp");
-            }
-
-        } catch (IOException | ServletException t) {
-            // If an exception is thrown somewhere down the filter chain,
-            // we still want to execute our after processing, and then
-            // rethrow the problem after that.
-            problem = t;
+        String url = wrappedRequest.getRequestURI();
+        
+        if(url.contains("logout")){
+             chain.doFilter(wrappedRequest, wrappedResponse);
+        }else  if (logged && (url.contains("login") || url.contains("registr"))) {
+            wrappedResponse.sendRedirect(wrappedRequest.getServletContext().getContextPath() + "/drive.jsp");
+        } else if (filtSettings.checkUserAccess(wrappedRequest, user)) {
+            chain.doFilter(wrappedRequest, wrappedResponse);
+        } else {
+            wrappedResponse.sendRedirect(wrappedRequest.getServletContext().getContextPath() + "/login.jsp");
         }
 
-        doAfterProcessing(wrappedRequest, wrappedResponse);
-
-        // If there was a problem, we want to rethrow it if it is
-        // a known type, otherwise log it.
-        if (problem != null) {
-            if (problem instanceof ServletException) {
-                throw (ServletException) problem;
-            }
-            if (problem instanceof IOException) {
-                throw (IOException) problem;
-            }
-            sendProcessingError(problem, response);
-        }
     }
 
     /**
