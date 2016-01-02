@@ -138,24 +138,26 @@ public class EntityFileController {
 
     
     public ArrayList<EntityFile> getFilesList(String userID) throws SQLException {
-
         ArrayList<EntityFile> entityFileList = new ArrayList();
         
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         PreparedStatement preparedStatement = null;
         
-        String sqlQuery = "SELECT * FROM CB_FILE WHERE FILEUSERID = ?";
+        String sqlQuery = "SELECT * FROM CB_FILE" +
+                        "JOIN CB_USERFILE ON CB_FILE.FILEID = CB_USERFILE.UF_FILEID" +
+                        "WHERE (CB_USERFILE.UF_USERID = ?) AND (CB_USERFILE.UF_DEL IS NULL)" +
+                        "ORDER BY CB_FILE.FILENAME";
         try {
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, userID);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 EntityFile entityFile = new EntityFile();
-                entityFile.setId(rs.getInt("fileid"));
-                entityFile.setName(rs.getString("filename"));
-                entityFile.setExt(rs.getString("fileext"));
-                entityFile.setDate((Timestamp)rs.getObject("filedate"));
-                entityFile.setHash(rs.getString("filehash"));
+                entityFile.setId(rs.getInt("FILEID"));
+                entityFile.setName(rs.getString("FILENAME"));
+                entityFile.setExt(rs.getString("FILEEXT"));
+                entityFile.setDate((Timestamp)rs.getObject("FILEDATE"));
+                entityFile.setHash(rs.getString("FILEHASH"));
                 entityFileList.add(entityFile);
             }
         } catch (Exception e) {
@@ -179,71 +181,35 @@ public class EntityFileController {
         return entityFileList;       
     }
     
-    // крайне сомневаюсь, что эти методы понадобятся в том виде в котором они сейчас есть
     
-    // TODO "довести до ума"
-    
-//    public EntityFile findFile(String fileName) throws SQLException
-//    {
-//        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
-//        PreparedStatement preparedStatement = null;
-//        String query = "SELECT * FROM CB_FILE WHERE FILENAME = ?";
-//        try {
-//            preparedStatement = connection.prepareStatement(query);
-//            preparedStatement.setString(1, fileName);
-//            ResultSet rs = preparedStatement.executeQuery();
-//            while (rs.next()) {
-//                entityFile = new EntityFile();
-//                entityFile.setId(rs.getInt("FILEID"));
-//                entityFile.setName(rs.getString("FILENAME"));
-//                entityFile.setExt(rs.getString("FILEEXT"));
-//                entityFile.setDate((Timestamp)rs.getObject("FILEDATE"));
-//                entityFile.setHash(rs.getString("FILEHASH"));
-//            }
-//        } catch (Exception e) {
-//            System.out.println("findFile " + e.getMessage());
-//            return null;
-//        } finally {
-//            if (preparedStatement != null) {
-//                preparedStatement.close();
-//            }
-//            if (connection != null) {
-//                connection.close();
-//            }
-//        }
-//        return entityFile;
-//    }
-
-    
-//    public EntityFile findFile(Integer fileId) throws SQLException
-//    {
-//        EntityFile entityFile = null;
-//        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
-//        PreparedStatement preparedStatement = null;
-//        String query = "SELECT * FROM CB_FILE WHERE FILEID = ?";
-//        try {
-//            preparedStatement = connection.prepareStatement(query);
-//            preparedStatement.setInt(1, fileId);
-//            ResultSet rs = preparedStatement.executeQuery();
-//            while (rs.next()) {
-//                entityFile = new EntityFile();
-//                entityFile.setId(rs.getInt("FILEID"));
-//                entityFile.setName(rs.getString("FILENAME"));
-//                entityFile.setExt(rs.getString("FILEEXT"));
-//                entityFile.setDate((Timestamp)rs.getObject("FILEDATE"));
-//                entityFile.setHash(rs.getString("FILEHASH"));
-//            }
-//        } catch (Exception e) {
-//            System.out.println("findFile " + e.getMessage());
-//            return null;
-//        } finally {
-//            if (preparedStatement != null) {
-//                preparedStatement.close();
-//            }
-//            if (connection != null) {
-//                connection.close();
-//            }
-//        }
-//        return entityFile;
-//    }
+    public EntityFile findFile(Integer fileId) throws SQLException {
+        EntityFile entityFile = null;
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+        String query = "SELECT * FROM CB_FILE WHERE FILEID = ?";
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, fileId);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                entityFile = new EntityFile();
+                entityFile.setId(rs.getInt("FILEID"));
+                entityFile.setName(rs.getString("FILENAME"));
+                entityFile.setExt(rs.getString("FILEEXT"));
+                entityFile.setDate((Timestamp)rs.getObject("FILEDATE"));
+                entityFile.setHash(rs.getString("FILEHASH"));
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR! findFile: " + e.getMessage());
+            return null;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return entityFile;
+    }
 }
