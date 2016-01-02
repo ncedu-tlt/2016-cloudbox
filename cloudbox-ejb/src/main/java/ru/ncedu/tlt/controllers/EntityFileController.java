@@ -36,7 +36,8 @@ public class EntityFileController {
     Connection connection;
 
     
-        public EntityFile createEntityFile(String fileName, Integer ownerId) throws SQLException {              
+        public EntityFile createEntityFile(String fileName, Integer ownerId) throws SQLException {    
+            
         EntityFile entityFile = new EntityFile();
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());     
        
@@ -53,11 +54,11 @@ public class EntityFileController {
         
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         PreparedStatement preparedStatement = null;        
-        String insertTableSQL = "INSERT INTO CB_FILE "
+        String sqlQuery = "INSERT INTO CB_FILE "
                 + "(FILEID,FILENAME,FILEEXT,FILEDATE,FILEHASH,FILEUSERID)"
                 + "VALUES (?, ?, ?, ?, ?, ?)";
         try {
-            preparedStatement = connection.prepareStatement(insertTableSQL, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
                 keys.next();
                 entityFile.setId(keys.getInt(1));
@@ -94,14 +95,16 @@ public class EntityFileController {
     }
     
     
-    public Boolean insertIntoUserFiles(Integer idUser, Integer idFile) throws SQLException{       
+    public Boolean insertIntoUserFiles(Integer idUser, Integer idFile) throws SQLException{     
+        
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         PreparedStatement preparedStatement = null;
-        String insertTableSQL = "INSERT INTO CB_USERFILE "
+        
+        String sqlQuery = "INSERT INTO CB_USERFILE "
                 + "(UF_USERID, UF_FILEID, UF_DEL)"
                 + "VALUES (?, ?, ?)";
         try {
-            preparedStatement = connection.prepareStatement(insertTableSQL);
+            preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, idUser);
             preparedStatement.setInt(2, idFile);
             preparedStatement.setNull(3, java.sql.Types.INTEGER);
@@ -130,14 +133,84 @@ public class EntityFileController {
     }
 
     
-    public boolean deleteFileToTrash(String fileID) {
+    public boolean deleteFileToTrash(Integer idUser, Integer idFile) throws SQLException {
+        
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+        
         String sqlQuery = "UPDATE CB_USERFILE" +
                         "SET UF_DEL = SYSDATE" +
                         "WHERE UF_FILEID = ? AND UF_USERID = ?";
-        // а как удалять? из CB_FILE или установить метку в CB_USERFILES?       
+        
+         try {
+            preparedStatement = connection.prepareStatement(sqlQuery);            
+            preparedStatement.setInt(1, idFile);
+            preparedStatement.setInt(2, idUser);
+            preparedStatement.executeUpdate();
+            
+            System.out.println("File with id=" + idFile + "and user id=" + idUser +" has been deleted");
+            
+            cleanDependenciesAfterDeleteToTrash(idUser, idFile); //чистка зависимостей после удаления файла в корзину
+            
+        } catch (SQLException e) {
+            System.out.println("ERROR! deleteFileToTrash : " + e.getMessage());
+            return false;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }  
         return true;
     }
-
+    
+    
+    public boolean cleanDependenciesAfterDeleteToTrash(Integer idUser, Integer idFile) throws SQLException {
+        
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+        
+        String sqlQuery = "DELETE FROM CB_USERFILE"
+                + "WHERE UF_FILEID = ?"
+                + "AND UF_USERID IS NOT ?";
+         try {
+            preparedStatement = connection.prepareStatement(sqlQuery);            
+            preparedStatement.setInt(1, idFile);
+            preparedStatement.setInt(2, idUser);
+            preparedStatement.executeUpdate();
+                        
+            System.out.println("Deleting dependencies successfully");
+        } catch (SQLException e) {
+            System.out.println("ERROR! cleanDependenciesAfterDeleteToTrash : " + e.getMessage());
+            return false;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }  
+        return true;
+    }
     
     public ArrayList<EntityFile> getMyFilesList(String userID) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
@@ -235,9 +308,9 @@ public class EntityFileController {
         EntityFile entityFile = null;
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         PreparedStatement preparedStatement = null;
-        String query = "SELECT * FROM CB_FILE WHERE FILEID = ?";
+        String sqlQuery = "SELECT * FROM CB_FILE WHERE FILEID = ?";
         try {
-            preparedStatement = connection.prepareStatement(query);
+            preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, fileId);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
