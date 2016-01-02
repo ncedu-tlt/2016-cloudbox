@@ -34,9 +34,9 @@ public class EntityFileController {
     HashGenerator hashGenerator;
     
     Connection connection;
+
     
-    public EntityFile createEntityFile(String fileName, Integer ownerId) {       
-        
+    public EntityFile createEntityFile(String fileName, Integer ownerId) throws SQLException {              
         EntityFile entityFile = new EntityFile();
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());     
        
@@ -51,12 +51,12 @@ public class EntityFileController {
         String hash = hashGenerator.getHash(prehash);
         entityFile.setHash(hash);
         
-        PreparedStatement preparedStatement = null;
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;        
         String insertTableSQL = "INSERT INTO CB_FILE "
                 + "(FILEID,FILENAME,FILEEXT,FILEDATE,FILEHASH,FILEUSERID)"
                 + "VALUES (?, ?, ?, ?, ?, ?)";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(insertTableSQL, Statement.RETURN_GENERATED_KEYS);
             try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
                 keys.next();
@@ -69,7 +69,8 @@ public class EntityFileController {
             preparedStatement.setInt(6, ownerId);
             preparedStatement.executeUpdate();
             System.out.println("Record is inserted into CB_FILE table!");
-
+            insertIntoUserFiles(ownerId, entityFile.getId());   // Запись в таблицу CB_USERFILES
+            
         } catch (SQLException e) {
             System.out.println("ERROR! createEntityFile: " + e.getMessage());
             return null;
@@ -78,18 +79,54 @@ public class EntityFileController {
                 try {
                     preparedStatement.close();
                 } catch (SQLException ex) {
-                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             if (connection != null) {
                 try {
                     connection.close();
                 } catch (SQLException ex) {
-                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
         return entityFile;
+    }
+    
+    
+    public boolean insertIntoUserFiles(Integer idUser, Integer idFile) throws SQLException{       
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+        String insertTableSQL = "INSERT INTO CB_USERFILE "
+                + "(UF_USERID, UF_FILEID, UF_DEL)"
+                + "VALUES (?, ?, ?)";
+        try {
+            preparedStatement = connection.prepareStatement(insertTableSQL);
+            preparedStatement.setInt(1, idUser);
+            preparedStatement.setInt(2, idFile);
+            preparedStatement.setNull(3, java.sql.Types.INTEGER);
+            preparedStatement.executeUpdate();
+            System.out.println("Record is inserted into CB_USERFILE table!");
+        } catch (SQLException e) {
+            System.out.println("ERROR! insertIntoUserFiles : " + e.getMessage());
+            return false;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }  
+        return true;
     }
 
     
@@ -123,6 +160,21 @@ public class EntityFileController {
             }
         } catch (Exception e) {
             System.out.println("ERROR! getFilesList: " + e.getMessage());
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
         return entityFileList;       
     }
