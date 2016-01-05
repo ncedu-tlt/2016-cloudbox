@@ -124,8 +124,15 @@ public class UserController {
     }
 
 //------
+
+    /**
+     * Метод возвращает список пользователей формата ID - NAME 
+     * используется на странице администратора
+     * @return список пользователей из базы для страницы администратора
+     * @throws SQLException
+     */
     public ArrayList<User> getAllUsers() throws SQLException {
-        User user = null;
+        User user;
         ArrayList<User> userList = new ArrayList<>();
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         preparedStatement = null;
@@ -154,6 +161,11 @@ public class UserController {
     }
 //------
 
+    /**
+     * Поиск пользователя в базе по имени
+     * @param userName
+     * @return
+     */
     public User findUser(String userName) {
         User user = null;
 
@@ -201,6 +213,13 @@ public class UserController {
     }
 
 //------
+
+    /**
+     * Поиск юзера в базе по ID
+     * @param userId
+     * @return
+     * @throws SQLException
+     */
     public User findUser(Integer userId) throws SQLException {
         User user = null;
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -245,6 +264,15 @@ public class UserController {
     }
 //------    
 
+    /**
+     * Обновление данных пользователя
+     * Используется на странице администратора
+     * 
+     * @param userId
+     * @param column поле в БД которое требует апдейта
+     * @param value новое значение поля 
+     * @throws SQLException
+     */
     public void updateUserData(Integer userId, String column, String value) throws SQLException 
     {
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -275,6 +303,15 @@ public class UserController {
         }
     }
 //------    
+
+    /**
+     * Включение-отключение роли пользователя
+     *
+     * @param userId
+     * @param roleId 
+     * @param value может быть false и true. Но строковое. Если true то добавляем роль, если false то удаляем
+     * @throws SQLException
+     */
     public void updateUserRole(Integer userId, Integer roleId, String value) throws SQLException 
     {
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
