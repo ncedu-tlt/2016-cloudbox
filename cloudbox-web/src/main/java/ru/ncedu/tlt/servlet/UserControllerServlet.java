@@ -108,6 +108,19 @@ public class UserControllerServlet extends HttpServlet {
             } catch (SQLException ex) {
                 Logger.getLogger(UserControllerServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
+            break;
+            }
+            case "updateUserRole":
+            {
+            try {
+                Integer userId = Integer.valueOf(request.getParameter("userId"));
+                Integer roleId = Integer.valueOf(request.getParameter("roleId"));
+                String value = request.getParameter("is");
+                userController.updateUserRole(userId, roleId, value);
+                break;
+            } catch (SQLException ex) {
+                Logger.getLogger(UserControllerServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
             }
         }
     }

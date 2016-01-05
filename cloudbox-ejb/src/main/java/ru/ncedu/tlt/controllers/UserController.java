@@ -245,12 +245,57 @@ public class UserController {
     }
 //------    
 
-    public void updateUserData(Integer userId, String column, String value) throws SQLException {
+    public void updateUserData(Integer userId, String column, String value) throws SQLException 
+    {
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         Statement statement = connection.createStatement();
         String query = "UPDATE CB_USER"
                 + " SET " + column + "='" + value + "'"
                 + " WHERE USERID=" + userId;
+        try {
+            statement.executeUpdate(query);
+        } catch (Exception e) {
+            System.out.println("UpdateUser - " + query + e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+//------    
+    public void updateUserRole(Integer userId, Integer roleId, String value) throws SQLException 
+    {
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        Statement statement = connection.createStatement();
+        String query;
+        if("false".equals(value))
+        {
+            query = "DELETE FROM CB_USERROLE"
+                    + " WHERE "
+                    + "UR_ROLEID="+roleId
+                    + " AND "
+                    + "UR_USERID=" + userId;
+        }
+        else
+        {
+            query = "INSERT INTO CB_USERROLE (UR_USERID, UR_ROLEID) "
+                    + "VALUES ("
+                    + userId+", "
+                    + roleId
+                    + ")";
+        }
         try {
             statement.executeUpdate(query);
         } catch (Exception e) {

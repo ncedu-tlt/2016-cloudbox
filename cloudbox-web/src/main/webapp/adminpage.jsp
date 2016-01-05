@@ -52,7 +52,6 @@
                     if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
                         var paramsTable = document.getElementById("paramsTable");
-                        var rolesPanel = document.getElementById("rolesPanel");
                         paramsTable.innerHTML = '';
                         paramList = JSON.parse(xmlhttp.responseText);
                         var d = '';
@@ -63,28 +62,29 @@
                         d += '<tr><td><input onchange="updateUserData()" id="USERNOTES" type="text" value="' + paramList.note + '"></td></tr>';
                         d += '<tr><td><input onchange="updateUserData()" id="USERPIC" type="text" value="' + paramList.picPath + '"></td></tr>';
                         paramsTable.innerHTML = d;
+                        //Проставляем галочки в соответствии с ролями
+                        for (var key in paramList.userRoles)
+                        {
+                            var elem = document.getElementById("ROLEID"+paramList.userRoles[key].id);
+                            if(elem)
+                            {
+                                elem.checked=true;
+                            }
+                        }
                     }
                 };
-                xmlhttp.open("GET", "./userProcess/getUserData?userId=" + userId, true);
+                xmlhttp.open("GET", "./userProcess/getUserData?userId=" + userId, false);
                 xmlhttp.send();
-                //Проставляем галочки в соответствии с ролями
-                for (var key in paramList.userRoles)
-                {
-                    var elem = document.getElementById("ROLEID"+paramList.userRoles[key].id);
-                    if(elem)
-                    {
-                        elem.checked=true;
-                    }
-                }
             }
 //---------
             function getAllRoles()
             {
+                var rolesPanel = document.getElementById("rolesPanel");
                 d='';
                 xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function () 
                 {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
                     {
                         var roles = JSON.parse(xmlhttp.responseText);
                         for(var key in roles)
@@ -100,7 +100,7 @@
                             rolesPanel.innerHTML = d;
                     }
                 };
-                xmlhttp.open("GET", "./userProcess/getAllRoles", true);
+                xmlhttp.open("GET", "./userProcess/getAllRoles", false);
                 xmlhttp.send();
             }
 //---------
@@ -125,30 +125,24 @@
                 xmlhttp.send();
             }
 //---------
-            function updateUserRole()
+            function updateUserRole(roleId)
             {
                 var elem = window.event.target;
-                var column = elem.id;
                 var value = elem.checked;
-
-                    showAlertMessage(column+' - '+value);
-                
-//                var userId = document.getElementById("USERID").value;
-//                var column = elem.id;
-//                var value = elem.value;
-//                var link = "./userProcess/updateUserData?userId=" + userId
-//                        + "&column=" + column
-//                        + "&value=" + value;
-//                xmlhttp = new XMLHttpRequest();
-//                xmlhttp.onreadystatechange = function () {
-//                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
-//                    {
-//                        showAlertMessage("Обновлено");
-//                        getAllUsers();
-//                    }
-//                };
-//                xmlhttp.open("GET", link, true);
-//                xmlhttp.send();
+                var userId = document.getElementById("USERID").value;
+                var link = "./userProcess/updateUserRole?userId=" + userId
+                        + "&roleId=" + roleId
+                        + "&is=" + value;
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
+                    {
+                        showAlertMessage("Роль изменена");
+                        getAllUsers();
+                    }
+                };
+                xmlhttp.open("GET", link, true);
+                xmlhttp.send();
             }
 //---------
             function getAllFiles()
