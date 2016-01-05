@@ -30,7 +30,6 @@
                     {
                         var contentTable = document.getElementById("contentTable");
                         contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
-//                        contentTable.innerHTML=xmlhttp.responseText;
                         usersList = JSON.parse(xmlhttp.responseText);
                         usersList.forEach(function (item, i, arr)
                         {
@@ -46,35 +45,63 @@
 //---------
             function getUserData(userId)
             {
+                var paramList;
+                getAllRoles();
                 xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function () {
                     if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
                         var paramsTable = document.getElementById("paramsTable");
+                        var rolesPanel = document.getElementById("rolesPanel");
                         paramsTable.innerHTML = '';
                         paramList = JSON.parse(xmlhttp.responseText);
                         var d = '';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERID" type="hidden" value="' + paramList.USERID + '"></td></tr>';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERNAME" type="text" value="' + paramList.USERNAME + '"></td></tr>';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERMAIL" type="text" value="' + paramList.USERMAIL + '"></td></tr>';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERPASSHASH" type="text" value="' + paramList.USERPASSHASH + '"></td></tr>';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERNOTES" type="text" value="' + paramList.USERNOTES + '"></td></tr>';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERPIC" type="text" value="' + paramList.USERPIC + '"></td></tr>';
-
-                        d += '<fieldset>';
-                        for (var key in paramList.ROLES)
-                        {
-                            d += '<input ' + paramList.ROLES[key].CHECKED + ' type="checkbox" id="ROLEID' + paramList.ROLES[key].ROLEID + '">'
-                                    + paramList.ROLES[key].ROLENAME;
-                        }
-                        d += '</fieldset>';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERID" type="hidden" value="' + paramList.id + '"></td></tr>';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERNAME" type="text" value="' + paramList.name + '"></td></tr>';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERMAIL" type="text" value="' + paramList.email + '"></td></tr>';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERPASSHASH" type="text" value="' + paramList.hash + '"></td></tr>';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERNOTES" type="text" value="' + paramList.note + '"></td></tr>';
+                        d += '<tr><td><input onchange="updateUserData()" id="USERPIC" type="text" value="' + paramList.picPath + '"></td></tr>';
                         paramsTable.innerHTML = d;
                     }
                 };
                 xmlhttp.open("GET", "./userProcess/getUserData?userId=" + userId, true);
                 xmlhttp.send();
-                
-                showAlertMessage("test message");
+                //Проставляем галочки в соответствии с ролями
+                for (var key in paramList.userRoles)
+                {
+                    var elem = document.getElementById("ROLEID"+paramList.userRoles[key].id);
+                    if(elem)
+                    {
+                        elem.checked=true;
+                    }
+                }
+            }
+//---------
+            function getAllRoles()
+            {
+                d='';
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () 
+                {
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    {
+                        var roles = JSON.parse(xmlhttp.responseText);
+                        for(var key in roles)
+                        {
+                            d += '<input type="checkbox" id="ROLEID'
+                            +roles[key].id
+                            +'" onclick="updateUserRole('
+                            +roles[key].id
+                            +')">'
+                            +roles[key].name
+                            + '<br>';
+                        }
+                            rolesPanel.innerHTML = d;
+                    }
+                };
+                xmlhttp.open("GET", "./userProcess/getAllRoles", true);
+                xmlhttp.send();
             }
 //---------
             function updateUserData()
@@ -90,11 +117,38 @@
                 xmlhttp.onreadystatechange = function () {
                     if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
+                        showAlertMessage("Данные пользователя обновлены");
                         getAllUsers();
                     }
                 };
                 xmlhttp.open("GET", link, true);
                 xmlhttp.send();
+            }
+//---------
+            function updateUserRole()
+            {
+                var elem = window.event.target;
+                var column = elem.id;
+                var value = elem.checked;
+
+                    showAlertMessage(column+' - '+value);
+                
+//                var userId = document.getElementById("USERID").value;
+//                var column = elem.id;
+//                var value = elem.value;
+//                var link = "./userProcess/updateUserData?userId=" + userId
+//                        + "&column=" + column
+//                        + "&value=" + value;
+//                xmlhttp = new XMLHttpRequest();
+//                xmlhttp.onreadystatechange = function () {
+//                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+//                    {
+//                        showAlertMessage("Обновлено");
+//                        getAllUsers();
+//                    }
+//                };
+//                xmlhttp.open("GET", link, true);
+//                xmlhttp.send();
             }
 //---------
             function getAllFiles()
@@ -140,14 +194,14 @@
                 xmlhttp.open("GET", "./fileProcess/getFileData?fileId=" + fileId, true);
                 xmlhttp.send();
             }
-            
+//---------            
             function showAlertMessage(message){
                 $('#message-text').text(message);
                 $('#message-container').fadeIn('slow');
                 window.setTimeout(function () {
-                    $("#message-container").slideUp(500, function () {
+                    $("#message-container").slideUp(750, function () {
                     });
-                }, 500);
+                }, 1000);
             }
 //---------
         </script>
@@ -225,7 +279,9 @@
                         <table id="paramsTable" class="table table-striped">
                             <tbody>
                             </tbody>
-                        </table>                      
+                        </table>
+                        <div  id="rolesPanel">
+                        </div>
                     </div>
                 </div>
             </div>

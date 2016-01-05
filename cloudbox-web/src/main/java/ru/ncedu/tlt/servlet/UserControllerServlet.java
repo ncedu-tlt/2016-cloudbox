@@ -5,6 +5,7 @@
  */
 package ru.ncedu.tlt.servlet;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -71,50 +72,30 @@ public class UserControllerServlet extends HttpServlet {
             }
             case "getUserData": 
             {
-            try {
                 Integer userId = Integer.valueOf(request.getParameter("userId"));
-                User user = userController.findUser(userId);
-
-                ArrayList<UserRole> allRolesList = (ArrayList) roleController.getAllUserRoles();
-                ArrayList<UserRole> userRolesList = (ArrayList) user.getUserRoles();
-                JsonBuilderFactory factory = Json.createBuilderFactory(null);
-                JsonObjectBuilder jOB = factory.createObjectBuilder();
-                        jOB
-                            .add("USERID", user.getId())
-                            .add("USERNAME", user.getName())
-                            .add("USERMAIL", user.getEmail())
-                            .add("USERPASSHASH", user.getHash())
-                            .add("USERNOTES", user.getNote())
-                            .add("USERPIC", user.getPicPath());
-                            JsonArrayBuilder roles = factory.createArrayBuilder();
-                            UserRole role;
-                            for(int i=0; i<allRolesList.size();i++)
-                            {
-                                role=allRolesList.get(i);
-                                String c="";
-                                for(int j=0; j<userRolesList.size();j++)
-                                {
-                                    if(userRolesList.get(j).getId() == allRolesList.get(i).getId())
-                                    {
-                                        c = "checked";
-                                        break;
-                                    }
-                                }
-                                roles.add(factory.createObjectBuilder()
-                                            .add("ROLEID",role.getId())
-                                            .add("ROLENAME",role.getName())
-                                            .add("CHECKED",c)
-                                );
-                            }
-                        jOB.add("ROLES",roles);
-                        JsonObject jO = jOB.build();
-                rs.print(jO);
-                System.out.println(jO);
-            } catch (SQLException ex) 
-            {
-                System.out.println(ex);
+                User user;
+                Gson gsonObject = new Gson();
+                try {
+                    user = userController.findUser(userId);
+                    String json = gsonObject.toJson(user);
+                    rs.print(json);
+                } catch (SQLException ex) {
+                    System.out.println(ex);
+                }
+                break;
             }
-            break;
+            case "getAllRoles":
+            {
+                Gson gsonObject = new Gson();
+                try {
+                    ArrayList<UserRole> allRolesList = (ArrayList) roleController.getAllUserRoles();
+                    String json = gsonObject.toJson(allRolesList);
+                    System.out.println(json);
+                    rs.print(json);
+                } catch (SQLException ex) {
+                    System.out.println(ex);
+                }
+                break;
             }
             case "updateUserData":
             {
