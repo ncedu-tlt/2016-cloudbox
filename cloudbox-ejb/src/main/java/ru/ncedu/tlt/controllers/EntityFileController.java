@@ -94,7 +94,7 @@ public class EntityFileController {
         return entityFile;
     }
     
-    
+//------    
     public Boolean insertIntoUserFiles(Integer idUser, Integer idFile) throws SQLException{     
         
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -132,8 +132,8 @@ public class EntityFileController {
         return true;
     }
 
-    
-    public boolean deleteFileToTrash(Integer idUser, Integer idFile) throws SQLException {
+//------    
+    public Boolean deleteFileToTrash(Integer idUser, Integer idFile) throws SQLException {
         
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         PreparedStatement preparedStatement = null;
@@ -174,8 +174,8 @@ public class EntityFileController {
         return true;
     }
     
-    
-    public boolean cleanDependenciesAfterDeleteToTrash(Integer idUser, Integer idFile) throws SQLException {
+//------    
+    public Boolean cleanDependenciesAfterDeleteToTrash(Integer idUser, Integer idFile) throws SQLException {
         
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         PreparedStatement preparedStatement = null;
@@ -211,7 +211,8 @@ public class EntityFileController {
         }  
         return true;
     }
-    
+
+//------
     public ArrayList<EntityFile> getMyFilesList(String userID) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
         
@@ -234,10 +235,12 @@ public class EntityFileController {
                 entityFile.setExt(rs.getString("FILEEXT"));
                 entityFile.setDate((Timestamp)rs.getObject("FILEDATE"));
                 entityFile.setHash(rs.getString("FILEHASH"));
+                entityFile.setOwner(rs.getInt("FILEUSERID"));
                 entityFileList.add(entityFile);
             }
         } catch (Exception e) {
             System.out.println("ERROR! getFilesList: " + e.getMessage());
+            return null;
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -257,7 +260,7 @@ public class EntityFileController {
         return entityFileList;       
     }
     
-    
+//------    
     public ArrayList<EntityFile> getMyDeletedFilesList(String userID) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
         
@@ -280,10 +283,12 @@ public class EntityFileController {
                 entityFile.setExt(rs.getString("FILEEXT"));
                 entityFile.setDate((Timestamp)rs.getObject("FILEDATE"));
                 entityFile.setHash(rs.getString("FILEHASH"));
+                entityFile.setOwner(rs.getInt("FILEUSERID"));
                 entityFileList.add(entityFile);
             }
         } catch (Exception e) {
             System.out.println("ERROR! getFilesList: " + e.getMessage());
+            return null;
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -303,26 +308,71 @@ public class EntityFileController {
         return entityFileList;       
     }
     
-    
-    public EntityFile findFile(Integer fileId) throws SQLException {
-        EntityFile entityFile = null;
+//------
+    public ArrayList<EntityFile> getAllFiles() throws SQLException {
+        ArrayList<EntityFile> entityFileList = new ArrayList();
+        
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         PreparedStatement preparedStatement = null;
+        
+        String sqlQuery = "SELECT * FROM CB_FILE";
+        try {
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                EntityFile entityFile = new EntityFile();
+                entityFile.setId(rs.getInt("FILEID"));
+                entityFile.setName(rs.getString("FILENAME"));
+                entityFile.setExt(rs.getString("FILEEXT"));
+                entityFile.setDate((Timestamp)rs.getObject("FILEDATE"));
+                entityFile.setHash(rs.getString("FILEHASH"));
+                entityFile.setOwner(rs.getInt("FILEUSERID"));
+                entityFileList.add(entityFile);
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR! getAllFiles: " + e.getMessage());
+            return null;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }   
+        return entityFileList;
+    }
+    
+//------
+    public EntityFile getFileData(Integer fileId) throws SQLException {
+        EntityFile entityFile = new EntityFile();
+
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        PreparedStatement preparedStatement = null;
+
         String sqlQuery = "SELECT * FROM CB_FILE WHERE FILEID = ?";
         try {
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, fileId);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
-                entityFile = new EntityFile();
                 entityFile.setId(rs.getInt("FILEID"));
                 entityFile.setName(rs.getString("FILENAME"));
                 entityFile.setExt(rs.getString("FILEEXT"));
-                entityFile.setDate((Timestamp)rs.getObject("FILEDATE"));
+                entityFile.setDate((Timestamp) rs.getObject("FILEDATE"));
                 entityFile.setHash(rs.getString("FILEHASH"));
+                entityFile.setOwner(rs.getInt("FILEUSERID"));
             }
         } catch (Exception e) {
-            System.out.println("ERROR! findFile: " + e.getMessage());
+            System.out.println("ERROR! getFileData: " + e.getMessage());
             return null;
         } finally {
             if (preparedStatement != null) {
