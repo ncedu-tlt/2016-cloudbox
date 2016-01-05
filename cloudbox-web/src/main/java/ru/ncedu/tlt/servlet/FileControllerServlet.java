@@ -5,25 +5,19 @@
  */
 package ru.ncedu.tlt.servlet;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import ru.ncedu.tlt.beans.FileWorkerBean;
-import ru.ncedu.tlt.entity.File;
-import ru.ncedu.tlt.entity.User;
+import ru.ncedu.tlt.controllers.EntityFileController;
+import ru.ncedu.tlt.entity.EntityFile;
 /**
  *
  * @author Andrey
@@ -32,7 +26,7 @@ import ru.ncedu.tlt.entity.User;
 public class FileControllerServlet extends HttpServlet{
     
     @EJB 
-    FileWorkerBean fileWorker;
+    EntityFileController fileWorker;
     
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -59,8 +53,6 @@ public class FileControllerServlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {  
-        
-        String userID = (String)request.getSession().getAttribute("userName");
         String fileManageRequest = request.getRequestURI().split("/")[request.getRequestURI().split("/").length -1];
         /*
         if (request.getSession().getAttribute("userName") == null){
@@ -70,30 +62,27 @@ public class FileControllerServlet extends HttpServlet{
         PrintWriter rs = response.getWriter();     
         
         switch (fileManageRequest){
-            case "getFilesList":{
-                ArrayList<File> filesList = fileWorker.getFilesList(fileManageRequest);
-                rs.print("[");
-                for(File file: filesList){                    
-                    rs.println(file.getJSON());
-                    rs.print(",");               
-                }
-                rs.print("{}]");                  // TODO убрать последнюю запятую
-                break;
-            }
-            case "getFileData": 
+            case "getFilesList":
             {
-                try {
+                try 
+                {
+                    Gson gson = new Gson();
+                    ArrayList filesList = fileWorker.getAllFiles();
+                    rs.print(gson.toJson(filesList));
+                    break;
+                } catch (SQLException ex) 
+                {
+                    System.out.println(ex);
+                }
+            }
+            case "getFileData":
+            {
+                try 
+                {
                     Integer fileId = Integer.valueOf(request.getParameter("fileId"));
-                    File file = fileWorker.findFile(fileId);
-                    JsonBuilderFactory factory = Json.createBuilderFactory(null);
-                    JsonObject jO = factory.createObjectBuilder()
-                            .add("fileId", file.getId())
-                            .add("fileName", file.getName())
-                            .add("fileExt", file.getExt())
-                            .add("fileDate", String.valueOf(file.getDate()))
-                            .add("fileHash", file.getHash())
-                            .build();
-                    rs.print(jO);
+                    EntityFile file = fileWorker.getFileData(fileId);
+                    Gson gson = new Gson();
+                    rs.print(gson.toJson(file));
                     break;
                 } catch (SQLException ex) {
                     System.out.println(ex);
