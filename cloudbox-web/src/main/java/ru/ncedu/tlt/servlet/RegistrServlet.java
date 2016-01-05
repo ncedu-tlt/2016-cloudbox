@@ -74,9 +74,12 @@ public class RegistrServlet extends HttpServlet {
             user.setEmail(userEmailNew);
 
             user = ucEjb.createUser(user);
-            if(user==null)request.getRequestDispatcher("registr.jsp").forward(request, response);
+            if(user==null) 
+            {
+                request.getRequestDispatcher("registr.jsp").forward(request, response);
+            }
 
-            System.out.println("new user " + user.toString());
+            System.out.println("New user " + user.toString());
             request.getSession().setAttribute("userName", user.getName());
             request.getSession().setAttribute("userId", user.getId());
             request.getSession().setAttribute("logged", true);

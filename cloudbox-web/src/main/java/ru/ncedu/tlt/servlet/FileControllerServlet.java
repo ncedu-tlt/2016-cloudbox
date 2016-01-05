@@ -31,6 +31,8 @@ public class FileControllerServlet extends HttpServlet{
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
 
         if (request.getSession().getAttribute("userName") == null){
             request.getRequestDispatcher("login.jsp").forward(request, response);        
@@ -53,6 +55,8 @@ public class FileControllerServlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {  
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         String fileManageRequest = request.getRequestURI().split("/")[request.getRequestURI().split("/").length -1];
         /*
         if (request.getSession().getAttribute("userName") == null){
