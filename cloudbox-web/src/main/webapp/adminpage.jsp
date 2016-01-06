@@ -21,22 +21,28 @@
         <script src="lib/bootstrap/js/bootstrap.min.js"></script>
 
         <script language="javascript" type="text/javascript">
+            
+            var rolesList;
+            getAllRoles();
+            
 //---------            
             function getAllUsers()
             {
                 xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
                     {
                         var contentTable = document.getElementById("contentTable");
                         contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
                         usersList = JSON.parse(xmlhttp.responseText);
-                        usersList.forEach(function (item, i, arr)
+                        for(var key in usersList)
                         {
                             var d = document.createElement('tr');
-                            d.innerHTML = "<td onclick=\"getUserData(" + item.USERID + ")\">" + item.USERNAME + "</td>";
+                            d.innerHTML = "<td onclick=\"getUserData("
+                                    + usersList[key].id + ")\">" 
+                                    + usersList[key].name + "</td>";
                             contentTable.getElementsByTagName("tbody")[0].appendChild(d);
-                        });
+                        }
                     }
                 };
                 xmlhttp.open("GET", "./userProcess/getAllUsers", true);
@@ -46,10 +52,22 @@
             function getUserData(userId)
             {
                 var paramList;
-                getAllRoles();
+                var rolesPanel = document.getElementById("rolesPanel");
+                d='';
+                for(var key in rolesList)
+                {
+                    d += '<input type="checkbox" id="ROLEID'
+                    +rolesList[key].id
+                    +'" onclick="updateUserRole('
+                    +rolesList[key].id
+                    +')">'
+                    +rolesList[key].name
+                    + '<br>';
+                }
+                rolesPanel.innerHTML = d;
                 xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
                     {
                         var paramsTable = document.getElementById("paramsTable");
                         paramsTable.innerHTML = '';
@@ -79,25 +97,12 @@
 //---------
             function getAllRoles()
             {
-                var rolesPanel = document.getElementById("rolesPanel");
-                d='';
                 xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function () 
                 {
                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
                     {
-                        var roles = JSON.parse(xmlhttp.responseText);
-                        for(var key in roles)
-                        {
-                            d += '<input type="checkbox" id="ROLEID'
-                            +roles[key].id
-                            +'" onclick="updateUserRole('
-                            +roles[key].id
-                            +')">'
-                            +roles[key].name
-                            + '<br>';
-                        }
-                            rolesPanel.innerHTML = d;
+                        rolesList = JSON.parse(xmlhttp.responseText);
                     }
                 };
                 xmlhttp.open("GET", "./userProcess/getAllRoles", false);
@@ -148,22 +153,21 @@
             function getAllFiles()
             {
                 xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange =
-                        function ()
+                xmlhttp.onreadystatechange = function ()
+                {
+                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
+                    {
+                        filesList = JSON.parse(xmlhttp.responseText);
+                        var contentTable = document.getElementById("contentTable");
+                        contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
+                        filesList.forEach(function (item, i, arr)
                         {
-                            if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
-                            {
-                                filesList = JSON.parse(xmlhttp.responseText);
-                                var contentTable = document.getElementById("contentTable");
-                                contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
-                                filesList.forEach(function (item, i, arr)
-                                {
-                                    var d = document.createElement('tr');
-                                    d.innerHTML = "<td onclick=\"getFileData(" + item.id + ")\">" + item.name + "</td>" + "<td>" + item.ext + "</td>" + +"<td>" + item.date + "</td>";
-                                    contentTable.getElementsByTagName("tbody")[0].appendChild(d);
-                                });
-                            }
-                        };
+                            var d = document.createElement('tr');
+                            d.innerHTML = "<td onclick=\"getFileData(" + item.id + ")\">" + item.name + "</td>" + "<td>" + item.ext + "</td>" + +"<td>" + item.date + "</td>";
+                            contentTable.getElementsByTagName("tbody")[0].appendChild(d);
+                        });
+                    }
+                };
                 xmlhttp.open("GET", "./fileProcess/getFilesList", false);
                 xmlhttp.send();
             }
@@ -181,12 +185,33 @@
                         for (var key in paramList)
                         {
                             var d = document.createElement('tr');
-                            d.innerHTML += "<td><input title=\"" + key + "\" type=\"text\" value=\"" + paramList[key] + "\"></td>";
+                            d.innerHTML += '<td><input id="'+key+'" type="text" value="' + paramList[key] + '"></td>';
                             paramsTable.appendChild(d);
                         }
                     }
                 };
                 xmlhttp.open("GET", "./fileProcess/getFileData?fileId=" + fileId, false);
+                xmlhttp.send();
+            }
+//---------
+            function updateFileData()
+            {
+                var fileId = document.getElementById("FILEID").value;
+                var elem = window.event.target;
+                var column = elem.id;
+                var value = elem.value;
+                var link = "./fileProcess/updateFileData?fileId=" + fileId
+                        + "&column=" + column
+                        + "&value=" + value;
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
+                    {
+                        showAlertMessage("Данные о файле обновлены");
+                        getAllFiles();
+                    }
+                };
+                xmlhttp.open("GET", link, true);
                 xmlhttp.send();
             }
 //---------            
