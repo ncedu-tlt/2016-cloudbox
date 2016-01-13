@@ -12,8 +12,7 @@ import java.sql.Timestamp;
  *
  * @author victori
  */
-public class EntityFile implements Serializable {
-    
+public class EntityFile implements Serializable {   
     private Integer id;
     private String name;
     private String ext;
@@ -102,7 +101,5 @@ public class EntityFile implements Serializable {
     @Override
     public String toString() {
         return "File{" + "id=" + id + ", name=" + name + ", ext=" + ext + ", hash=" + hash + ", date=" + date + ", owner=" + owner + '}';
-//        return "ru.ncedu.tlt.entity.EntityFile[ id=" + id + " ]";
     }
-    
 }

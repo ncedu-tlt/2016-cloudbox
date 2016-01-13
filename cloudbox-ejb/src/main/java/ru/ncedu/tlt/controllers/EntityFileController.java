@@ -37,41 +37,17 @@ public class EntityFileController {
     Connection connection;
 
     /**
-     * Создаёт объект EntityFile с записью в базе данных.
-     * <p>
-     * Использует id пользователя, который осуществляет запись файла. Неявно
-     * вызывает метод insertIntoUserFiles(Integer idUser, Integer idFile) и
-     * заносит запись в таблицу CB_USERFILE
-     * </p>
+     * Метод помещает запись об entityFile в БД. Неявно вызывает метод
+     * insertEntryInUserFile(ownerId, entityFile.getId()) для записи в таблицу
+     * CB_USERFILE
      *
-     * @param fileName - название файла (документа) (example: 'text.doc',
-     * 'Writen.abc.com')
-     * @param ownerId - id владельца файла
-     * @return объект EntityFile.
+     * @param entityFile
      * @throws SQLException
      */
-    public EntityFile createEntityFile(String fileName, Integer ownerId) throws SQLException {
-        EntityFile entityFile = new EntityFile();
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-
-        //индекс последнего вхождения знака '.' в имени файла.
-        int indexOfFileExt = fileName.lastIndexOf('.');
-
-        entityFile.setName(fileName.substring(0, indexOfFileExt));
-        entityFile.setExt(fileName.substring(indexOfFileExt, fileName.length()));
-        entityFile.setDate(timestamp);
-
-        //генерация хэша из имени файла
-        String prehash = entityFile.getName()
-                + entityFile.getExt()
-                + timestamp.toString();
-        String hash = hashGenerator.getHash(prehash);
-        entityFile.setHash(hash);
-
+    public void storeEntityFile(EntityFile entityFile) throws SQLException {
         preparedStatement = null;
-
-        String sqlQuery = "INSERT INTO CB_FILE "
-                + "(FILENAME, FILEEXT, FILEDATE, FILEHASH, FILEUSERID) VALUES "
+        String sqlQuery = "insert into cb_file "
+                + "(filename, fileext, filedate, filehash, fileuserid) values "
                 + "(?,?,?,?,?)";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -79,31 +55,23 @@ public class EntityFileController {
 
             preparedStatement.setString(1, entityFile.getName());
             preparedStatement.setString(2, entityFile.getExt());
-            preparedStatement.setString(3, timestamp.toString());
+            preparedStatement.setString(3, entityFile.toString());
             preparedStatement.setString(4, entityFile.getHash());
-            preparedStatement.setInt(5, ownerId);
+            preparedStatement.setInt(5, entityFile.getOwner());
 
             preparedStatement.executeUpdate();
             //ERROR! createEntityFile: Column 'FILEID'  cannot accept a NULL value.
             //почему-то не работает генератор Statement.RETURN_GENERATED_KEYS 
             //с таблицей CB_FILE
 
-            System.out.println("retriving new id for file");
-            try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
-                keys.next();
-
-                entityFile.setId(keys.getInt(1));
-            }
-
             System.out.println("Record is inserted into CB_FILE table!");
 
             // Запись в таблицу CB_USERFILES
-            insertIntoUserFiles(ownerId, entityFile.getId());
+            insertEntryInUserFile(entityFile.getOwner(), entityFile.getId());
 
         } catch (SQLException e) {
-            System.out.println("ERROR! createEntityFile: " + e.getMessage());
-            return null;
-
+            System.out.println("ERROR! storeEntityFile: " + e.getMessage());
+            throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -120,35 +88,30 @@ public class EntityFileController {
                 }
             }
         }
-        return entityFile;
     }
 
     /**
      * Запись ссылки Пользователь-Файл (USER-FILE) в таблицу CB_USERFILE
      *
-     * @param idUser - id пользователя
-     * @param idFile - id файла
-     * @return true - если запись прошла успешно
+     * @param userId - id пользователя
+     * @param fileId - id файла
      * @throws SQLException
      */
-    public Boolean insertIntoUserFiles(Integer idUser, Integer idFile) throws SQLException {
+    public void insertEntryInUserFile(Integer userId, Integer fileId) throws SQLException {
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         preparedStatement = null;
-
-        String sqlQuery = "INSERT INTO CB_USERFILE "
-                + "(UF_USERID, UF_FILEID) VALUES"
+        String sqlQuery = "insert into cb_userfile "
+                + "(uf_userid, uf_fileid) values"
                 + "(?, ?)";
         try {
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, idUser);
-            preparedStatement.setInt(2, idFile);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, fileId);
             preparedStatement.executeUpdate();
             System.out.println("Record is inserted into CB_USERFILE table!");
-
         } catch (SQLException e) {
-            System.out.println("ERROR! insertIntoUserFiles : " + e.getMessage());
-            return false;
-
+            System.out.println("ERROR! insertEntryInUserFile : " + e.getMessage());
+            throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -165,41 +128,35 @@ public class EntityFileController {
                 }
             }
         }
-        return true;
     }
 
     /**
      * Помечает файл как удалённый в таблице CB_USERFILE, устанавливая текущую
      * дату в поле UF_DEL. Тем самым отмечая файл как помещённый в корзину
-     * Неявно вызывает метод cleanDependenciesAfterDeleteToTrash(idUser, idFile)
+     * Неявно вызывает метод cleanDependenciesAfterDeleteToTrash(idUser, fileId)
      * для удаления ссылок на файл помещённый владельцем в корзину из таблицы
      * CB_USERFILE
      *
-     * @param idUser - id пользователя
-     * @param idFile - id файла
-     * @return true - если запись прошла успешно
+     * @param userId - id пользователя
+     * @param fileId - id файла
      * @throws SQLException
      */
-    public Boolean deleteFileToTrash(Integer idUser, Integer idFile) throws SQLException {
+    public void markEntryFileAsTrash(Integer userId, Integer fileId) throws SQLException {
         preparedStatement = null;
-
-        String sqlQuery = "UPDATE CB_USERFILE"
-                + "SET UF_DEL = SYSDATE"
-                + "WHERE UF_FILEID = ? AND UF_USERID = ?";
-
+        String sqlQuery = "update cb_userfile"
+                + "set uf_del = sysdate"
+                + "where uf_fileid = ? "
+                + "and uf_userid = ?";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, idFile);
-            preparedStatement.setInt(2, idUser);
+            preparedStatement.setInt(1, fileId);
+            preparedStatement.setInt(2, userId);
             preparedStatement.executeUpdate();
-
-            System.out.println("File with id=" + idFile + "and user id=" + idUser + " has been deleted");
-
+            System.out.println("File with id=" + fileId + "and user id=" + userId + " moved to trash");
         } catch (SQLException e) {
-            System.out.println("ERROR! deleteFileToTrash : " + e.getMessage());
-            return false;
-
+            System.out.println("ERROR! markEntryFileAsTrash : " + e.getMessage());
+            throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -216,33 +173,40 @@ public class EntityFileController {
                 }
             }
         }
-        return true;
     }
 
     /**
      * Метод осуществляет удаление записей о файлах из таблиц USERFILE и FILE.
-     * 
-     * @param idUser - id пользователя запросивщий удаление файла
-     * @param idFile - id файла для удаления
-     * @throws SQLException 
+     *
+     * @param userId - id пользователя запросивщий удаление файла
+     * @param fileId - id файла для удаления
+     * @throws SQLException
      */
-    public void deleteFileFromBD(Integer idUser, Integer idFile) throws SQLException {
-        if (checkOwner(idUser, idFile)) { //проверка, является ли пользователь владельцем файла?
-            fullDeleteUserfile(idFile);
-            deleteFile(idFile);
+    public void deleteFileFromBD(Integer userId, Integer fileId) throws SQLException {
+        if (checkOwner(userId, fileId)) { //проверка, является ли пользователь владельцем файла?
+            try {
+                fullDeleteEntryFromUserfile(fileId);
+                deleteEntryFromFile(fileId);
+            } catch (SQLException e) {
+                throw new SQLException(e);
+            }
         } else {
-            onceDeleteUserfile(idUser, idFile);
+            try {
+                onceDeleteEntryFromUserfile(userId, fileId);
+            } catch (SQLException e) {
+                throw new SQLException(e);
+            }
         }
     }
 
     /**
-     * Метод проверяет является ли пользователь {@param idUser}, владельцем {@param idFile}.
+     * Метод проверяет является ли пользователь с userId владельцем файла с fileId.
      *
-     * @param idUser
-     * @param idFile
+     * @param userId
+     * @param fileId
      * @return boolean, true если является владельцем
      */
-    public boolean checkOwner(Integer idUser, Integer idFile) {
+    public boolean checkOwner(Integer userId, Integer fileId) {
         preparedStatement = null;
         String sqlQuery = "select *"
                 + "from cb_file f, cb_userfile uf"
@@ -253,8 +217,8 @@ public class EntityFileController {
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, idFile);
-            preparedStatement.setInt(2, idUser);
+            preparedStatement.setInt(1, fileId);
+            preparedStatement.setInt(2, userId);
             ResultSet rs = preparedStatement.executeQuery();
             return rs.next();   //если результат выборки не нулевой, возвращает true
         } catch (SQLException e) {
@@ -266,26 +230,25 @@ public class EntityFileController {
     /**
      * Удаляет одну ссылку на файл из CB_USERFILE.
      *
-     * @param idUser - id пользователя
-     * @param idFile - id файла для удаления
+     * @param userId - id пользователя
+     * @param fileId - id файла для удаления
      * @throws SQLException
      */
-    public void onceDeleteUserfile(Integer idUser, Integer idFile) throws SQLException {
+    public void onceDeleteEntryFromUserfile(Integer userId, Integer fileId) throws SQLException {
         preparedStatement = null;
-
-        String sqlQuery = "DELETE FROM CB_USERFILE"
-                + "WHERE UF_FILEID = ?"
-                + "AND UF_USERID = ?";
+        String sqlQuery = "delete from cb_userfile"
+                + "where uf_fileid = ?"
+                + "and uf_userid = ?";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, idFile);
-            preparedStatement.setInt(2, idUser);
+            preparedStatement.setInt(1, fileId);
+            preparedStatement.setInt(2, userId);
             preparedStatement.executeUpdate();
-            System.out.println("onceDeleteUserfile succesfull, idUser : " + idUser + "idFile : " + idFile);
+            System.out.println("onceDeleteUserfile succesfull, userId : " + userId + "fileId : " + fileId);
         } catch (SQLException e) {
             System.out.println("ERROR! onceDeleteUserfile : " + e.getMessage());
-            return;
+            throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -307,23 +270,22 @@ public class EntityFileController {
     /**
      * Удаляет все ссылки на файл из CB_USERFILE.
      *
-     * @param idFile - id файла для удаления
+     * @param fileId - id файла для удаления
      * @throws SQLException
      */
-    public void fullDeleteUserfile(Integer idFile) throws SQLException {
+    public void fullDeleteEntryFromUserfile(Integer fileId) throws SQLException {
         preparedStatement = null;
-
-        String sqlQuery = "DELETE FROM CB_USERFILE"
-                + "WHERE UF_FILEID = ?";
+        String sqlQuery = "delete from cb_userfile"
+                + "where uf_fileid = ?";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, idFile);
+            preparedStatement.setInt(1, fileId);
             preparedStatement.executeUpdate();
-            System.out.println("fullDeleteUserfile succesfull, idFile : " + idFile);
+            System.out.println("fullDeleteUserfile succesfull, fileId : " + fileId);
         } catch (SQLException e) {
-            System.out.println("ERROR! fullDeleteUserfile : " + e.getMessage());
-            return;
+            System.out.println("ERROR! fullDeleteEntryFromUserfile : " + e.getMessage());
+            throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -345,23 +307,23 @@ public class EntityFileController {
     /**
      * Удаляет ссылку на файл из CB_FILE.
      *
-     * @param idFile - id файла для удаления
+     * @param fileId - id файла для удаления
      * @throws SQLException
      */
-    public void deleteFile(Integer idFile) throws SQLException {
+    public void deleteEntryFromFile(Integer fileId) throws SQLException {
         preparedStatement = null;
 
-        String sqlQuery = "DELETE FROM CB_FILE"
-                + "WHERE FILEID = ?";
+        String sqlQuery = "delete from cb_file"
+                + "where fileid = ?";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, idFile);
+            preparedStatement.setInt(1, fileId);
             preparedStatement.executeUpdate();
-            System.out.println("deleteFile succesfull, idFile : " + idFile);
+            System.out.println("deleteFile succesfull, fileId : " + fileId);
         } catch (SQLException e) {
-            System.out.println("ERROR! deleteFile : " + e.getMessage());
-            return;
+            System.out.println("ERROR! deleteEntryFromFile : " + e.getMessage());
+            throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -384,39 +346,38 @@ public class EntityFileController {
      * Метод возващает список файлов загруженных пользователем. Исключая файлы
      * из корзины (удалённые).
      *
-     * @param userID
-     * @return ArrayList<EntityFile> - список файлов в виде коллекции EntityFile
+     * @param userId
+     * @return ArrayList&lt;EntityFile&gt; - список файлов в виде коллекции
+     * EntityFile
      * @throws SQLException
      */
-    public ArrayList<EntityFile> getMyFilesList(String userID) throws SQLException {
+    public ArrayList<EntityFile> getUserFiles(String userId) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
-
         preparedStatement = null;
-
-        String sqlQuery = "SELECT * FROM CB_FILE"
-                + "JOIN CB_USERFILE ON CB_FILE.FILEID = CB_USERFILE.UF_FILEID"
-                + "WHERE (CB_USERFILE.UF_USERID = ?) AND (CB_USERFILE.UF_DEL IS NULL)"
-                + "AND (CB_FILE.FILEUSERID = CB_USERFILE.UF_USERID)" + // Только мои файлы
-                "ORDER BY CB_FILE.FILENAME";
+        String sqlQuery = "select * from cb_file f"
+                + "join cb_userfile uf on f.fileid = uf.uf_fileid"
+                + "where uf.uf_userid = ?" 
+                + "and uf.uf_del is null" 
+                + "and f.fileuserid = uf.uf_userid"
+                + "order by f.filename";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setString(1, userID);
+            preparedStatement.setString(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
-
             while (rs.next()) {
                 EntityFile entityFile = new EntityFile();
-                entityFile.setId(rs.getInt("FILEID"));
-                entityFile.setName(rs.getString("FILENAME"));
-                entityFile.setExt(rs.getString("FILEEXT"));
-                entityFile.setDate((Timestamp) rs.getObject("FILEDATE"));
-                entityFile.setHash(rs.getString("FILEHASH"));
-                entityFile.setOwner(rs.getInt("FILEUSERID"));
+                entityFile.setId(rs.getInt("fileid"));
+                entityFile.setName(rs.getString("filename"));
+                entityFile.setExt(rs.getString("fileext"));
+                entityFile.setDate((Timestamp) rs.getObject("filedate"));
+                entityFile.setHash(rs.getString("filehash"));
+                entityFile.setOwner(rs.getInt("fileuserid"));
                 entityFileList.add(entityFile);
             }
         } catch (Exception e) {
-            System.out.println("ERROR! getFilesList: " + e.getMessage());
-            return null;
+            System.out.println("ERROR! getUserFiles: " + e.getMessage());
+            throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -439,39 +400,39 @@ public class EntityFileController {
     /**
      * Метод возващает список файлов пользователя находящихся в корзине.
      *
-     * @param userID
-     * @return ArrayList<EntityFile> - список файлов в виде коллекции EntityFile
+     * @param userId
+     * @return ArrayList&lt;EntityFile&gt; - список файлов в виде коллекции
+     * EntityFile
      * @throws SQLException
      */
-    public ArrayList<EntityFile> getMyDeletedFilesList(String userID) throws SQLException {
+    public ArrayList<EntityFile> getUserFilesInTrash(String userId) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
-
         preparedStatement = null;
-
-        String sqlQuery = "SELECT * FROM CB_FILE"
-                + "JOIN CB_USERFILE ON CB_FILE.FILEID = CB_USERFILE.UF_FILEID"
-                + "WHERE (CB_USERFILE.UF_USERID = ?) AND (CB_USERFILE.UF_DEL IS NOT NULL)"
-                + "AND (CB_FILE.FILEUSERID = CB_USERFILE.UF_USERID)"
-                + "ORDER BY CB_FILE.FILENAME";
+        String sqlQuery = "select * from cb_file f"
+                + "join cb_userfile uf on f.fileid = uf.uf_fileid"
+                + "where uf.uf_userid = ?" 
+                + "and uf.uf_del is not null" 
+                + "and f.fileuserid = uf.uf_userid"
+                + "order by f.filename";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setString(1, userID);
+            preparedStatement.setString(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
                 EntityFile entityFile = new EntityFile();
-                entityFile.setId(rs.getInt("FILEID"));
-                entityFile.setName(rs.getString("FILENAME"));
-                entityFile.setExt(rs.getString("FILEEXT"));
-                entityFile.setDate((Timestamp) rs.getObject("FILEDATE"));
-                entityFile.setHash(rs.getString("FILEHASH"));
-                entityFile.setOwner(rs.getInt("FILEUSERID"));
+                entityFile.setId(rs.getInt("fileid"));
+                entityFile.setName(rs.getString("filename"));
+                entityFile.setExt(rs.getString("fileext"));
+                entityFile.setDate((Timestamp) rs.getObject("filedate"));
+                entityFile.setHash(rs.getString("filehash"));
+                entityFile.setOwner(rs.getInt("fileuserid"));
                 entityFileList.add(entityFile);
             }
         } catch (Exception e) {
             System.out.println("ERROR! getFilesList: " + e.getMessage());
-            return null;
+            throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -495,15 +456,14 @@ public class EntityFileController {
      * Возвращает список всех файлов из таблицы CB_USER. Используется на
      * странице админки
      *
-     * @return ArrayList<EntityFile> - список файлов в виде коллекции EntityFile
+     * @return ArrayList&lt;EntityFile&gt; - список файлов в виде коллекции
+     * EntityFile
      * @throws SQLException
      */
     public ArrayList<EntityFile> getAllFiles() throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
-
         preparedStatement = null;
-
-        String sqlQuery = "SELECT * FROM CB_FILE";
+        String sqlQuery = "select * from cb_file";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(sqlQuery);
@@ -511,17 +471,69 @@ public class EntityFileController {
 
             while (rs.next()) {
                 EntityFile entityFile = new EntityFile();
-                entityFile.setId(rs.getInt("FILEID"));
-                entityFile.setName(rs.getString("FILENAME"));
-                entityFile.setExt(rs.getString("FILEEXT"));
-                entityFile.setDate((Timestamp) rs.getObject("FILEDATE"));
-                entityFile.setHash(rs.getString("FILEHASH"));
-                entityFile.setOwner(rs.getInt("FILEUSERID"));
+                entityFile.setId(rs.getInt("fileid"));
+                entityFile.setName(rs.getString("filename"));
+                entityFile.setExt(rs.getString("fileext"));
+                entityFile.setDate((Timestamp) rs.getObject("filedate"));
+                entityFile.setHash(rs.getString("filehash"));
+                entityFile.setOwner(rs.getInt("fileuserid"));
                 entityFileList.add(entityFile);
             }
         } catch (Exception e) {
             System.out.println("ERROR! getAllFiles: " + e.getMessage());
-            return null;
+            throw new SQLException(e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return entityFileList;
+    }
+
+    /**
+     * Метод возвращает файлы, которые расшарили пользователю
+     *
+     * @param userId
+     * @return ArrayList&lt;EntityFile&gt;
+     * @throws SQLException
+     */
+    public ArrayList<EntityFile> getSharedUserFiles(String userId) throws SQLException {
+        ArrayList<EntityFile> entityFileList = new ArrayList();
+        preparedStatement = null;
+        String sqlQuery = "select f.* from cb_userfile uf, cb_file f"
+                + "where uf.uf_fileid = f.fileid"
+                + "and uf.uf_userid = ?"
+                + "and uf.uf_userid != f.fileuserid";
+        try {
+            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1, userId);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                EntityFile entityFile = new EntityFile();
+                entityFile.setId(rs.getInt("fileid"));
+                entityFile.setName(rs.getString("filename"));
+                entityFile.setExt(rs.getString("fileext"));
+                entityFile.setDate((Timestamp) rs.getObject("filedate"));
+                entityFile.setHash(rs.getString("filehash"));
+                entityFile.setOwner(rs.getInt("fileuserid"));
+                entityFileList.add(entityFile);
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR! getSharedUserFiles : " + e.getMessage());
+            throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -548,28 +560,26 @@ public class EntityFileController {
      * @return EntityFile
      * @throws SQLException
      */
-    public EntityFile getFileData(Integer fileId) throws SQLException {
+    public EntityFile getEntityFile(Integer fileId) throws SQLException {
         EntityFile entityFile = new EntityFile();
-
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         preparedStatement = null;
-
-        String sqlQuery = "SELECT * FROM CB_FILE WHERE FILEID = ?";
+        String sqlQuery = "select * from cb_file where fileid = ?";
         try {
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, fileId);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
-                entityFile.setId(rs.getInt("FILEID"));
-                entityFile.setName(rs.getString("FILENAME"));
-                entityFile.setExt(rs.getString("FILEEXT"));
-                entityFile.setDate((Timestamp) rs.getObject("FILEDATE"));
-                entityFile.setHash(rs.getString("FILEHASH"));
-                entityFile.setOwner(rs.getInt("FILEUSERID"));
+                entityFile.setId(rs.getInt("fileid"));
+                entityFile.setName(rs.getString("filename"));
+                entityFile.setExt(rs.getString("fileext"));
+                entityFile.setDate((Timestamp) rs.getObject("filedate"));
+                entityFile.setHash(rs.getString("filehash"));
+                entityFile.setOwner(rs.getInt("fileuserid"));
             }
         } catch (Exception e) {
-            System.out.println("ERROR! getFileData: " + e.getMessage());
-            return null;
+            System.out.println("ERROR! getEntityFile: " + e.getMessage());
+            throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
                 preparedStatement.close();

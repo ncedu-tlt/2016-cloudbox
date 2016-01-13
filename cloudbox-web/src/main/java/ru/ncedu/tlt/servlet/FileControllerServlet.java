@@ -84,7 +84,7 @@ public class FileControllerServlet extends HttpServlet{
                 try 
                 {
                     Integer fileId = Integer.valueOf(request.getParameter("fileId"));
-                    EntityFile file = fileWorker.getFileData(fileId);
+                    EntityFile file = fileWorker.getEntityFile(fileId);
                     Gson gson = new Gson();
                     rs.print(gson.toJson(file));
                     break;
