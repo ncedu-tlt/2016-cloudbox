@@ -55,7 +55,7 @@ public class EntityFileController {
 
             preparedStatement.setString(1, entityFile.getName());
             preparedStatement.setString(2, entityFile.getExt());
-            preparedStatement.setString(3, entityFile.toString());
+            preparedStatement.setString(3, entityFile.getDate().toString());
             preparedStatement.setString(4, entityFile.getHash());
             preparedStatement.setInt(5, entityFile.getOwner());
 
