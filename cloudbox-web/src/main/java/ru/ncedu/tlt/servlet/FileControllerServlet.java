@@ -71,8 +71,7 @@ public class FileControllerServlet extends HttpServlet{
                 try 
                 {
                     Gson gson = new Gson();
-                    ArrayList filesList = fileWorker.getAllFiles();
-                    rs.print(gson.toJson(filesList));
+                    rs.print(gson.toJson(fileWorker.getAllFiles()));
                     break;
                 } catch (SQLException ex) 
                 {

@@ -52,21 +52,10 @@ public class UserControllerServlet extends HttpServlet {
         switch (userManageRequest) 
         {
             case "getAllUsers": {
-                ArrayList<User> userList;
+                Gson gson = new Gson();
                 try {
-                    userList = userController.getAllUsers();
-                    JsonBuilderFactory factory = Json.createBuilderFactory(null);
-                    JsonArrayBuilder jAB = factory.createArrayBuilder();
-                    JsonArray jA;
-                    for (User user : userList)
-                    {
-                        jAB.add(factory.createObjectBuilder()
-                            .add("USERID", user.getId())
-                            .add("USERNAME", user.getName())
-                        );
-                    }   
-                    jA=jAB.build();
-                    rs.print(jA);
+                    String json = gson.toJson(userController.getAllUsers());
+                    rs.print(json);
                 } catch (SQLException ex) {
                     System.out.println(ex);
                 }
@@ -76,11 +65,10 @@ public class UserControllerServlet extends HttpServlet {
             {
                 Integer userId = Integer.valueOf(request.getParameter("userId"));
                 User user;
-                Gson gsonObject = new Gson();
+                Gson gson = new Gson();
                 try {
                     user = userController.findUser(userId);
-                    String json = gsonObject.toJson(user);
-                    rs.print(json);
+                    rs.print(gson.toJson(user));
                 } catch (SQLException ex) {
                     System.out.println(ex);
                 }
@@ -88,11 +76,10 @@ public class UserControllerServlet extends HttpServlet {
             }
             case "getAllRoles":
             {
-                Gson gsonObject = new Gson();
+                Gson gson = new Gson();
                 try {
                     ArrayList<UserRole> allRolesList = (ArrayList) roleController.getAllUserRoles();
-                    String json = gsonObject.toJson(allRolesList);
-                    System.out.println(json);
+                    String json = gson.toJson(allRolesList);
                     rs.print(json);
                 } catch (SQLException ex) {
                     System.out.println(ex);
@@ -108,7 +95,7 @@ public class UserControllerServlet extends HttpServlet {
                 userController.updateUserData(userId, column, value);
                 break;
             } catch (SQLException ex) {
-                Logger.getLogger(UserControllerServlet.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println(ex);;
             }
             break;
             }
@@ -121,7 +108,7 @@ public class UserControllerServlet extends HttpServlet {
                 userController.updateUserRole(userId, roleId, value);
                 break;
             } catch (SQLException ex) {
-                Logger.getLogger(UserControllerServlet.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println(ex);
             }
             }
         }
