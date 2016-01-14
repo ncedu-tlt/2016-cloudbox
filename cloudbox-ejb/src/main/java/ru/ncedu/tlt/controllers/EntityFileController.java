@@ -32,7 +32,7 @@ public class EntityFileController {
 
     @EJB
     HashGenerator hashGenerator;
-
+    
     PreparedStatement preparedStatement;
     Connection connection;
 
@@ -46,8 +46,8 @@ public class EntityFileController {
      */
     public void storeEntityFile(EntityFile entityFile) throws SQLException {
         preparedStatement = null;
-        String sqlQuery = "insert into cb_file "
-                + "(filename, fileext, filedate, filehash, fileuserid) values "
+        String sqlQuery = "insert into cb_file"
+                + "(filename, fileext, filedate, filehash, fileuserid) values"
                 + "(?,?,?,?,?)";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -64,11 +64,13 @@ public class EntityFileController {
             //почему-то не работает генератор Statement.RETURN_GENERATED_KEYS 
             //с таблицей CB_FILE
 
+            System.out.println("retriving new id for file");
+            try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
+                keys.next();
+                entityFile.setId(keys.getInt(1));                
+            }
             System.out.println("Record is inserted into CB_FILE table!");
-
-            // Запись в таблицу CB_USERFILES
             insertEntryInUserFile(entityFile.getOwner(), entityFile.getId());
-
         } catch (SQLException e) {
             System.out.println("ERROR! storeEntityFile: " + e.getMessage());
             throw new SQLException(e);
@@ -101,7 +103,7 @@ public class EntityFileController {
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         preparedStatement = null;
         String sqlQuery = "insert into cb_userfile "
-                + "(uf_userid, uf_fileid) values"
+                + "(uf_userid, uf_fileid) values "
                 + "(?, ?)";
         try {
             preparedStatement = connection.prepareStatement(sqlQuery);
@@ -143,8 +145,8 @@ public class EntityFileController {
      */
     public void markEntryFileAsTrash(Integer userId, Integer fileId) throws SQLException {
         preparedStatement = null;
-        String sqlQuery = "update cb_userfile"
-                + "set uf_del = sysdate"
+        String sqlQuery = "update cb_userfile "
+                + "set uf_del = sysdate "
                 + "where uf_fileid = ? "
                 + "and uf_userid = ?";
         try {
@@ -208,11 +210,11 @@ public class EntityFileController {
      */
     public boolean checkOwner(Integer userId, Integer fileId) {
         preparedStatement = null;
-        String sqlQuery = "select *"
-                + "from cb_file f, cb_userfile uf"
-                + "where uf.uf_fileid = f.fileid"
-                + "and uf.uf_userid = f.fileuserid"
-                + "and uf.uf_fileid = ?"
+        String sqlQuery = "select * "
+                + "from cb_file f, cb_userfile uf "
+                + "where uf.uf_fileid = f.fileid "
+                + "and uf.uf_userid = f.fileuserid "
+                + "and uf.uf_fileid = ? "
                 + "and uf.uf_userid = ?";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -236,14 +238,14 @@ public class EntityFileController {
      */
     public void onceDeleteEntryFromUserfile(Integer userId, Integer fileId) throws SQLException {
         preparedStatement = null;
-        String sqlQuery = "delete from cb_userfile"
-                + "where uf_fileid = ?"
+        String sqlQuery = "delete from cb_userfile "
+                + "where uf_fileid = ? "
                 + "and uf_userid = ?";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, fileId);
-            preparedStatement.setInt(2, userId);
+            preparedStatement.setInt(2, userId);           
             preparedStatement.executeUpdate();
             System.out.println("onceDeleteUserfile succesfull, userId : " + userId + "fileId : " + fileId);
         } catch (SQLException e) {
@@ -275,7 +277,7 @@ public class EntityFileController {
      */
     public void fullDeleteEntryFromUserfile(Integer fileId) throws SQLException {
         preparedStatement = null;
-        String sqlQuery = "delete from cb_userfile"
+        String sqlQuery = "delete from cb_userfile "
                 + "where uf_fileid = ?";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -313,7 +315,7 @@ public class EntityFileController {
     public void deleteEntryFromFile(Integer fileId) throws SQLException {
         preparedStatement = null;
 
-        String sqlQuery = "delete from cb_file"
+        String sqlQuery = "delete from cb_file "
                 + "where fileid = ?";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -354,11 +356,11 @@ public class EntityFileController {
     public ArrayList<EntityFile> getUserFiles(String userId) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
         preparedStatement = null;
-        String sqlQuery = "select * from cb_file f"
-                + "join cb_userfile uf on f.fileid = uf.uf_fileid"
-                + "where uf.uf_userid = ?" 
-                + "and uf.uf_del is null" 
-                + "and f.fileuserid = uf.uf_userid"
+        String sqlQuery = "select * from cb_file f "
+                + "join cb_userfile uf on f.fileid = uf.uf_fileid "
+                + "where uf.uf_userid = ? " 
+                + "and uf.uf_del is null " 
+                + "and f.fileuserid = uf.uf_userid "
                 + "order by f.filename";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -408,11 +410,11 @@ public class EntityFileController {
     public ArrayList<EntityFile> getUserFilesInTrash(String userId) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
         preparedStatement = null;
-        String sqlQuery = "select * from cb_file f"
-                + "join cb_userfile uf on f.fileid = uf.uf_fileid"
-                + "where uf.uf_userid = ?" 
-                + "and uf.uf_del is not null" 
-                + "and f.fileuserid = uf.uf_userid"
+        String sqlQuery = "select * from cb_file f "
+                + "join cb_userfile uf on f.fileid = uf.uf_fileid "
+                + "where uf.uf_userid = ? " 
+                + "and uf.uf_del is not null " 
+                + "and f.fileuserid = uf.uf_userid "
                 + "order by f.filename";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
@@ -511,9 +513,9 @@ public class EntityFileController {
     public ArrayList<EntityFile> getSharedUserFiles(String userId) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
         preparedStatement = null;
-        String sqlQuery = "select f.* from cb_userfile uf, cb_file f"
-                + "where uf.uf_fileid = f.fileid"
-                + "and uf.uf_userid = ?"
+        String sqlQuery = "select f.* from cb_userfile uf, cb_file f "
+                + "where uf.uf_fileid = f.fileid "
+                + "and uf.uf_userid = ? "
                 + "and uf.uf_userid != f.fileuserid";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
