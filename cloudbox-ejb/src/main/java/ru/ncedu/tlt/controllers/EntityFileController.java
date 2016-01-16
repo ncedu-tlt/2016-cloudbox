@@ -134,10 +134,7 @@ public class EntityFileController {
 
     /**
      * Помечает файл как удалённый в таблице CB_USERFILE, устанавливая текущую
-     * дату в поле UF_DEL. Тем самым отмечая файл как помещённый в корзину
-     * Неявно вызывает метод cleanDependenciesAfterDeleteToTrash(idUser, fileId)
-     * для удаления ссылок на файл помещённый владельцем в корзину из таблицы
-     * CB_USERFILE
+     * дату в поле UF_DEL.
      *
      * @param userId - id пользователя
      * @param fileId - id файла
@@ -177,6 +174,48 @@ public class EntityFileController {
         }
     }
 
+    /**
+     * Обнуляет поле uf_del в записи по userId, fileId в таблице CB_USERFILE.
+     * Тем самым восстанавливая файл из корзины.
+     * 
+     * @param userId
+     * @param fileId
+     * @throws SQLException 
+     */
+    public void restoreFromTrash(Integer userId, Integer fileId) throws SQLException {
+        preparedStatement = null;
+        String sqlQuery = "update cb_userfile "
+                + "set uf_del = null "
+                + "where uf_fileid = ? "
+                + "and uf_userid = ?";
+        try {
+            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, fileId);
+            preparedStatement.setInt(2, userId);
+            preparedStatement.executeUpdate();
+            System.out.println("File with id=" + fileId + "and user id=" + userId + " moved to trash");
+        } catch (SQLException e) {
+            System.out.println("ERROR! markEntryFileAsTrash : " + e.getMessage());
+            throw new SQLException(e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+    
     /**
      * Метод осуществляет удаление записей о файлах из таблиц USERFILE и FILE.
      *
