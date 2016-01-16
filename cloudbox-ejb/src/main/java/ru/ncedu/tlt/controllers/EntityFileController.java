@@ -197,7 +197,7 @@ public class EntityFileController {
             preparedStatement.executeUpdate();
             System.out.println("File with id=" + fileId + "and user id=" + userId + " restore from trash");
         } catch (SQLException e) {
-            System.out.println("ERROR! markEntryFileAsTrash : " + e.getMessage());
+            System.out.println("ERROR! restoreFromTrash : " + e.getMessage());
             throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
