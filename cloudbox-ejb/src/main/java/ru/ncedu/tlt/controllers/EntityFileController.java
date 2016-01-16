@@ -143,14 +143,15 @@ public class EntityFileController {
     public void markEntryFileAsTrash(Integer userId, Integer fileId) throws SQLException {
         preparedStatement = null;
         String sqlQuery = "update cb_userfile "
-                + "set uf_del = sysdate "
+                + "set uf_del = ? "
                 + "where uf_fileid = ? "
                 + "and uf_userid = ?";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, fileId);
-            preparedStatement.setInt(2, userId);
+            preparedStatement.setString(1, new Timestamp(System.currentTimeMillis()).toString()); //устанавливаю текущее время
+            preparedStatement.setInt(2, fileId);
+            preparedStatement.setInt(3, userId);
             preparedStatement.executeUpdate();
             System.out.println("File with id=" + fileId + "and user id=" + userId + " moved to trash");
         } catch (SQLException e) {
@@ -194,7 +195,7 @@ public class EntityFileController {
             preparedStatement.setInt(1, fileId);
             preparedStatement.setInt(2, userId);
             preparedStatement.executeUpdate();
-            System.out.println("File with id=" + fileId + "and user id=" + userId + " moved to trash");
+            System.out.println("File with id=" + fileId + "and user id=" + userId + " restore from trash");
         } catch (SQLException e) {
             System.out.println("ERROR! markEntryFileAsTrash : " + e.getMessage());
             throw new SQLException(e);
