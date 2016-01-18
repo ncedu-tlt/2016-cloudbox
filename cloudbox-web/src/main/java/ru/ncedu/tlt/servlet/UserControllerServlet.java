@@ -41,8 +41,13 @@ public class UserControllerServlet extends HttpServlet {
     @EJB
     RoleController roleController;    
 
-    @Override
+        @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        executeCommand(request, response);
+    }
+
+    protected void executeCommand(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
@@ -117,6 +122,7 @@ public class UserControllerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        executeCommand(request, response);
     }
 
     @Override
