@@ -1,28 +1,42 @@
 <%-- 
-    Document   : usersettings
-    Created on : Dec 13, 2015, 12:54:43 AM
-    Author     : Andrew
+    Document   : adminpage
+    Created on : Dec 13, 2015, 12:54:57 AM
+    Author     : pavel.tretyakov
 --%>
-
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>UserSettings</title>  <link rel="icon" href="app/ico/cloudbox.ico" type="image/x-icon" />
+        <title>Настройки пользователя</title>
+
+        <link rel="icon" href="app/ico/cloudbox.ico" type="image/x-icon" />
         <!--<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>-->
         <link href="lib/bootstrap/css/bootstrap-paper.min.css" rel="stylesheet"/>
         <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 
+        <link href="app/css/adminpage.css" rel="stylesheet">
 
         <script src="lib/jquery/jquery.min.js"></script>
         <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+
+        <script src="app/js/usersettings.js"></script>
+
+
+
     </head>
+
+
+
+
     <body>
-      <div class="container">
 
 
 
+        <div class="container">
             <nav class="navbar navbar-default">
                 <div class="container-fluid">
                     <div class="navbar-header">
@@ -40,8 +54,11 @@
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <ul class="nav navbar-nav">
                             <li ><a href="drive.jsp">Мой диск<span class="sr-only">(current)</span></a></li>
-                            
-                            <li ><a href="adminpage.jsp">Администрирование</a></li>
+
+                            <c:set var="theString" value="${userroles}"/>
+                            <c:if test="${fn:contains(theString, '1')}">
+                                <li><a href="adminpage.jsp">Администрирование</a></li>
+                                </c:if>
 
                         </ul>
 
@@ -62,8 +79,39 @@
                 </div>
             </nav>
 
-            
+            <div class="row">
 
+                <div class="col-lg-2">
+                    <!--<div class="btn btn-link col-lg-12" onclick="getAllUsers()">Пользователи</div>-->                   
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <table id="contentTable" class="table table-striped table-hover " cellspacing="0" width="80%">
+                            <tbody>
+                            </tbody>
+                        </table>                      
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div id="properties" class="panel panel-default">
+                    </div>
+                </div>
+            </div>
         </div>
+
+
+
     </body>
+
+
+    <div class="container">
+        <div class="row" id="message-container" style="display: none;">
+            <div class="span12">  
+                <div class = "alert alert-warning"><span id="message-text">Test Text</span></div>
+            </div>
+        </div>
+    </div>
+
 </html>

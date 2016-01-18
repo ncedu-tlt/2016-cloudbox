@@ -39,9 +39,9 @@ public class UserControllerServlet extends HttpServlet {
     @EJB
     UserController userController;
     @EJB
-    RoleController roleController;    
+    RoleController roleController;
 
-        @Override
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         executeCommand(request, response);
@@ -54,8 +54,7 @@ public class UserControllerServlet extends HttpServlet {
         String userManageRequest = request.getRequestURI().split("/")[request.getRequestURI().split("/").length - 1];
         response.setContentType("text/html");
         PrintWriter rs = response.getWriter();
-        switch (userManageRequest) 
-        {
+        switch (userManageRequest) {
             case "getAllUsers": {
                 Gson gson = new Gson();
                 try {
@@ -66,8 +65,7 @@ public class UserControllerServlet extends HttpServlet {
                 }
                 break;
             }
-            case "getUserData": 
-            {
+            case "getUserData": {
                 Integer userId = Integer.valueOf(request.getParameter("userId"));
                 User user;
                 Gson gson = new Gson();
@@ -79,8 +77,19 @@ public class UserControllerServlet extends HttpServlet {
                 }
                 break;
             }
-            case "getAllRoles":
-            {
+            case "getUserLoggedData": {
+                Integer userId = (Integer) request.getSession().getAttribute("userId");
+                User user;
+                Gson gson = new Gson();
+                try {
+                    user = userController.findUser(userId);
+                    rs.print(gson.toJson(user));
+                } catch (SQLException ex) {
+                    System.out.println(ex);
+                }
+                break;
+            }
+            case "getAllRoles": {
                 Gson gson = new Gson();
                 try {
                     ArrayList<UserRole> allRolesList = (ArrayList) roleController.getAllUserRoles();
@@ -91,30 +100,28 @@ public class UserControllerServlet extends HttpServlet {
                 }
                 break;
             }
-            case "updateUserData":
-            {
-            try {
-                Integer userId = Integer.valueOf(request.getParameter("userId"));
-                String column = request.getParameter("column");
-                String value = request.getParameter("value");
-                userController.updateUserData(userId, column, value);
+            case "updateUserData": {
+                try {
+                    Integer userId = Integer.valueOf(request.getParameter("userId"));
+                    String column = request.getParameter("column");
+                    String value = request.getParameter("value");
+                    userController.updateUserData(userId, column, value);
+                    break;
+                } catch (SQLException ex) {
+                    System.out.println(ex);;
+                }
                 break;
-            } catch (SQLException ex) {
-                System.out.println(ex);;
             }
-            break;
-            }
-            case "updateUserRole":
-            {
-            try {
-                Integer userId = Integer.valueOf(request.getParameter("userId"));
-                Integer roleId = Integer.valueOf(request.getParameter("roleId"));
-                String value = request.getParameter("is");
-                userController.updateUserRole(userId, roleId, value);
-                break;
-            } catch (SQLException ex) {
-                System.out.println(ex);
-            }
+            case "updateUserRole": {
+                try {
+                    Integer userId = Integer.valueOf(request.getParameter("userId"));
+                    Integer roleId = Integer.valueOf(request.getParameter("roleId"));
+                    String value = request.getParameter("is");
+                    userController.updateUserRole(userId, roleId, value);
+                    break;
+                } catch (SQLException ex) {
+                    System.out.println(ex);
+                }
             }
         }
     }

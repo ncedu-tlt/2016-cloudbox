@@ -13,6 +13,8 @@
         <page>registr</page>
         <page>drive</page>
         <page>usersettings</page>
+        <page>getAllRoles</page>
+        <page>getUserLoggedData</page>
         <page>app</page>
         <page>lib</page>
     </group>
