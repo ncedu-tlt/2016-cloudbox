@@ -643,14 +643,14 @@ public class EntityFileController {
     public void updateFileData(Integer fileId, String column, String value) throws SQLException {
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         preparedStatement = null;
-        String sqlQuery = "update cb_file"
-                + " set ? = ?"
-                + " where fileid = ?";
+        String sqlQuery = "update cb_file "
+                + "set " + column + " = ? "
+                + "where fileid = ?";
         try {
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setString(1, column);
-            preparedStatement.setString(2, value);
-            preparedStatement.setInt(3, fileId);
+//            preparedStatement.setString(1, column);
+            preparedStatement.setString(1, value);
+            preparedStatement.setInt(2, fileId);
             preparedStatement.executeUpdate();
         } catch (Exception e) {
             System.out.println("ERROR! updateFileData: " + e.getMessage());
