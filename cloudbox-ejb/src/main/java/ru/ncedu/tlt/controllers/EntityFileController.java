@@ -224,8 +224,8 @@ public class EntityFileController {
      * @param fileId - id файла для удаления
      * @throws SQLException
      */
-    public void deleteFileFromBD(Integer userId, Integer fileId) throws SQLException {
-        if (checkOwner(userId, fileId)) { //проверка, является ли пользователь владельцем файла?
+    public void deleteFileFromDB(Integer userId, Integer fileId) throws SQLException {
+        if (isOwner(userId, fileId)) { //проверка, является ли пользователь владельцем файла?
             try {
                 fullDeleteEntryFromUserfile(fileId);
                 deleteEntryFromFile(fileId);
@@ -248,14 +248,12 @@ public class EntityFileController {
      * @param fileId
      * @return boolean, true если является владельцем
      */
-    public boolean checkOwner(Integer userId, Integer fileId) {
+    public boolean isOwner(Integer userId, Integer fileId) {
         preparedStatement = null;
-        String sqlQuery = "select * "
-                + "from cb_file f, cb_userfile uf "
-                + "where uf.uf_fileid = f.fileid "
-                + "and uf.uf_userid = f.fileuserid "
-                + "and uf.uf_fileid = ? "
-                + "and uf.uf_userid = ?";
+        String sqlQuery = "select *"
+                + " from cb_file f"
+                + " where f.fileid = ?"
+                + " and f.fileuserid = ?";
         try {
             connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(sqlQuery);
@@ -632,4 +630,47 @@ public class EntityFileController {
         }
         return entityFile;
     }
+    
+    /**
+     * Обновление данных о файле
+     * Используется на странице администратора
+     * 
+     * @param fileId
+     * @param column поле в БД которое требует апдейта
+     * @param value новое значение поля 
+     * @throws SQLException
+     */
+    public void updateFileData(Integer fileId, String column, String value) throws SQLException {
+        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        preparedStatement = null;
+        String sqlQuery = "update cb_file"
+                + " set ? = ?"
+                + " where fileid = ?";
+        try {
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1, column);
+            preparedStatement.setString(2, value);
+            preparedStatement.setInt(3, fileId);
+            preparedStatement.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("ERROR! updateFileData: " + e.getMessage());
+            throw new SQLException(e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+    
 }
