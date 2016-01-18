@@ -73,12 +73,12 @@
                         paramsTable.innerHTML = '';
                         paramList = JSON.parse(xmlhttp.responseText);
                         var d = '';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERID" type="hidden" value="' + paramList.id + '"></td></tr>';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERNAME" type="text" value="' + paramList.name + '"></td></tr>';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERMAIL" type="text" value="' + paramList.email + '"></td></tr>';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERPASSHASH" type="text" value="' + paramList.hash + '"></td></tr>';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERNOTES" type="text" value="' + paramList.note + '"></td></tr>';
-                        d += '<tr><td><input onchange="updateUserData()" id="USERPIC" type="text" value="' + paramList.picPath + '"></td></tr>';
+                        d += '<img class="param foto"src="' + paramList.picPath + '">';
+                        d += '<input class="param" onchange="updateUserData()" id="USERID" type="hidden" value="' + paramList.id + '">';
+                        d += '<input class="param" onchange="updateUserData()" id="USERNAME" type="text" value="' + paramList.name + '">';
+                        d += '<input class="param" onchange="updateUserData()" id="USERMAIL" type="text" value="' + paramList.email + '">';
+                        d += '<input class="param" onchange="updateUserData()" id="USERPASSHASH" type="text" value="' + paramList.hash + '">';
+                        d += '<input class="param" onchange="updateUserData()" id="USERNOTES" type="text" value="' + paramList.note + '">';
                         paramsTable.innerHTML = d;
                         //Проставляем галочки в соответствии с ролями
                         for (var key in paramList.userRoles)
@@ -184,9 +184,7 @@
                         paramList = JSON.parse(xmlhttp.responseText);
                         for (var key in paramList)
                         {
-                            var d = document.createElement('tr');
-                            d.innerHTML += '<td><input id="'+key+'" type="text" value="' + paramList[key] + '"></td>';
-                            paramsTable.appendChild(d);
+                            paramsTable.innerHTML += '<input id="'+key+'" type="text" value="' + paramList[key] + '">';
                         }
                     }
                 };
@@ -296,10 +294,8 @@
                 </div>
                 <div class="col-lg-4">
                     <div class="panel panel-default">
-                        <table id="paramsTable" class="table table-striped">
-                            <tbody>
-                            </tbody>
-                        </table>
+                        <div id="paramsTable">
+                        </div>
                         <div  id="rolesPanel">
                         </div>
                     </div>
