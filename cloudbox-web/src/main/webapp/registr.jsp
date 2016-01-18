@@ -69,7 +69,7 @@
                                     <input class="btn btn-default col-lg-12" type="submit" name="commit" value="Регистрация" >
                                 </div>
                                 <div class="col-lg-6">
-                                    <a  class="btn btn-default col-lg-12" href="login">Отмена</a>
+                                    <a  class="btn btn-default col-lg-12" href="login.jsp">Отмена</a>
                                 </div>
 
                             </div>

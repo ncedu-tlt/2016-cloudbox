@@ -55,7 +55,7 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <!--<input class="btn btn-default col-lg-12"name="registr" value="Регистрация">-->
-                                    <a  class="btn btn-default col-lg-12" href="registr">Регистрация</a>
+                                    <a  class="btn btn-default col-lg-12" href="registr.jsp">Регистрация</a>
                                 </div>
 
                             </div>

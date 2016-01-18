@@ -56,7 +56,7 @@ public class FilterSettingsXML {
             for (String page : (ArrayList<String>) pagesMap.get(userRole.getId())) {
                 if (wrappedRequest.getRequestURI().contains(page)) {
                     result = true;
-                } 
+                }
             }
         }
 
@@ -71,12 +71,12 @@ public class FilterSettingsXML {
 
         pagesMap = new HashMap();
         pagesMap.put(0, nologinPages);
-        pagesMap.put(1, userPages);
+        pagesMap.put(1, adminPages);
         pagesMap.put(2, moderatorPages);
-        pagesMap.put(3, adminPages);
+        pagesMap.put(3, userPages);
 
         try {
-            String path = ctx.getRealPath("/WEB-INF/"+FilterParam.FILTER_FILE_SETTINGS_XML);
+            String path = ctx.getRealPath("/WEB-INF/" + FilterParam.FILTER_FILE_SETTINGS_XML);
             File fXmlFile = new File(path);
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -114,9 +114,8 @@ public class FilterSettingsXML {
                         break;
 
                 }
-                
-//                System.out.println("node: " + ((Element) nNode).getElementsByTagName("name").item(0).getTextContent());
 
+//                System.out.println("node: " + ((Element) nNode).getElementsByTagName("name").item(0).getTextContent());
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 
                     Element eElement = (Element) nNode;
