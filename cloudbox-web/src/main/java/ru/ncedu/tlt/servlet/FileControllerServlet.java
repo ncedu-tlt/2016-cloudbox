@@ -75,7 +75,7 @@ public class FileControllerServlet extends HttpServlet{
                     break;
                 } catch (SQLException ex) 
                 {
-                    System.out.println(ex);
+                    rs.print(ex);
                 }
             }
             case "getFileData":
@@ -88,7 +88,7 @@ public class FileControllerServlet extends HttpServlet{
                     rs.print(gson.toJson(file));
                     break;
                 } catch (SQLException ex) {
-                    System.out.println(ex);
+                    rs.print(ex);
                 }
             }
         }       

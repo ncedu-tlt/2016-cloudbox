@@ -6,3 +6,18 @@
     z-index:9999; 
     
 }
+
+.param
+{
+    width:100%;
+}
+
+#paramsTable
+{
+    padding:5px;
+}
+
+#rolesPanel
+{
+    padding:5px
+}
