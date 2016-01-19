@@ -32,6 +32,7 @@
         <page>registr</page>
         <page>app</page>
         <page>lib</page>
+        <page>drive</page>
         <page>usersettings</page>
         <page>userProcess</page>
         <page>fileProcess</page>

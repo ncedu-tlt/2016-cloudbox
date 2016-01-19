@@ -160,6 +160,38 @@ public class UserController {
         return userList;
     }
 //------
+    public ArrayList<User> getUsersByRole(Integer roleId){
+        User user;
+        ArrayList<User> userList = new ArrayList<>();
+        PreparedStatement statement;
+        try {
+            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            String query = "SELECT USERID, USERNAME "
+                    + "FROM CB_USER "
+                    + "INNER JOIN CB_USERROLE "
+                    + "ON CB_USERROLE.UR_USERID = CB_USER.USERID "
+                    + "WHERE CB_USERROLE.UR_ROLEID = ?";
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, roleId);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                user = new User();
+                user.setId(rs.getInt("USERID"));
+                user.setName(rs.getString("USERNAME"));
+                userList.add(user);
+            }
+            if (statement != null) {
+                statement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException ex) {
+            System.out.println("БИН ВЫДАЛ: "+ex.getMessage());
+        }
+        return userList;
+    }
+//------
 
     /**
      * Поиск пользователя в базе по имени
@@ -258,8 +290,6 @@ public class UserController {
                 }
             }
         }
-
-
         return user;
     }
 //------    

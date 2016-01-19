@@ -26,7 +26,7 @@ import ru.ncedu.tlt.entity.EntityFile;
 public class FileControllerServlet extends HttpServlet{
     
     @EJB 
-    EntityFileController fileWorker;
+    EntityFileController entityFileController;
     
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -37,6 +37,7 @@ public class FileControllerServlet extends HttpServlet{
         if (request.getSession().getAttribute("userName") == null){
             request.getRequestDispatcher("login.jsp").forward(request, response);        
         }
+        executeCommand(request, response);
         
         PrintWriter rs = response.getWriter();
         rs.print(request.getRequestURI().split("/"));
@@ -51,9 +52,13 @@ public class FileControllerServlet extends HttpServlet{
         */
     }
 
- 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {  
+        executeCommand(request, response);
+    }
+
+    protected void executeCommand(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {  
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
@@ -64,14 +69,13 @@ public class FileControllerServlet extends HttpServlet{
         }
         */
         PrintWriter rs = response.getWriter();     
-        
         switch (fileManageRequest){
-            case "getFilesList":
+            case "getAllFiles":
             {
                 try 
                 {
                     Gson gson = new Gson();
-                    rs.print(gson.toJson(fileWorker.getAllFiles()));
+                    rs.print(gson.toJson(entityFileController.getAllFiles()));
                     break;
                 } catch (SQLException ex) 
                 {
@@ -83,9 +87,23 @@ public class FileControllerServlet extends HttpServlet{
                 try 
                 {
                     Integer fileId = Integer.valueOf(request.getParameter("fileId"));
-                    EntityFile file = fileWorker.getEntityFile(fileId);
+                    EntityFile file = entityFileController.getEntityFile(fileId);
                     Gson gson = new Gson();
                     rs.print(gson.toJson(file));
+                    break;
+                } catch (SQLException ex) {
+                    rs.print(ex);
+                }
+            }
+            case "updateFileData":
+            {
+                System.out.println("ОБновляем файл");
+                try 
+                {
+                    Integer fileId = Integer.valueOf(request.getParameter("fileId"));
+                    String column = request.getParameter("column");
+                    String value = request.getParameter("value");
+                    entityFileController.updateFileData(fileId, column, value);
                     break;
                 } catch (SQLException ex) {
                     rs.print(ex);

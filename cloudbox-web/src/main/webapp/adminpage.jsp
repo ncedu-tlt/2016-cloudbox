@@ -23,8 +23,14 @@
         <script language="javascript" type="text/javascript">
             
 //---------
-//Так как роли у нас фиксированы для всех функций, то сразу формируем переменную, содержащую список ролей.
             var rolesList = getAllRoles();
+            $(document).ready(function(){
+                for(var key in rolesList)
+                {
+                    $('#menu').append('<li onclick = getUsersByRole('+rolesList[key].id+')><a>'+rolesList[key].name+'</a></li>');
+                };
+            });
+            
 //---------            
             function showUserProperties(userId)
             {
@@ -47,7 +53,7 @@
                 elem.innerHTML = rolesString;
                 elem = propertiesDiv.insertBefore(document.createElement('div'), elem);
                 elem.id='paramsTable';
-                var infoHTML = '<img alt="фотка персонажа" class="foto" src="' + paramList.picPath + '"></br>';
+                var infoHTML = '<img alt="фотка персонажа" class="img-rounded" src="' + paramList.picPath + '"></br>';
                 infoHTML += '<span class="param">UID</span>';
                 infoHTML += '<input disabled class="param" id="USERID" value="' + paramList.id + '">';
                 infoHTML += '<span class="param">Логин</span>';
@@ -81,9 +87,25 @@
                 for(var key in usersList)
                 {
                     var d = document.createElement('tr');
-                    d.innerHTML = "<td onclick=\"showUserProperties("
-                            + usersList[key].id + ")\">" 
-                            + usersList[key].name + "</td>";
+                    d.innerHTML = '<td data-toggle="modal" data-target="#popup" onclick="showUserProperties('
+                            + usersList[key].id + ')">' 
+                            + usersList[key].name + '</td>';
+                    contentTable.getElementsByTagName("tbody")[0].appendChild(d);
+                }
+            }
+//---------            
+            function getUsersByRole(roleId)
+            {
+                var response = $.ajax({url: "./userProcess/getUsersByRole", data:{roleId:roleId}, async:false}).responseText;
+                var contentTable = document.getElementById("contentTable");
+                contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
+                var usersList = JSON.parse(response);
+                for(var key in usersList)
+                {
+                    var d = document.createElement('tr');
+                    d.innerHTML = '<td data-toggle="modal" data-target="#popup" onclick="showUserProperties('
+                            + usersList[key].id + ')">' 
+                            + usersList[key].name + '</td>';
                     contentTable.getElementsByTagName("tbody")[0].appendChild(d);
                 }
             }
@@ -145,24 +167,17 @@
 //---------
             function getAllFiles()
             {
-                var xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function ()
+//                document.getElementById('properties').innerHTML='';
+                var response = $.ajax({url: "./fileProcess/getAllFiles", async:false}).responseText;
+                var filesList = JSON.parse(response);
+                var contentTable = document.getElementById("contentTable");
+                contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
+                filesList.forEach(function (item, i, arr)
                 {
-                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
-                    {
-                        var filesList = JSON.parse(xmlhttp.responseText);
-                        var contentTable = document.getElementById("contentTable");
-                        contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
-                        filesList.forEach(function (item, i, arr)
-                        {
-                            var d = document.createElement('tr');
-                            d.innerHTML = '<td onclick="showFileProperties(' + item.id + ')">' + item.name + '</td><td>' + item.ext + '</td>';
-                            contentTable.getElementsByTagName("tbody")[0].appendChild(d);
-                        });
-                    }
-                };
-                xmlhttp.open("GET", "./fileProcess/getFilesList", false);
-                xmlhttp.send();
+                    var d = document.createElement('tr');
+                    d.innerHTML = '<td data-toggle="modal" data-target="#popup" onclick="showFileProperties(' + item.id + ')">' + item.name + '</td><td>' + item.ext + '</td>';
+                    contentTable.getElementsByTagName("tbody")[0].appendChild(d);
+                });
             }
 //---------
             function showFileProperties(fileId)
@@ -176,19 +191,19 @@
                 {
                     var owner = getUserData(paramList.owner);
                     var infoHTML = '';
-                    infoHTML += '<img alt="дефолтная иконка" class="foto" src="default_file.png"></br>';
-                    infoHTML += '<span class="param">Владелец</span>';
-                    infoHTML += '<input type=button class="btn-link" onclick="showUserProperties(' + owner.id + ')" value="' + owner.name + '">';
-                    infoHTML += '<span class="param">Id</span>';
-                    infoHTML += '<input disabled class="param" id="FILEID" value="' + paramList.id + '">';
-                    infoHTML += '<span class="param">Имя файла</span>';
-                    infoHTML += '<input class="param" onchange="updateFileData()" id="FILEUSERID" type="text" value="' + paramList.name + '">';
-                    infoHTML += '<span class="param">Расширение</span>';
-                    infoHTML += '<input class="param" onchange="updateFileData()" id="FILEEXT" type="text" value="' + paramList.ext + '">';
-                    infoHTML += '<span class="param">Дата загрузки</span>';
-                    infoHTML += '<input class="param" onchange="updateFileData()" id="FILEDATE" type="text" value="' + paramList.date + '">';
-                    infoHTML += '<span class="param">Хэш файла</span>';
-                    infoHTML += '<input disabled class="param" id="FILEHASH" value="' + paramList.hash + '">';
+                    infoHTML += '<img alt="дефолтная иконка" class="img-rounded" src="default_file.png"></br>';
+                    infoHTML += '<label for="owner">Владелец</label>';
+                    infoHTML += '<div id="owner" class="" data-toggle="modal" data-target="#properties" onclick="showUserProperties('+owner.id+')" class="btn-link">' + owner.name + '</div>';
+                    infoHTML += '<label for="FILEID">Id</label>';
+                    infoHTML += '<input disabled class="form-control" id="FILEID" value="' + paramList.id + '">';
+                    infoHTML += '<label for="FILENAME">Имя файла</label>';
+                    infoHTML += '<input class="form-control" onchange="updateFileData()" id="FILENAME" type="text" value="' + paramList.name + '">';
+                    infoHTML += '<label for="FILEEXT">Расширение</label>';
+                    infoHTML += '<input class="form-control" onchange="updateFileData()" id="FILEEXT" type="text" value="' + paramList.ext + '">';
+                    infoHTML += '<label for="FILEDATA">Дата загрузки</label>';
+                    infoHTML += '<input disabled class="form-control" id="FILEDATE" value="' + paramList.date + '">';
+                    infoHTML += '<label for="FILEHASH">Хэш файла</label>';
+                    infoHTML += '<input disabled class="form-control" id="FILEHASH" value="' + paramList.hash + '">';
                     elem.innerHTML = infoHTML;
                 }
             }
@@ -199,22 +214,21 @@
                 var elem = window.event.target;
                 var column = elem.id;
                 var value = elem.value;
-                var link = "./fileProcess/updateFileData?fileId=" + fileId
-                        + "&column=" + column
-                        + "&value=" + value;
-                var xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
-                    {
-                        showAlertMessage("Данные о файле обновлены");
-                        getAllFiles();
-                    }
-                };
-                xmlhttp.open("GET", link, true);
-                xmlhttp.send();
+                var link = './fileProcess/updateFileData';
+                $.ajax({
+                  type: "POST",
+                  url: link,
+                  data: {fileId:fileId, column:column, value:value},
+                  success: function(){
+                            showAlertMessage("Данные файла обновлены");
+                            getAllFiles();
+                  }
+              });
             }
+            
 //---------            
-            function showAlertMessage(message){
+            function showAlertMessage(message)
+            {
                 $('#message-text').text(message);
                 $('#message-container').fadeIn('slow');
                 window.setTimeout(function () {
@@ -223,6 +237,11 @@
                 }, 1000);
             }
 //---------
+            function popupShowUserProperties(userId)
+            {
+//                alert('надо сделать всплывающее окно с данными юзера');
+            }
+//---------            
         </script>
     </head>
     
@@ -232,6 +251,7 @@
                 <div class = "alert alert-warning"><span id="message-text">Test Text</span></div>
             </div>
         </div>
+
     </div>
 
 
@@ -281,8 +301,14 @@
             <div class="row">
 
                 <div class="col-lg-2">
-                    <div class="btn btn-link col-lg-12" onclick="getAllUsers()">Пользователи</div>
-                    <div class="btn btn-link col-lg-12" onclick="getAllFiles()">Файлы</div>
+                    <div class="dropdown">
+                        <button class="btn btn-primary col-md-12 dropdown-toggle" type="button" data-toggle="dropdown">Пользователи
+                            <span class="caret"></span></button>
+                        <ul id="menu" class="dropdown-menu">
+                            <li onclick="getAllUsers()"><a href="#">Все</a></li>
+                        </ul>
+                    </div>
+                    <div class="btn btn-primary col-md-12" onclick="getAllFiles()">Файлы</div>
                 </div>
 
                 <div class="col-lg-4">
@@ -294,13 +320,27 @@
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <div id="properties" class="panel panel-default">
+                    <div id="prop_erties" class="panel panel-default">
                     </div>
                 </div>
             </div>
         </div>
 
-
+    <div id="popup" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div id="properties" class="modal-body">
+            <p>Some text in the modal.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     </body>
 
