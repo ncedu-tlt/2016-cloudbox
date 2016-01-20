@@ -27,7 +27,7 @@
             $(document).ready(function(){
                 for(var key in rolesList)
                 {
-                    $('#menu').append('<li onclick = getUsersByRole('+rolesList[key].id+')><a>'+rolesList[key].name+'</a></li>');
+                    $('#menu').append('<li onclick="getAllUsers('+rolesList[key].id+')"><a>'+rolesList[key].name+'</a></li>');
                 };
             });
             
@@ -35,11 +35,10 @@
             function showUserProperties(userId)
             {
                 var paramList = getUserData(userId);
-                var propertiesDiv=document.getElementById('properties');
-                propertiesDiv.innerHTML='';
-                var elem=propertiesDiv.appendChild(document.createElement('div'));
-                elem.id='rolesPanel';
                 var rolesString='';
+                $('#popupTitle').text(paramList.name);
+                $('#properties').append('<div id="paramsTable"></div>');
+                $('#properties').append('<div id="rolesPanel"></div>');
                 for(var key in rolesList)
                 {
                     rolesString += '<input type="checkbox" id="ROLEID'
@@ -50,9 +49,7 @@
                     +rolesList[key].name
                     + '<br>';
                 }
-                elem.innerHTML = rolesString;
-                elem = propertiesDiv.insertBefore(document.createElement('div'), elem);
-                elem.id='paramsTable';
+                $('#rolesPanel').html(rolesString);
                 var infoHTML = '<img alt="фотка персонажа" class="img-rounded" src="' + paramList.picPath + '"></br>';
                 infoHTML += '<span class="param">UID</span>';
                 infoHTML += '<input disabled class="param" id="USERID" value="' + paramList.id + '">';
@@ -64,49 +61,41 @@
                 infoHTML += '<input disabled class="param" id="USERPASSHASH" value="' + paramList.hash + '">';
                 infoHTML += '<span class="param">Комментарий</span>';
                 infoHTML += '<input class="param" onchange="updateUserData()" id="USERNOTES" type="text" value="' + paramList.note + '">';
-                elem.innerHTML=infoHTML;
-//                      //Роли прилетают в виде массива, перебираем его и  
+                $('#paramsTable').html(infoHTML);
+                //Роли прилетают в виде массива, перебираем его и  
                 //проставляем галочки в соответствии с ролями
                 for (var key in paramList.userRoles)
                 {
-                    var elem = document.getElementById("ROLEID"+paramList.userRoles[key].id);
-                    if(elem)
-                    {
-                        elem.checked=true;
-                    }
+                    var id='#ROLEID'+paramList.userRoles[key].id;
+                    $(id).prop("checked", true);
                 }
             }
 
 //---------            
-            function getAllUsers()
+            function getAllUsers(roleId)
             {
-                var response = $.ajax({url: "./userProcess/getAllUsers", async:false}).responseText;
-                var contentTable = document.getElementById("contentTable");
-                contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
-                var usersList = JSON.parse(response);
-                for(var key in usersList)
+                var url = "./userProcess/getAllUsers";
+                if(roleId !== "all")
                 {
-                    var d = document.createElement('tr');
-                    d.innerHTML = '<td data-toggle="modal" data-target="#popup" onclick="showUserProperties('
-                            + usersList[key].id + ')">' 
-                            + usersList[key].name + '</td>';
-                    contentTable.getElementsByTagName("tbody")[0].appendChild(d);
+                    url = "./userProcess/getUsersByRole?roleId="+roleId; 
                 }
-            }
-//---------            
-            function getUsersByRole(roleId)
-            {
-                var response = $.ajax({url: "./userProcess/getUsersByRole", data:{roleId:roleId}, async:false}).responseText;
-                var contentTable = document.getElementById("contentTable");
-                contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
-                var usersList = JSON.parse(response);
+                $('#contentTable').empty();
+                var usersList = JSON.parse(
+                        $.ajax({
+                            url: url, 
+                            async:false
+                        }).responseText);
+
+                d = '<th><th>Имя пользователя</th>';
+                $('#contentTable').append(d);
+
                 for(var key in usersList)
                 {
-                    var d = document.createElement('tr');
-                    d.innerHTML = '<td data-toggle="modal" data-target="#popup" onclick="showUserProperties('
+                    d = '<tr data-toggle="modal" data-target="#popup" onclick="showUserProperties('
                             + usersList[key].id + ')">' 
-                            + usersList[key].name + '</td>';
-                    contentTable.getElementsByTagName("tbody")[0].appendChild(d);
+                            + '<td><img class="img-thumbnail" src="app/img/ico.png" width="64"></td>'
+                            + '<td>'+usersList[key].name + '</td>';
+                    $('#contentTable').append(d);
                 }
             }
 //---------
@@ -167,17 +156,24 @@
 //---------
             function getAllFiles()
             {
-//                document.getElementById('properties').innerHTML='';
-                var response = $.ajax({url: "./fileProcess/getAllFiles", async:false}).responseText;
-                var filesList = JSON.parse(response);
-                var contentTable = document.getElementById("contentTable");
-                contentTable.getElementsByTagName("tbody")[0].innerHTML = "";
-                filesList.forEach(function (item, i, arr)
+                $('#contentTable').empty();
+                var filesList = JSON.parse(
+                        $.ajax({
+                            url: "./fileProcess/getAllFiles", 
+                            async:false
+                        }).responseText);
+                d = '<th><th>Имя файла</th><th>Расширение</th><th>Дата загрузки</th>';
+                $('#contentTable').append(d);
+                for(var key in filesList)
                 {
-                    var d = document.createElement('tr');
-                    d.innerHTML = '<td data-toggle="modal" data-target="#popup" onclick="showFileProperties(' + item.id + ')">' + item.name + '</td><td>' + item.ext + '</td>';
-                    contentTable.getElementsByTagName("tbody")[0].appendChild(d);
-                });
+                    d = '<tr data-toggle="modal" data-target="#popup" onclick="showFileProperties('
+                            + filesList[key].id + ')">'
+                            + '<td><img alt="icon" src="app/img/filetypes/png/'+filesList[key].ext + '.png" style="width:32px;"></td>'
+                            + '<td>'+filesList[key].name + '</td>'
+                            + '<td>'+filesList[key].ext + '</td>'
+                            + '<td>'+filesList[key].date + '</td>';
+                    $('#contentTable').append(d);
+                }
             }
 //---------
             function showFileProperties(fileId)
@@ -187,25 +183,22 @@
                 propertiesDiv.innerHTML='';
                 var elem=propertiesDiv.appendChild(document.createElement('div'));
                 elem.id='paramsTable';
-                for (var key in paramList)
-                {
-                    var owner = getUserData(paramList.owner);
-                    var infoHTML = '';
-                    infoHTML += '<img alt="дефолтная иконка" class="img-rounded" src="default_file.png"></br>';
-                    infoHTML += '<label for="owner">Владелец</label>';
-                    infoHTML += '<div id="owner" class="" data-toggle="modal" data-target="#properties" onclick="showUserProperties('+owner.id+')" class="btn-link">' + owner.name + '</div>';
-                    infoHTML += '<label for="FILEID">Id</label>';
-                    infoHTML += '<input disabled class="form-control" id="FILEID" value="' + paramList.id + '">';
-                    infoHTML += '<label for="FILENAME">Имя файла</label>';
-                    infoHTML += '<input class="form-control" onchange="updateFileData()" id="FILENAME" type="text" value="' + paramList.name + '">';
-                    infoHTML += '<label for="FILEEXT">Расширение</label>';
-                    infoHTML += '<input class="form-control" onchange="updateFileData()" id="FILEEXT" type="text" value="' + paramList.ext + '">';
-                    infoHTML += '<label for="FILEDATA">Дата загрузки</label>';
-                    infoHTML += '<input disabled class="form-control" id="FILEDATE" value="' + paramList.date + '">';
-                    infoHTML += '<label for="FILEHASH">Хэш файла</label>';
-                    infoHTML += '<input disabled class="form-control" id="FILEHASH" value="' + paramList.hash + '">';
-                    elem.innerHTML = infoHTML;
-                }
+                var owner = getUserData(paramList.owner);
+                var infoHTML = '';
+                infoHTML += '<img alt="Иконка" class="img-rounded" src="app/img/filetypes/png/'+paramList.ext+'.png"></br>';
+                infoHTML += '<label for="owner">Владелец</label>';
+                infoHTML += '<div id="owner" class="" data-toggle="modal" data-target="#properties" onclick="showUserProperties('+owner.id+')" class="btn-link">' + owner.name + '</div>';
+                infoHTML += '<label for="FILEID">Id</label>';
+                infoHTML += '<input disabled class="form-control" id="FILEID" value="' + paramList.id + '">';
+                infoHTML += '<label for="FILENAME">Имя файла</label>';
+                infoHTML += '<input class="form-control" onchange="updateFileData()" id="FILENAME" type="text" value="' + paramList.name + '">';
+                infoHTML += '<label for="FILEEXT">Расширение</label>';
+                infoHTML += '<input class="form-control" onchange="updateFileData()" id="FILEEXT" type="text" value="' + paramList.ext + '">';
+                infoHTML += '<label for="FILEDATA">Дата загрузки</label>';
+                infoHTML += '<input disabled class="form-control" id="FILEDATE" value="' + paramList.date + '">';
+                infoHTML += '<label for="FILEHASH">Хэш файла</label>';
+                infoHTML += '<input disabled class="form-control" id="FILEHASH" value="' + paramList.hash + '">';
+                elem.innerHTML = infoHTML;
             }
 //---------
             function updateFileData()
@@ -236,12 +229,6 @@
                     });
                 }, 1000);
             }
-//---------
-            function popupShowUserProperties(userId)
-            {
-//                alert('надо сделать всплывающее окно с данными юзера');
-            }
-//---------            
         </script>
     </head>
     
@@ -304,23 +291,17 @@
                     <div class="dropdown">
                         <button class="btn btn-primary col-md-12 dropdown-toggle" type="button" data-toggle="dropdown">Пользователи
                             <span class="caret"></span></button>
-                        <ul id="menu" class="dropdown-menu">
-                            <li onclick="getAllUsers()"><a href="#">Все</a></li>
+                        <ul id="menu" class="nav nav-pills nav-stacked dropdown-menu" data-spy="affix" data-offset-top="205">
+                            <li onclick="getAllUsers('all')"><a>Показать всех</a></li>
                         </ul>
                     </div>
                     <div class="btn btn-primary col-md-12" onclick="getAllFiles()">Файлы</div>
                 </div>
 
-                <div class="col-lg-4">
+                <div class="col-lg-8">
                     <div class="panel panel-default">
-                        <table id="contentTable" class="table table-striped table-hover " cellspacing="0" width="80%">
-                            <tbody>
-                            </tbody>
+                        <table id="contentTable" class="table table-hover " cellspacing="0" width="80%">
                         </table>                      
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div id="prop_erties" class="panel panel-default">
                     </div>
                 </div>
             </div>
@@ -330,10 +311,11 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <h4 id="popupTitle" class="modal-title"></h4>
             <button type="button" class="close" data-dismiss="modal">&times;</button>
           </div>
           <div id="properties" class="modal-body">
-            <p>Some text in the modal.</p>
+
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
