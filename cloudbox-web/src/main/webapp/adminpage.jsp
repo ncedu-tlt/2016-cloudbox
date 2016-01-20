@@ -124,7 +124,7 @@
                   data: {userId:userId, column:column, value:value},
                   success: function(){
                             showAlertMessage("Данные пользователя обновлены");
-                            getAllUsers();
+//                            getAllUsers();
                   }
                 });
             }
@@ -141,7 +141,7 @@
                   data: {userId:userId, roleId:roleId, is:value},
                   success: function(){
                             showAlertMessage("Роль изменена");
-                            getAllUsers();
+//                            getAllUsers();
                   }
                 });
             }
