@@ -20,9 +20,9 @@ import ru.ncedu.tlt.controllers.EntityFileController;
 import ru.ncedu.tlt.entity.EntityFile;
 /**
  *
- * @author Andrey
+ * @author pavel.tretyakov
  */
-@WebServlet(name = "FIleControllerServlet", urlPatterns = {"/fileProcess/*"})
+@WebServlet(name = "FileAdministrationServlet", urlPatterns = {"/fileProcess/*"})
 public class FileControllerServlet extends HttpServlet{
     
     @EJB 
@@ -79,7 +79,7 @@ public class FileControllerServlet extends HttpServlet{
                     break;
                 } catch (SQLException ex) 
                 {
-                    rs.print(ex);
+                    System.out.println(ex);
                 }
             }
             case "getFileData":
@@ -92,7 +92,7 @@ public class FileControllerServlet extends HttpServlet{
                     rs.print(gson.toJson(file));
                     break;
                 } catch (SQLException ex) {
-                    rs.print(ex);
+                    System.out.println(ex);
                 }
             }
             case "updateFileData":
@@ -106,7 +106,7 @@ public class FileControllerServlet extends HttpServlet{
                     entityFileController.updateFileData(fileId, column, value);
                     break;
                 } catch (SQLException ex) {
-                    rs.print(ex);
+                    System.out.println(ex);
                 }
             }
         }       

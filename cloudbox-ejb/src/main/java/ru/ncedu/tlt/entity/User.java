@@ -23,7 +23,7 @@ public class User {
     private String note;
     private String picPath;
 
-    private List<File> userFiles;
+    private List<EntityFile> userFiles;
     private List<UserRole> userRoles;
 
     public User() {
@@ -92,15 +92,15 @@ public class User {
         this.picPath = picPath;
     }
 
-    public List<File> getUserFiles() {
+    public List<EntityFile> getUserFiles() {
         return userFiles;
     }
 
-    public void setUserFiles(List<File> userFiles) {
+    public void setUserFiles(List<EntityFile> userFiles) {
         this.userFiles = userFiles;
     }
 
-    public void addFile(File file) {
+    public void addFile(EntityFile file) {
 
         userFiles.add(file);
     }
@@ -154,7 +154,7 @@ public class User {
     /**
      *
      * @param stringUserRoles
-     * @return
+     * 
      */
     public void setUserRoles(String stringUserRoles) {
         userRoles = new ArrayList<>();

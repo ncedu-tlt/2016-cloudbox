@@ -22,16 +22,54 @@
 
         <script language="javascript" type="text/javascript">
             
-//---------
+//--------- Формирует список ролей и рисует пункты выпадающего меню.
             var rolesList = getAllRoles();
+            
             $(document).ready(function(){
                 for(var key in rolesList)
                 {
-                    $('#menu').append('<li onclick="getAllUsers('+rolesList[key].id+')"><a>'+rolesList[key].name+'</a></li>');
+                    $('#menu').append('<li onclick="showAllUsers('+rolesList[key].id+')"><a>'+rolesList[key].name+'</a></li>');
                 };
             });
+//--------- Получает список UserRoles из базы
+            function getAllRoles()
+            {
+                var response = $.ajax({url: "./userProcess/getAllRoles",async:false}).responseText;
+                return JSON.parse(response);
+            }
             
-//---------            
+//--------- Получает объект User из базы.
+            function getUserData(userId)
+            {
+                var response = $.ajax({url: "./userProcess/getUserData?userId="+userId,async:false}).responseText;
+                return JSON.parse(response);
+            }
+            
+//--------- Получает объект File из базы.
+            function getFileData(fileId)
+            {
+                var response = $.ajax({url: "./fileProcess/getFileData?fileId="+fileId,async:false}).responseText;
+                return JSON.parse(response);
+            }
+
+//--------- Получает список User выбранной роли, 
+//          если roleId = "all" тогда всех
+            function getAllUsers(roleId)
+            {
+                var url = "./userProcess/getAllUsers";
+                if(roleId !== "all")
+                {
+                    url = "./userProcess/getUsersByRole?roleId="+roleId; 
+                }
+                var usersList = JSON.parse(
+                        $.ajax({
+                            url: url, 
+                            async:false
+                        }).responseText);
+                return usersList;
+            }
+
+//--------- Рисует проперти аккаунта           
             function showUserProperties(userId)
             {
                 var paramList = getUserData(userId);
@@ -71,111 +109,24 @@
                 }
             }
 
-//---------            
-            function getAllUsers(roleId)
+//--------- Рисует список юзеров соответствующей роли, либо 'all'
+            function showAllUsers(roleId)
             {
-                var url = "./userProcess/getAllUsers";
-                if(roleId !== "all")
-                {
-                    url = "./userProcess/getUsersByRole?roleId="+roleId; 
-                }
+                var usersList = getAllUsers(roleId);
                 $('#contentTable').empty();
-                var usersList = JSON.parse(
-                        $.ajax({
-                            url: url, 
-                            async:false
-                        }).responseText);
-
                 d = '<th><th>Имя пользователя</th>';
                 $('#contentTable').append(d);
-
                 for(var key in usersList)
                 {
                     d = '<tr data-toggle="modal" data-target="#popup" onclick="showUserProperties('
                             + usersList[key].id + ')">' 
-                            + '<td><img class="img-thumbnail" src="app/img/ico.png" width="64"></td>'
+                            + '<td><img class="img-thumbnail" src="app/img/ico.png" width="32"></td>'
                             + '<td>'+usersList[key].name + '</td>';
                     $('#contentTable').append(d);
                 }
             }
-//---------
-            function getUserData(userId)
-            {
-                var response = $.ajax({url: "./userProcess/getUserData?userId="+userId,async:false}).responseText;
-                return JSON.parse(response);
-            }
-//---------
-            function getAllRoles()
-            {
-                var response = $.ajax({url: "./userProcess/getAllRoles",async:false}).responseText;
-                return JSON.parse(response);
-            }
-//---------
-            function updateUserData()
-            {
-                var userId = document.getElementById("USERID").value;
-                var elem = window.event.target;
-                var column = elem.id;
-                var value = elem.value;
-                var link = "./userProcess/updateUserData";
-                $.ajax({
-                  type: "POST",
-                  url: link,
-                  data: {userId:userId, column:column, value:value},
-                  success: function(){
-                            showAlertMessage("Данные пользователя обновлены");
-//                            getAllUsers();
-                  }
-                });
-            }
-//---------
-            function updateUserRole(roleId)
-            {
-                var elem = window.event.target;
-                var value = elem.checked;
-                var userId = document.getElementById("USERID").value;
-                var link = "./userProcess/updateUserRole";
-                $.ajax({
-                  type: "POST",
-                  url: link,
-                  data: {userId:userId, roleId:roleId, is:value},
-                  success: function(){
-                            showAlertMessage("Роль изменена");
-//                            getAllUsers();
-                  }
-                });
-            }
-//---------
-            function getFileData(fileId)
-            {
-                var response = $.ajax({url: "./fileProcess/getFileData?fileId="+fileId,async:false}).responseText;
-                return JSON.parse(response);
-            }
             
-    
-//---------
-            function getAllFiles()
-            {
-                $('#contentTable').empty();
-                var filesList = JSON.parse(
-                        $.ajax({
-                            url: "./fileProcess/getAllFiles", 
-                            async:false
-                        }).responseText);
-                d = '<th><th>Имя файла</th><th>Расширение</th><th>Дата загрузки</th>';
-                $('#contentTable').append(d);
-                for(var key in filesList)
-                {
-                    d = '<tr data-toggle="modal" data-target="#popup" onclick="showFileProperties('
-                            + filesList[key].id + ')">'
-                            + '<td><img alt="icon" src="app/img/filetypes/png/'+filesList[key].ext + '.png" style="width:32px;"></td>'
-                            + '<td>'+filesList[key].name + '</td>'
-                            + '<td>'+filesList[key].ext + '</td>'
-                            + '<td>'+filesList[key].date + '</td>';
-                    $('#contentTable').append(d);
-                }
-            }
-//---------
+//--------- Рисует проперти файла
             function showFileProperties(fileId)
             {
                 var paramList = getFileData(fileId);
@@ -199,6 +150,63 @@
                 infoHTML += '<label for="FILEHASH">Хэш файла</label>';
                 infoHTML += '<input disabled class="form-control" id="FILEHASH" value="' + paramList.hash + '">';
                 elem.innerHTML = infoHTML;
+            }
+
+//---------
+            function updateUserData()
+            {
+                var userId = $('#USERID').val();
+                var column = window.event.target.id;
+                var value = window.event.target.value;
+                var link = "./userProcess/updateUserData";
+                $.ajax({
+                  type: "POST",
+                  url: link,
+                  data: {userId:userId, column:column, value:value},
+                  success: function(){
+                            showAlertMessage("Данные пользователя обновлены");
+                            showAllUsers('all');
+                  }
+                });
+            }
+//---------
+            function updateUserRole(roleId)
+            {
+                var elem = window.event.target;
+                var value = elem.checked;
+                var userId = document.getElementById("USERID").value;
+                var link = "./userProcess/updateUserRole";
+                $.ajax({
+                  type: "POST",
+                  url: link,
+                  data: {userId:userId, roleId:roleId, is:value},
+                  success: function(){
+                            showAlertMessage("Роль изменена");
+                            showAllUsers(roleId);
+                  }
+                });
+            }
+//---------
+            function getAllFiles()
+            {
+                $('#contentTable').empty();
+                var filesList = JSON.parse(
+                        $.ajax({
+                            url: "./fileProcess/getAllFiles", 
+                            async:false
+                        }).responseText);
+                d = '<th><th>Имя файла</th><th>Расширение</th><th>Дата загрузки</th>';
+                $('#contentTable').append(d);
+                for(var key in filesList)
+                {
+                    d = '<tr data-toggle="modal" data-target="#popup" onclick="showFileProperties('
+                            + filesList[key].id + ')">'
+                            + '<td><img alt="icon" src="app/img/filetypes/png/'+filesList[key].ext + '.png" style="width:32px;"></td>'
+                            + '<td>'+filesList[key].name + '</td>'
+                            + '<td>'+filesList[key].ext + '</td>'
+                            + '<td>'+filesList[key].date + '</td>';
+                    $('#contentTable').append(d);
+                }
             }
 //---------
             function updateFileData()
@@ -235,7 +243,7 @@
     <div class="container">
         <div class="row" id="message-container" style="display: none;">
             <div class="span12">  
-                <div class = "alert alert-warning"><span id="message-text">Test Text</span></div>
+                <div class = "alert alert-success"><span id="message-text">Test Text</span></div>
             </div>
         </div>
 
@@ -292,7 +300,7 @@
                         <button class="btn btn-primary col-md-12 dropdown-toggle" type="button" data-toggle="dropdown">Пользователи
                             <span class="caret"></span></button>
                         <ul id="menu" class="nav nav-pills nav-stacked dropdown-menu" data-spy="affix" data-offset-top="205">
-                            <li onclick="getAllUsers('all')"><a>Показать всех</a></li>
+                            <li onclick="showAllUsers('all')"><a>Показать всех</a></li>
                         </ul>
                     </div>
                     <div class="btn btn-primary col-md-12" onclick="getAllFiles()">Файлы</div>

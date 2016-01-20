@@ -14,11 +14,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Resource;
 import javax.ejb.EJB;
-import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
-import javax.sql.DataSource;
+import javax.ejb.Stateless;
 import ru.ncedu.tlt.entity.User;
 import ru.ncedu.tlt.entity.UserRole;
 import ru.ncedu.tlt.hash.HashGenerator;
@@ -28,7 +26,7 @@ import ru.ncedu.tlt.properties.PropertiesCB;
  *
  * @author Andrew
  */
-@Singleton
+@Stateless
 @LocalBean
 public class UserController {
     @EJB
@@ -308,7 +306,7 @@ public class UserController {
         try {
             statement.executeUpdate(query);
         } catch (Exception e) {
-            System.out.println("UpdateUser - " + query + e);
+            System.out.println("UpdateUserData - " + query + e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -360,7 +358,7 @@ public class UserController {
         try {
             statement.executeUpdate(query);
         } catch (Exception e) {
-            System.out.println("UpdateUser - " + query + e);
+            System.out.println("UpdateUserRole - " + query + e);
         } finally {
             if (preparedStatement != null) {
                 try {

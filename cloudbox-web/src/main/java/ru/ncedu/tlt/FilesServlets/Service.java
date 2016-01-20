@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ru.ncedu.tlt.cloudbox;
+package ru.ncedu.tlt.FilesServlets;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,22 +19,22 @@ import java.util.UUID;
 public class Service {
     final static String  salt = "the best salt";
     
-    static String getHash(String str) throws NoSuchAlgorithmException{
+    public static String getHash(String str) throws NoSuchAlgorithmException{
         MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
         messageDigest.update(str.concat(salt).getBytes());
         String encryptedString = new String(messageDigest.digest());
         return encryptedString;
     };
     
-    static String getRandomUUID(){
+    public static String getRandomUUID(){
         return UUID.randomUUID().toString();
     } 
     
-    static String getCurrentTimeStamp(){
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ms").format(Calendar.getInstance().getTime());
+    public static Timestamp getCurrentTimeStamp(){
+        return new Timestamp(System.currentTimeMillis());
     } 
     
-    static ArrayList<Integer> getIntListFromJSONlist(String str){
+    public static ArrayList<Integer> getIntListFromJSONlist(String str){
         String [] filesId = str.split(",");
         ArrayList<Integer> intList = new ArrayList();
         for(String s: filesId){

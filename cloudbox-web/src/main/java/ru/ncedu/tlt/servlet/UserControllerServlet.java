@@ -10,15 +10,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
-import javax.json.*;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -33,7 +25,7 @@ import ru.ncedu.tlt.entity.UserRole;
  *
  * @author pavel.tretyakov
  */
-@WebServlet(name = "UserControllerServlet", urlPatterns = {"/userProcess/*"})
+@WebServlet(name = "UserAdministrationServlet", urlPatterns = {"/userProcess/*"})
 public class UserControllerServlet extends HttpServlet {
 
     @EJB
@@ -43,6 +35,12 @@ public class UserControllerServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        executeCommand(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         executeCommand(request, response);
     }
@@ -61,7 +59,7 @@ public class UserControllerServlet extends HttpServlet {
                     String json = gson.toJson(userController.getAllUsers());
                     rs.print(json);
                 } catch (SQLException ex) {
-                    System.out.println(ex);
+                    System.out.println("UserControllerServlet, getAllUsers: "+ex);
                 }
                 break;
             }
@@ -73,7 +71,7 @@ public class UserControllerServlet extends HttpServlet {
                     user = userController.findUser(userId);
                     rs.print(gson.toJson(user));
                 } catch (SQLException ex) {
-                    System.out.println(ex);
+                    System.out.println("UserControllerServlet, getUserData: "+ex);
                 }
                 break;
             }
@@ -85,7 +83,7 @@ public class UserControllerServlet extends HttpServlet {
                     user = userController.findUser(userId);
                     rs.print(gson.toJson(user));
                 } catch (SQLException ex) {
-                    System.out.println(ex);
+                    System.out.println("UserControllerServlet, getUserLoggedData: "+ex);
                 }
                 break;
             }
@@ -96,7 +94,7 @@ public class UserControllerServlet extends HttpServlet {
                     String json = gson.toJson(allRolesList);
                     rs.print(json);
                 } catch (SQLException ex) {
-                    System.out.println(ex);
+                    System.out.println("UserControllerServlet, getAllRoles: "+ex);
                 }
                 break;
             }
@@ -108,7 +106,7 @@ public class UserControllerServlet extends HttpServlet {
                     userController.updateUserData(userId, column, value);
                     break;
                 } catch (SQLException ex) {
-                    System.out.println(ex);;
+                    System.out.println("UserControllerServlet, UpdateUserData: "+ex);
                 }
                 break;
             }
@@ -120,23 +118,20 @@ public class UserControllerServlet extends HttpServlet {
                     userController.updateUserRole(userId, roleId, value);
                     break;
                 } catch (SQLException ex) {
-                    System.out.println(ex);
+                    System.out.println("UserControllerServlet, UpdateUserRole: "+ex);
                 }
             }
             case "getUsersByRole": {
                 Integer roleId = Integer.valueOf(request.getParameter("roleId"));
                 Gson gson = new Gson();
-                String json = gson.toJson(userController.getUsersByRole(roleId));
-                rs.print(json);
-                break;
+                try {
+                    String json = gson.toJson(userController.getUsersByRole(roleId));
+                    rs.print(json);
+                } catch (Exception ex) {
+                    System.out.println("UserControllerServlet, getUsersByRole: "+ex.getMessage());
+                }
             }
         }
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        executeCommand(request, response);
     }
 
     @Override

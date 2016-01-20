@@ -15,9 +15,11 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.sql.DataSource;
 import ru.ncedu.tlt.entity.EntityFile;
 import ru.ncedu.tlt.hash.HashGenerator;
 import ru.ncedu.tlt.properties.PropertiesCB;
@@ -33,6 +35,9 @@ public class EntityFileController {
     @EJB
     HashGenerator hashGenerator;
     
+    @Resource(name = "jdbc/CBDataSource", type = javax.sql.ConnectionPoolDataSource.class)
+    private DataSource dataSource;
+    
     PreparedStatement preparedStatement;
     Connection connection;
 
@@ -47,28 +52,39 @@ public class EntityFileController {
     public void storeEntityFile(EntityFile entityFile) throws SQLException {
         preparedStatement = null;
         String sqlQuery = "insert into cb_file"
-                + "(filename, fileext, filedate, filehash, fileuserid) values"
-                + "(?,?,?,?,?)";
+                + "(filename, fileext, filedate, filehash, fileuserid, fileid) values"
+                + "(?,?,?,?,?,?)";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
-            preparedStatement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            
+            // Полуучение максимального ID
+            Statement statement = connection.createStatement();
+            String sqlQuery_1 = "SELECT FILEID FROM CB_FILE ORDER BY FILEID DESC";
+            ResultSet queryResult = statement.executeQuery(sqlQuery_1);
+            queryResult.next();            
+            int maxFileID = queryResult.getInt("fileid");
+            entityFile.setId(maxFileID+1);
+            //
+            
             preparedStatement.setString(1, entityFile.getName());
             preparedStatement.setString(2, entityFile.getExt());
-            preparedStatement.setString(3, entityFile.getDate().toString());
+            preparedStatement.setTimestamp(3, entityFile.getDate());
             preparedStatement.setString(4, entityFile.getHash());
             preparedStatement.setInt(5, entityFile.getOwner());
+            preparedStatement.setInt(6, entityFile.getId());
 
             preparedStatement.executeUpdate();
             //ERROR! createEntityFile: Column 'FILEID'  cannot accept a NULL value.
             //почему-то не работает генератор Statement.RETURN_GENERATED_KEYS 
             //с таблицей CB_FILE
-
+            /*
             System.out.println("retriving new id for file");
             try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
                 keys.next();
                 entityFile.setId(keys.getInt(1));                
             }
+            */
             System.out.println("Record is inserted into CB_FILE table!");
             insertEntryInUserFile(entityFile.getOwner(), entityFile.getId());
         } catch (SQLException e) {
@@ -100,7 +116,7 @@ public class EntityFileController {
      * @throws SQLException
      */
     public void insertEntryInUserFile(Integer userId, Integer fileId) throws SQLException {
-        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        connection = dataSource.getConnection();
         preparedStatement = null;
         String sqlQuery = "insert into cb_userfile "
                 + "(uf_userid, uf_fileid) values "
@@ -147,9 +163,9 @@ public class EntityFileController {
                 + "where uf_fileid = ? "
                 + "and uf_userid = ?";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setString(1, new Timestamp(System.currentTimeMillis()).toString()); //устанавливаю текущее время
+            preparedStatement.setTimestamp(1,new Timestamp(System.currentTimeMillis())); //устанавливаю текущее время
             preparedStatement.setInt(2, fileId);
             preparedStatement.setInt(3, userId);
             preparedStatement.executeUpdate();
@@ -190,7 +206,7 @@ public class EntityFileController {
                 + "where uf_fileid = ? "
                 + "and uf_userid = ?";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, fileId);
             preparedStatement.setInt(2, userId);
@@ -224,7 +240,7 @@ public class EntityFileController {
      * @param fileId - id файла для удаления
      * @throws SQLException
      */
-    public void deleteFileFromDB(Integer userId, Integer fileId) throws SQLException {
+    public void deleteFileFromDB(Integer userId, Integer fileId) throws SQLException {           // Может как и во всех остальных случаях проверку вызывать наверху???
         if (isOwner(userId, fileId)) { //проверка, является ли пользователь владельцем файла?
             try {
                 fullDeleteEntryFromUserfile(fileId);
@@ -255,7 +271,7 @@ public class EntityFileController {
                 + " where f.fileid = ?"
                 + " and f.fileuserid = ?";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, fileId);
             preparedStatement.setInt(2, userId);
@@ -318,7 +334,7 @@ public class EntityFileController {
         String sqlQuery = "delete from cb_userfile "
                 + "where uf_fileid = ?";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, fileId);
             preparedStatement.executeUpdate();
@@ -356,7 +372,7 @@ public class EntityFileController {
         String sqlQuery = "delete from cb_file "
                 + "where fileid = ?";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, fileId);
             preparedStatement.executeUpdate();
@@ -401,7 +417,7 @@ public class EntityFileController {
                 + "and f.fileuserid = uf.uf_userid "
                 + "order by f.filename";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -410,7 +426,7 @@ public class EntityFileController {
                 entityFile.setId(rs.getInt("fileid"));
                 entityFile.setName(rs.getString("filename"));
                 entityFile.setExt(rs.getString("fileext"));
-                entityFile.setDate((Timestamp) rs.getObject("filedate"));
+                entityFile.setDate(rs.getTimestamp("filedate"));
                 entityFile.setHash(rs.getString("filehash"));
                 entityFile.setOwner(rs.getInt("fileuserid"));
                 entityFileList.add(entityFile);
@@ -455,7 +471,7 @@ public class EntityFileController {
                 + "and f.fileuserid = uf.uf_userid "
                 + "order by f.filename";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -465,7 +481,7 @@ public class EntityFileController {
                 entityFile.setId(rs.getInt("fileid"));
                 entityFile.setName(rs.getString("filename"));
                 entityFile.setExt(rs.getString("fileext"));
-                entityFile.setDate((Timestamp) rs.getObject("filedate"));
+                entityFile.setDate(rs.getTimestamp("filedate"));
                 entityFile.setHash(rs.getString("filehash"));
                 entityFile.setOwner(rs.getInt("fileuserid"));
                 entityFileList.add(entityFile);
@@ -505,7 +521,7 @@ public class EntityFileController {
         preparedStatement = null;
         String sqlQuery = "select * from cb_file";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -514,7 +530,7 @@ public class EntityFileController {
                 entityFile.setId(rs.getInt("fileid"));
                 entityFile.setName(rs.getString("filename"));
                 entityFile.setExt(rs.getString("fileext"));
-                entityFile.setDate((Timestamp) rs.getObject("filedate"));
+                entityFile.setDate(rs.getTimestamp("filedate"));
                 entityFile.setHash(rs.getString("filehash"));
                 entityFile.setOwner(rs.getInt("fileuserid"));
                 entityFileList.add(entityFile);
@@ -556,7 +572,7 @@ public class EntityFileController {
                 + "and uf.uf_userid = ? "
                 + "and uf.uf_userid != f.fileuserid";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -566,7 +582,7 @@ public class EntityFileController {
                 entityFile.setId(rs.getInt("fileid"));
                 entityFile.setName(rs.getString("filename"));
                 entityFile.setExt(rs.getString("fileext"));
-                entityFile.setDate((Timestamp) rs.getObject("filedate"));
+                entityFile.setDate(rs.getTimestamp("filedate"));
                 entityFile.setHash(rs.getString("filehash"));
                 entityFile.setOwner(rs.getInt("fileuserid"));
                 entityFileList.add(entityFile);
@@ -602,7 +618,7 @@ public class EntityFileController {
      */
     public EntityFile getEntityFile(Integer fileId) throws SQLException {
         EntityFile entityFile = new EntityFile();
-        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        connection = dataSource.getConnection();
         preparedStatement = null;
         String sqlQuery = "select * from cb_file where fileid = ?";
         try {
@@ -613,7 +629,7 @@ public class EntityFileController {
                 entityFile.setId(rs.getInt("fileid"));
                 entityFile.setName(rs.getString("filename"));
                 entityFile.setExt(rs.getString("fileext"));
-                entityFile.setDate((Timestamp) rs.getObject("filedate"));
+                entityFile.setDate(rs.getTimestamp("filedate"));
                 entityFile.setHash(rs.getString("filehash"));
                 entityFile.setOwner(rs.getInt("fileuserid"));
             }
@@ -641,7 +657,7 @@ public class EntityFileController {
      * @throws SQLException
      */
     public void updateFileData(Integer fileId, String column, String value) throws SQLException {
-        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        connection = dataSource.getConnection();
         preparedStatement = null;
         String sqlQuery = "update cb_file "
                 + "set " + column + " = ? "
@@ -671,6 +687,7 @@ public class EntityFileController {
                 }
             }
         }
-    }
+    }   
+    
     
 }
