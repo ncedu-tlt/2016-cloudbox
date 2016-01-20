@@ -75,7 +75,7 @@ public class EntityFile implements Serializable {
     
     public String getJSON() {              // TODO перевести все на рельсы какой- нибудь библиотеки
         return "{\"id\":" + id + "," +"\"name\":" +"\""+ name +"\""+ "," + "\"ext\":" + "\"" + ext +  
-                "\"" + "," + "\"date\":" + "\"" + date.toString() + "\""+ '}';
+                "\"" + "," + "\"date\":" + "\"" + (date!=null ? date.toString() :"NULL") + "\""+ '}';
     }
 
     @Override

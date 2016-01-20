@@ -11,11 +11,10 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-
-
-
         <title>Cloudbox</title>
+        
+        <link rel="import" href="app/HTMLtemplates/sharedFileRightPanel.html">
+        
         <link rel="icon" href="app/ico/cloudbox.ico" type="image/x-icon" />
         <!--<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>-->
         <link href="lib/bootstrap/css/bootstrap-paper.min.css" rel="stylesheet"/>
@@ -101,37 +100,19 @@
             </nav>
 
             <div class="row">
-                <div class="col-lg-2">
-                    <a href="#" class="btn btn-danger col-lg-12">Загрузить файл <i class="fa fa-cloud-upload"></i></a>
-                    <a href="#" class="btn btn-link col-lg-12">Мои файлы</a>
-                    <a href="#" class="btn btn-link col-lg-12">Доступные мне</a>
-                    <a href="#" class="btn btn-link col-lg-12" >Корзина <i class="fa fa-trash"></i></a>
+                <div class="col-lg-2" id="leftButtonPanel">
+<!--                    <a href="#" class="btn btn-danger col-lg-12">Загрузить файл <i class="fa fa-cloud-upload"></i></a>   -->
+                    <a href="#" class="btn btn-link col-lg-12" id="toOwnedFilesList">Мои файлы</a>
+                    <a href="#" class="btn btn-link col-lg-12" id="toSharedFilesList">Доступные мне</a>
+                    <a href="#" class="btn btn-link col-lg-12" id="toGarbageFilesList">Корзина <i class="fa fa-trash"></i></a>
                 </div>
 
 
 
                 <div class="col-lg-8">
                     <div class="panel panel-default">                      
-                        <table id="example" class="display" cellspacing="0" width="100%">
-                            <thead>
-                                <!--
-                                <tr>
-                                    <th><input type="text" class="form-control" placeholder="Поиск..."> </th>
-                                    <th><select class="form-control" id="select">
-                                            <option>Все</option>
-                                            <option>TXT</option>
-                                            <option>JPG</option>
-                                            <option>DOC</option>
-                                        </select></th>
-                                    <th >
-                                        <div class="input-group date" data-provide="datepicker">
-                                            <input type="text" class="form-control" value="31.12.15">
-                                            <div class="input-group-addon">
-                                                <span class="glyphicon glyphicon-th"></span>
-                                            </div>
-                                        </div>  
-                                    </th>
-                                </tr>  -->
+                        <table id="mainTable" class="display" cellspacing="0" width="100%">
+                            <thead>                                
                                 <tr>
                                     <th>Имя</th>
                                     <th>Расширение</th>
@@ -150,58 +131,8 @@
                     </div>
                 </div>
 
-                <div class="col-lg-2">
-                    <form id="loader" onsubmit="loadToServer()" method="post" enctype="multipart/form-data">
-                <!--    <input type="text" name="description" /> -->
-                        <input type="file" name="file"/>
-                        <input type="submit"/>
-                    </form>
-                    
-                    <p></p>
-                    <a href="#" id="getFileButton" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>                   
-                    <p></p>
-                    <a href="#" id="deleteButton" class="btn btn-warning col-lg-12">Удалить <i class="glyphicon glyphicon-remove"></i></a>
-                    <a href="TestFileServlet" id="hidden_link_get_file" download hidden></a>   
-                            <p>Файл.тхт</p>
-                            <a href="#" class="col-lg-3 col-lg-offset-6"><i class="fa fa-share-alt fa-3x"></i></a>
-                            <a href="#" class="col-lg-3"><i class="fa fa-trash fa-3x"></i></a>
-                            <div class="form-group">
-                                <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
-                                <div class="col-lg-12"style="padding: 0px">
-                                    <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
-                                </div>
-                            </div>
-                    
-<!--                    <div class="panel panel-default">
-                        <div class="panel-body" style="padding: 7px">
-                            <a href="#" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>
-                            <p>Файл.тхт</p>
-                            <a href="#" class="col-lg-3 col-lg-offset-6"><i class="fa fa-share-alt fa-3x"></i></a>
-                            <a href="#" class="col-lg-3"><i class="fa fa-trash fa-3x"></i></a>
-                            <div class="form-group">
-                                <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
-                                <div class="col-lg-12"style="padding: 0px">
-                                    <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!--                    <div class="panel panel-default">
-                                            <div class="panel-body" style="padding: 7px">
-                                                <a href="#" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>
-                                                <p>Файл.тхт</p>
-                                                <a href="#" class="col-lg-3 col-lg-offset-6"><i class="fa fa-share-alt fa-3x"></i></a>
-                                                <a href="#" class="col-lg-3"><i class="fa fa-trash fa-3x"></i></a>
-                                                <div class="form-group">
-                                                    <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
-                                                    <div class="col-lg-12"style="padding: 0px">
-                                                        <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>-->
-
+                <div class="col-lg-2" id="rightButtonPanel">
+ 
                 </div>
 
             </div>
@@ -210,4 +141,34 @@
 
 
     </body>
+    <template  id="ownFileRightPanel">
+                    <form id="loader" onsubmit="loadFileToServer()" method="post" enctype="multipart/form-data">
+                        <input type="file" name="file"/>
+                        <input type="submit"/>
+                    </form>                    
+                    <p></p>
+                    <a href="#" id="getFileButton" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>                   
+                    <p></p>
+                    <a href="#" id="putToGarbageButton" class="btn btn-warning col-lg-12">Удалить <i class="glyphicon glyphicon-remove"></i></a>
+                    <a href="TestFileServlet" id="hidden_link_get_file" download hidden></a>
+                    <a href="#" id="shareButton" class="btn btn-primary col-lg-12">Поделиться <i class="glyphicon glyphicon-share-alt"></i></a>
+                    <a href="#" id="deleteLinkButton" class="btn btn-primary col-lg-12">Создать ссылку <i class="glyphicon glyphicon-share"></i></a>
+
+                            <div class="form-group">
+                                <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
+                                <div class="col-lg-12"style="padding: 0px">
+                                    <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
+                                </div>
+                            </div>  
+    </template>
+    <template  id="sharedFileRightPanel">
+                    <a href="#" id="getFileButton" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>                   
+                    <p></p>
+                    <a href="#" id="deleteLinkButton" class="btn btn-warning col-lg-12">Удалить шару<i class="glyphicon glyphicon-remove"></i></a>  
+    </template>
+    <template  id="garbageFilesRightPanel">
+                    <a href="#" id="restoreFileButton" class="btn btn-success col-lg-12">Восстановить <i class="fa fa-cloud-download"></i></a>                   
+                    <p></p>
+                    <a href="#" id="deleteButton" class="btn btn-warning col-lg-12">Удалить <i class="glyphicon glyphicon-remove"></i></a>  
+    </template>
 </html>

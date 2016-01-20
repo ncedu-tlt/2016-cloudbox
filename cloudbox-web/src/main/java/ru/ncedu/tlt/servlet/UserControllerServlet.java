@@ -129,7 +129,7 @@ public class UserControllerServlet extends HttpServlet {
                 try {
                     String json = gson.toJson(userController.getUsersByRole(roleId));
                     rs.print(json);
-                } catch (SQLException ex) {
+                } catch (Exception ex) {
                     System.out.println("ПРИ ВЫБОРЕ ЮЗЕРОВ ПО РОЛЯМ ВЫЛЕЗЛО: "+ex.getMessage());
                 }
                 break;

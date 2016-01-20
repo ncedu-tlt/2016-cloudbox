@@ -1,0 +1,20 @@
+<text class="doc">
+    <form id="loader" onsubmit="loadToServer()" method="post" enctype="multipart/form-data">
+                        <input type="file" name="file"/>
+                        <input type="submit"/>
+                    </form>                    
+                    <p></p>
+                    <a href="#" id="getFileButton" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>                   
+                    <p></p>
+                    <a href="#" id="deleteButton" class="btn btn-warning col-lg-12">Удалить <i class="glyphicon glyphicon-remove"></i></a>
+                    <a href="TestFileServlet" id="hidden_link_get_file" download hidden></a>   
+                            <p>Файл.тхт</p>
+                            <a href="#" class="col-lg-3 col-lg-offset-6"><i class="fa fa-share-alt fa-3x"></i></a>
+                            <a href="#" class="col-lg-3"><i class="fa fa-trash fa-3x"></i></a>
+                            <div class="form-group">
+                                <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
+                                <div class="col-lg-12"style="padding: 0px">
+                                    <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
+                                </div>
+                            </div>  
+</text>

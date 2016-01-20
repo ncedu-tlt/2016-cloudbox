@@ -26,8 +26,7 @@ import ru.ncedu.tlt.entity.File;
 @WebServlet(name = "TestFileServlet", urlPatterns = {"/TestFileServlet"})
 public class TestFileServlet extends HttpServlet {
 
-    @EJB 
-    FileWorkerBean fileWorker;
+
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -36,7 +35,7 @@ public class TestFileServlet extends HttpServlet {
         
         int fileId = Integer.parseInt(request.getQueryString().replaceAll("[^0-9]", ""));
 
-        File file = fileWorker.getFileMeta(fileId);
+        
         
         /*
         PrintWriter resp = response.getWriter();        
@@ -44,7 +43,7 @@ public class TestFileServlet extends HttpServlet {
         else resp.print("file.getName():  "+file.getName()+"file.getExt():  "+file.getExt()+
                 "file.getHash():  "+file.getHash()); 
         */
-        
+        /*
         ServletContext ctx = getServletContext();
         String fileFullName = file.getName()+"."+file.getExt();
         String mimeType = ctx.getMimeType(fileFullName);
@@ -56,6 +55,7 @@ public class TestFileServlet extends HttpServlet {
         
         outStream.flush();
         outStream.close();  
+*/
     }     
 
 }
