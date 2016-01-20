@@ -14,9 +14,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
+import javax.sql.DataSource;
 import ru.ncedu.tlt.entity.User;
 import ru.ncedu.tlt.entity.UserRole;
 import ru.ncedu.tlt.hash.HashGenerator;
@@ -29,18 +31,16 @@ import ru.ncedu.tlt.properties.PropertiesCB;
 @Singleton
 @LocalBean
 public class UserController {
-
     @EJB
     private RoleController rC;
 
     @EJB
     HashGenerator hg;
 
-    PreparedStatement preparedStatement;
     Connection connection;
+    PreparedStatement preparedStatement;
 
     public UserController() {
-
     }
 
     public User createUser(User user) {
@@ -136,7 +136,7 @@ public class UserController {
         ArrayList<User> userList = new ArrayList<>();
         connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         preparedStatement = null;
-        String query = "SELECT USERID, USERNAME FROM CB_USER";
+        String query = "SELECT USERID, USERNAME FROM CB_USER ORDER BY USERNAME";
         try {
             preparedStatement = connection.prepareStatement(query);
             ResultSet rs = preparedStatement.executeQuery();
@@ -170,7 +170,8 @@ public class UserController {
                     + "FROM CB_USER "
                     + "INNER JOIN CB_USERROLE "
                     + "ON CB_USERROLE.UR_USERID = CB_USER.USERID "
-                    + "WHERE CB_USERROLE.UR_ROLEID = ?";
+                    + "WHERE CB_USERROLE.UR_ROLEID = ? "
+                    + "ORDER BY USERNAME";
             statement = connection.prepareStatement(query);
             statement.setInt(1, roleId);
             ResultSet rs = statement.executeQuery();
@@ -218,7 +219,6 @@ public class UserController {
                 user.setNote(rs.getString("USERNOTES"));
                 user.setPicPath(rs.getString("USERPIC"));
             }
-
             user.setUserRoles(rC.getUserRoles(user));
         } catch (Exception e) {
             System.out.println("findUser " + e.getMessage());
@@ -231,7 +231,6 @@ public class UserController {
                     Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
             if (connection != null) {
                 try {
                     connection.close();
@@ -240,12 +239,9 @@ public class UserController {
                 }
             }
         }
-
         return user;
     }
-
 //------
-
     /**
      * Поиск юзера в базе по ID
      * @param userId
@@ -281,7 +277,6 @@ public class UserController {
                     Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
             if (connection != null) {
                 try {
                     connection.close();
@@ -333,7 +328,6 @@ public class UserController {
         }
     }
 //------    
-
     /**
      * Включение-отключение роли пользователя
      *

@@ -126,12 +126,8 @@ public class UserControllerServlet extends HttpServlet {
             case "getUsersByRole": {
                 Integer roleId = Integer.valueOf(request.getParameter("roleId"));
                 Gson gson = new Gson();
-                try {
-                    String json = gson.toJson(userController.getUsersByRole(roleId));
-                    rs.print(json);
-                } catch (SQLException ex) {
-                    System.out.println("ПРИ ВЫБОРЕ ЮЗЕРОВ ПО РОЛЯМ ВЫЛЕЗЛО: "+ex.getMessage());
-                }
+                String json = gson.toJson(userController.getUsersByRole(roleId));
+                rs.print(json);
                 break;
             }
         }
