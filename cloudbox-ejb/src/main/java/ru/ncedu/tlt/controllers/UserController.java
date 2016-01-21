@@ -14,9 +14,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.sql.DataSource;
 import ru.ncedu.tlt.entity.User;
 import ru.ncedu.tlt.entity.UserRole;
 import ru.ncedu.tlt.hash.HashGenerator;
@@ -29,11 +31,15 @@ import ru.ncedu.tlt.properties.PropertiesCB;
 @Stateless
 @LocalBean
 public class UserController {
+
     @EJB
     private RoleController rC;
 
     @EJB
     HashGenerator hg;
+
+    @Resource(name = "jdbc/CBDataSource", type = javax.sql.ConnectionPoolDataSource.class)
+    private DataSource dataSource;
 
     Connection connection;
     PreparedStatement preparedStatement;
@@ -54,7 +60,8 @@ public class UserController {
 
         int key = 0;
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
+//            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(insertTableSQL, Statement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setString(1, user.getEmail());
@@ -70,7 +77,7 @@ public class UserController {
             System.out.println("retriving new id for user");
             try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
                 keys.next();
-
+                System.out.println("Полученный ключ: "+keys.next());
                 user.setId(keys.getInt(1));
             }
 
@@ -82,7 +89,7 @@ public class UserController {
             System.out.println("Record is inserted into CB_USER table!");
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println("User NOT added, cause - "+e.getMessage());
             return null;
         } finally {
 
@@ -132,7 +139,8 @@ public class UserController {
     public ArrayList<User> getAllUsers() throws SQLException {
         User user;
         ArrayList<User> userList = new ArrayList<>();
-        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        connection=dataSource.getConnection();
+//        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         preparedStatement = null;
         String query = "SELECT USERID, USERNAME FROM CB_USER ORDER BY USERNAME";
         try {
@@ -163,7 +171,8 @@ public class UserController {
         ArrayList<User> userList = new ArrayList<>();
         PreparedStatement statement;
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection=dataSource.getConnection();
+//            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             String query = "SELECT USERID, USERNAME "
                     + "FROM CB_USER "
                     + "INNER JOIN CB_USERROLE "
@@ -199,12 +208,11 @@ public class UserController {
      */
     public User findUser(String userName) {
         User user = null;
-
         String query = "SELECT * FROM CB_USER WHERE USERNAME = ?";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection=dataSource.getConnection();
+//            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = null;
-
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, userName);
             ResultSet rs = preparedStatement.executeQuery();
@@ -219,7 +227,7 @@ public class UserController {
             }
             user.setUserRoles(rC.getUserRoles(user));
         } catch (Exception e) {
-            System.out.println("findUser " + e.getMessage());
+            System.out.println("findUser by name: " + e.getMessage());
             return null;
         } finally {
             if (preparedStatement != null) {
@@ -248,7 +256,8 @@ public class UserController {
      */
     public User findUser(Integer userId) throws SQLException {
         User user = null;
-        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        connection=dataSource.getConnection();
+//        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         PreparedStatement statement = null;
         String query = "SELECT * FROM CB_USER WHERE USERID = ?";
         try {
@@ -266,6 +275,7 @@ public class UserController {
             }
             user.setUserRoles(rC.getUserRoles(user));
         } catch (Exception e) {
+            System.out.println("findUser by id " + e.getMessage());
             return null;
         } finally {
             if (statement != null) {
@@ -298,7 +308,8 @@ public class UserController {
      */
     public void updateUserData(Integer userId, String column, String value) throws SQLException 
     {
-        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        connection=dataSource.getConnection();
+//        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         Statement statement = connection.createStatement();
         String query = "UPDATE CB_USER"
                 + " SET " + column + "='" + value + "'"
@@ -336,7 +347,8 @@ public class UserController {
      */
     public void updateUserRole(Integer userId, Integer roleId, String value) throws SQLException 
     {
-        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        connection=dataSource.getConnection();
+//        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         Statement statement = connection.createStatement();
         String query;
         if("false".equals(value))

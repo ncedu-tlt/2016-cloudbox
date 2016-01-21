@@ -14,8 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.sql.DataSource;
 import ru.ncedu.tlt.entity.User;
 import ru.ncedu.tlt.entity.UserRole;
 import ru.ncedu.tlt.properties.PropertiesCB;
@@ -27,6 +29,9 @@ import ru.ncedu.tlt.properties.PropertiesCB;
 @Stateless
 @LocalBean
 public class RoleController {
+
+    @Resource(name = "jdbc/CBDataSource", type = javax.sql.ConnectionPoolDataSource.class)
+    private DataSource dataSource;
 
     Connection connection = null;
     PreparedStatement preparedStatement = null;
@@ -55,7 +60,8 @@ public class RoleController {
 //            insertTableSQL.append(", (?,?)");
 //        }
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
+//            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(insertTableSQL);
 
 //            connection.setAutoCommit(false);
@@ -71,7 +77,7 @@ public class RoleController {
 //            connection.commit();
 //            connection.setAutoCommit(true);
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            System.out.println("RoleController - createUserRole: "+ex.getMessage());
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -106,7 +112,8 @@ public class RoleController {
                 + "WHERE UR_USERID = ? "
                 + "ORDER BY ROLEID";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
+//            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, user.getId());
             ResultSet rs = preparedStatement.executeQuery();
@@ -117,7 +124,7 @@ public class RoleController {
                 roles.add(role);
             }
         } catch (Exception e) {
-            System.out.println("findUser " + e.getMessage());
+            System.out.println("UserController - getUserRoles " + e.getMessage());
             if (roles.isEmpty()) {
                 role = new UserRole();
                 role.setId(-1);
@@ -155,7 +162,8 @@ public class RoleController {
     public List<UserRole> getAllUserRoles() throws SQLException {
         UserRole role;
         ArrayList<UserRole> rolesList = new ArrayList<>();
-        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+        connection = dataSource.getConnection();
+//        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         preparedStatement = null;
         String query = "SELECT ROLEID, ROLELABEL FROM CB_ROLE ORDER BY ROLEID";
         try {
