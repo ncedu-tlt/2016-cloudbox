@@ -6,6 +6,14 @@
         <page>registr</page>
         <page>app</page>
         <page>lib</page>        
+        <page>getFileList</page>
+        <page>linkServlet</page>
+        <page>getSharedFile</page>
+        <page>getFile</page>
+        <page>uploadFiles</page>
+        <page>FilesRestoreServlet</page>
+        <page>markFilesAsGarbage</page>
+        <page>deleteFiles</page>
     </group>
     <group>
         <name>user</name>
@@ -17,6 +25,14 @@
         <page>getUserLoggedData</page>
         <page>app</page>
         <page>lib</page>
+        <page>getFileList</page>
+        <page>linkServlet</page>
+        <page>getSharedFile</page>
+        <page>getFile</page>
+        <page>uploadFiles</page>
+        <page>FilesRestoreServlet</page>
+        <page>markFilesAsGarbage</page>
+        <page>deleteFiles</page>
     </group>
     <group>
         <name>moderator</name>
@@ -25,6 +41,14 @@
         <page>usersettings</page>
         <page>app</page>
         <page>lib</page>
+        <page>getFileList</page>
+        <page>linkServlet</page>
+        <page>getSharedFile</page>
+        <page>getFile</page>
+        <page>uploadFiles</page>
+        <page>FilesRestoreServlet</page>
+        <page>markFilesAsGarbage</page>
+        <page>deleteFiles</page>
     </group>
     <group>
         <name>admin</name>
@@ -37,5 +61,13 @@
         <page>userProcess</page>
         <page>fileProcess</page>
         <page>adminpage</page>
+        <page>getFileList</page>
+        <page>linkServlet</page>
+        <page>getSharedFile</page>
+        <page>getFile</page>
+        <page>uploadFiles</page>
+        <page>FilesRestoreServlet</page>
+        <page>markFilesAsGarbage</page>
+        <page>deleteFiles</page>
     </group>
 </cloudbox>

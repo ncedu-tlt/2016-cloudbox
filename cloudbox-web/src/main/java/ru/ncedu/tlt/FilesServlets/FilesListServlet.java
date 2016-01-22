@@ -27,14 +27,35 @@ public class FilesListServlet extends HttpServlet{
     EntityFileController enityFileController;
     
     @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
+        if (request.getSession().getAttribute("userName") == null){
+            request.getRequestDispatcher("login.jsp").forward(request, response);        
+        }
+        
+        PrintWriter rs = response.getWriter();
+        rs.print(request.getRequestURI().split("/"));
+        
+/*        
+                    request.getSession().setAttribute("userName", user.getName());
+            request.getSession().setAttribute("userId", user.getId());
+            response.sendRedirect("drive.jsp");
+        } else {
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+        }
+        */
+    }
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {  
-        
-        Integer userId = 4;      // TODO    получать настоящий  userID
-        //String userId = (String)request.getSession().getAttribute("userName");
-        
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        Integer userId = (Integer) request.getSession().getAttribute("userId");      // TODO    получать настоящий  userID
         String typeFilesList = request.getRequestURI().split("/")[request.getRequestURI().split("/").length -1];
-        
         PrintWriter rs = response.getWriter();     
         ArrayList<EntityFile> filesList = null;
         
@@ -64,5 +85,6 @@ public class FilesListServlet extends HttpServlet{
         }
         filesJson.deleteCharAt(filesJson.length()-1).append("]");
         rs.print(filesJson.toString());
+
     }    
 }

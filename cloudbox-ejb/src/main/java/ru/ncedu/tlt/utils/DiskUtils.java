@@ -108,7 +108,7 @@ public class DiskUtils {
         int freeSpace = getFreeStorageSpace();        
         String shortFileName = null;
         String newFileName = new File(STORAGE_FOLDER_PATH).getAbsolutePath()+ uuidName;
-                
+        System.out.println("Сохраняем: "+newFileName);
         try(FileOutputStream fos=new FileOutputStream(newFileName);
             BufferedOutputStream serverFileBufStream = new BufferedOutputStream(fos); 
             BufferedInputStream inputFileBufStream = new BufferedInputStream(byteStream);)
@@ -142,4 +142,12 @@ public class DiskUtils {
             return shortFileName;
         }
     };
+
+//--------Проверяет наличие файла на диске    
+    public boolean checkFileOnDisk(String uuidName)
+    {
+        String newFileName = STORAGE_FOLDER_PATH+uuidName;
+        File file = new File(newFileName);
+        return file.exists();
+    }
 };

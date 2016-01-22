@@ -1,4 +1,4 @@
-SiteRootName = "http://192.168.1.212:8080/cloudbox-web";
+SiteRootName = "http://192.168.1.21:8080/cloudbox-web";
 
 function preparePage() {
     $(document).ready(function () {
@@ -320,6 +320,11 @@ function updateFileTable(type){
                     console.log(xmlhttp.responseText);
                     filesList = JSON.parse(xmlhttp.responseText);
                     document.getElementById("mainTable").getElementsByTagName("tbody")[0].innerHTML = "";
+                    for(var key in filesList)
+                    {
+                        console.log(filesList[key].name);
+                    }
+                    
                     filesList.forEach(function (item, i, arr) {
                         var d = document.createElement('tr');
                         d.id = item.id;
@@ -328,10 +333,10 @@ function updateFileTable(type){
                     });
                 }
                 else{
-                    console.log(xmlhttp.readyState + "    "+ xmlhttp.responseText);                    
+//                    console.log(xmlhttp.readyState + "    "+ xmlhttp.responseText);                    
                 }
             };
-    xmlhttp.open("GET", "getFileList/" + type, true);
+    xmlhttp.open("GET", "getFileList/"+type, false);
     xmlhttp.send();
 };
 

@@ -24,6 +24,8 @@
             
 //--------- Формирует список ролей и рисует пункты выпадающего меню.
             var rolesList = getAllRoles();
+
+            //проверка отсутствия наличия в хранилище
             
             $(document).ready(function(){
                 showAllUsers('all');
@@ -212,7 +214,13 @@
                 $('#filesTable').empty();
                 for(var key in filesList)
                 {
-                    d = '<tr data-toggle="modal" data-target="#popup" onclick="showFileProperties('
+                    var c='class=""';
+                    var exist = $.ajax({url: "fileProcess/checkFile?fileId="+filesList[key].id, async:false}).responseText;
+                    if(exist==='false')
+                    {
+                        c = 'class="warning"';
+                    }
+                    d = '<tr '+c+' data-toggle="modal" data-target="#popup" onclick="showFileProperties('
                             + filesList[key].id + ')">'
                             + '<td><img alt="icon" src="app/img/filetypes/png/'+filesList[key].ext + '.png" style="width:32px;"></td>'
                             + '<td>'+filesList[key].name + '</td>'

@@ -3,7 +3,6 @@
     Created on : Dec 11, 2015, 2:07:04 AM
     Author     : Andrew
 --%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -102,7 +101,7 @@
             <div class="row">
                 <div class="col-lg-2" id="leftButtonPanel">
 <!--                    <a href="#" class="btn btn-danger col-lg-12">Загрузить файл <i class="fa fa-cloud-upload"></i></a>   -->
-                    <a href="#" class="btn btn-link col-lg-12" id="toOwnedFilesList">Мои файлы</a>
+                    <a onclick="updateFileTable('ownedFiles')" class="btn btn-link col-lg-12" id="toOwnedFilesList">Мои файлы</a>
                     <a href="#" class="btn btn-link col-lg-12" id="toSharedFilesList">Доступные мне</a>
                     <a href="#" class="btn btn-link col-lg-12" id="toGarbageFilesList">Корзина <i class="fa fa-trash"></i></a>
                 </div>

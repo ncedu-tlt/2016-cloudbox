@@ -59,12 +59,12 @@ public class EntityFileController {
             preparedStatement = connection.prepareStatement(sqlQuery);
             
             // Полуучение максимального ID
-//            Statement statement = connection.createStatement();
-//            String sqlQuery_1 = "SELECT FILEID FROM CB_FILE ORDER BY FILEID DESC";
-//            ResultSet queryResult = statement.executeQuery(sqlQuery_1);
-//            queryResult.next();            
-//            int maxFileID = queryResult.getInt("fileid");
-//            entityFile.setId(maxFileID+1);
+            Statement statement = connection.createStatement();
+            String sqlQuery_1 = "SELECT FILEID FROM CB_FILE ORDER BY FILEID DESC";
+            ResultSet queryResult = statement.executeQuery(sqlQuery_1);
+            queryResult.next();            
+            int maxFileID = queryResult.getInt("fileid");
+            entityFile.setId(maxFileID+1);
             //
             
             preparedStatement.setString(1, entityFile.getName());
@@ -72,7 +72,7 @@ public class EntityFileController {
             preparedStatement.setTimestamp(3, entityFile.getDate());
             preparedStatement.setString(4, entityFile.getHash());
             preparedStatement.setInt(5, entityFile.getOwner());
-//            preparedStatement.setInt(6, entityFile.getId());
+            preparedStatement.setInt(6, entityFile.getId());
 
             preparedStatement.executeUpdate();
             //ERROR! createEntityFile: Column 'FILEID'  cannot accept a NULL value.

@@ -9,7 +9,8 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,12 +19,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ru.ncedu.tlt.controllers.EntityFileController;
 import ru.ncedu.tlt.entity.EntityFile;
+import ru.ncedu.tlt.utils.DiskUtils;
 /**
  *
  * @author pavel.tretyakov
  */
 @WebServlet(name = "FileAdministrationServlet", urlPatterns = {"/fileProcess/*"})
 public class FileControllerServlet extends HttpServlet{
+
+    @EJB
+    private DiskUtils diskUtils;
     
     @EJB 
     EntityFileController entityFileController;
@@ -108,9 +113,21 @@ public class FileControllerServlet extends HttpServlet{
                     System.out.println(ex);
                 }
             }
+            case "checkFile":
+            {
+            try {
+                Integer fileId = Integer.valueOf(request.getParameter("fileId"));
+                EntityFile file = entityFileController.getEntityFile(fileId);
+                System.out.println("Проверяем наличие файла: "+file.getHash());
+                System.out.print(diskUtils.checkFileOnDisk(file.getHash()));
+                rs.print(diskUtils.checkFileOnDisk(file.getHash()));
+                break;
+            } catch (SQLException ex) {
+                Logger.getLogger(FileControllerServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            }
             case "updateFileData":
             {
-                System.out.println("ОБновляем файл");
                 try 
                 {
                     Integer fileId = Integer.valueOf(request.getParameter("fileId"));
