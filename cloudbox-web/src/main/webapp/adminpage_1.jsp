@@ -26,7 +26,8 @@
             var rolesList = getAllRoles();
             
             $(document).ready(function(){
-                
+                showAllUsers('all');
+                showAllFiles('all');
                 for(var key in rolesList)
                 {
                     $('#menu').append('<li onclick="showAllUsers('+rolesList[key].id+')"><a>'+rolesList[key].name+'</a></li>');
@@ -129,17 +130,22 @@
 //--------- Рисует список юзеров соответствующей роли, либо 'all'
             function showAllUsers(roleId)
             {
+                $('#rolesButtons').children().removeClass('btn-primary');
+                $('#rolesButtons').children().addClass('btn-success');
+                $('#rolesButtons').children('#id'+roleId).removeClass('btn-success');
+                $('#rolesButtons').children('#id'+roleId).addClass('btn-primary');
                 var usersList = getAllUsers(roleId);
-                $('#contentTable').empty();
-                d = '<th><th>Имя пользователя</th>';
-                $('#contentTable').append(d);
+                $('#usersTable').empty();
                 for(var key in usersList)
                 {
-                    d = '<tr data-toggle="modal" data-target="#popup" onclick="showUserProperties('
-                            + usersList[key].id + ')">' 
-                            + '<td><img class="img-thumbnail" src="app/img/ico.png" width="32"></td>'
-                            + '<td>'+usersList[key].name + '</td>';
-                    $('#contentTable').append(d);
+                    d = '<tr class="row">' 
+                            + '<td class=""><img class="img-thumbnail" src="app/img/userpic.png" width="32"></td>'
+                            + '<td class="" data-toggle="modal" data-target="#popup" onclick="showUserProperties('
+                            + usersList[key].id + ')">'+usersList[key].name + '</td>'
+                            + '<td class="" onclick="showAllFiles('+usersList[key].id+')" align="right">'
+                            +'<div class="btn glyphicon glyphicon-filter"></div></td>'
+                    +"</tr>";
+                    $('#usersTable').append(d);
                 }
             }
             
@@ -185,17 +191,25 @@
                 });
             }
 //---------
-//---------
-            function getAllFiles()
+            function getAllFiles(userId)
             {
-                $('#contentTable').empty();
+                var url = "./fileProcess/getAllFiles";
+                if(userId !== 'all')
+                {
+                    url = "./fileProcess/getUserFiles?userId="+userId;
+                }
                 var filesList = JSON.parse(
                         $.ajax({
-                            url: "./fileProcess/getAllFiles", 
+                            url: url, 
                             async:false
                         }).responseText);
-                d = '<th><th>Имя файла</th><th>Расширение</th><th>Дата загрузки</th>';
-                $('#contentTable').append(d);
+                return filesList;
+            }
+//---------            
+            function showAllFiles(userId)
+            {
+                var filesList = getAllFiles(userId);
+                $('#filesTable').empty();
                 for(var key in filesList)
                 {
                     d = '<tr data-toggle="modal" data-target="#popup" onclick="showFileProperties('
@@ -204,7 +218,7 @@
                             + '<td>'+filesList[key].name + '</td>'
                             + '<td>'+filesList[key].ext + '</td>'
                             + '<td>'+filesList[key].date + '</td>';
-                    $('#contentTable').append(d);
+                    $('#filesTable').append(d);
                 }
             }
 //---------
@@ -271,7 +285,7 @@
                         <ul class="nav navbar-nav">
                             <li ><a href="drive.jsp">Мой диск<span class="sr-only">(current)</span></a></li>
 
-                            <li class="active"><a href="adminpage.jsp">Администрирование</a></li>
+                            <li class="active"><a href="adminpage_1.jsp">Администрирование</a></li>
 
                         </ul>
 
@@ -287,39 +301,35 @@
                             </li>
                         </ul>
                     </div>
-                                <ul class="nav nav-tabs">
-                                    <li><a onclick="showAllUsers(1)">Администратор</a></li>
-                                    <li><a onclick="showAllUsers(2)">Модератор</a></li>
-                                    <li><a onclick="showAllUsers(3)">Пользователь</a></li> 
-                                    <li><a onclick="getAllFiles()"> Файлы </a></li>
-                                </ul>
-
                 </div>
             </nav>
 
 
             <div class="row">
-
-<!--                <div class="col-lg-2">
-                    <div class="dropdown">
-                        <button class="btn btn-primary col-md-12 dropdown-toggle" type="button" data-toggle="dropdown">Пользователи
-                            <span class="caret"></span></button>
-                        <ul id="menu" class="nav nav-pills nav-stacked dropdown-menu">
-                            <li onclick="showAllUsers('all')"><a>Показать всех</a></li>
-                        </ul>
-                    </div>
-                    <div class="btn btn-primary col-md-12" onclick="getAllFiles()">Файлы</div>
-                </div>-->
-
                 <div class="col-lg-6">
                     <div class="panel panel-default">
-                        <table id="contentTable" class="table table-hover " cellspacing="0" width="80%">
+                        <div class="panel-heading">Пользователи</div>
+                        <div id="rolesButtons" class="btn-group btn-group-justified">
+                            <a id="idall" class="btn btn-success" onclick="showAllUsers('all')"> Все </a>
+                            <a id="id1" class="btn btn-success" onclick="showAllUsers(1)"> Администратор </a>
+                            <a id="id2" class="btn btn-success" onclick="showAllUsers(2)"> Модератор </a>
+                            <a id="id3" class="btn btn-success" onclick="showAllUsers(3)"> Пользователь </a>
+                        </div>
+                        <table id="usersTable" class="table table-hover " cellspacing="0" width="100%">
                         </table>                      
                     </div>
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-6">
                     <div class="panel panel-default">
-                        <table id="ownedTable" class="table table-hover " cellspacing="0" width="100%">
+                        <div class="panel-heading">
+                            Файлы
+                        </div>
+                        <div class="">
+                            <div class="btn-group btn-group-justified">
+                                <a class="btn btn-success" onclick="showAllFiles('all')"> Все </a>
+                            </div>
+                        </div>
+                        <table id="filesTable" class="table table-hover " cellspacing="0" width="100%">
                         </table>                      
                     </div>
                 </div>

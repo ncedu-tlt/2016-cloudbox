@@ -77,7 +77,7 @@
                             <!--</li>-->
                             <c:set var="theString" value="${userroles}"/>
                             <c:if test="${fn:contains(theString, '1')}">
-                                <li><a href="adminpage.jsp">Администрирование</a></li>
+                                <li><a href="adminpage_1.jsp">Администрирование</a></li>
                             </c:if>
 
                         </ul>

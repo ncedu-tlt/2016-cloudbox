@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import ru.ncedu.tlt.FilesServlets.Service;
 import ru.ncedu.tlt.controllers.EntityFileController;
 import ru.ncedu.tlt.entity.EntityFile;
 import ru.ncedu.tlt.utils.DiskUtils;
@@ -40,15 +39,27 @@ public class FilesUploadServlet extends HttpServlet {
     DiskUtils diskUtils;
     
     @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        System.out.println(request);
+    }
+    
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        
-        int userId = 5;      // TODO    получать настоящий  userID
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        System.out.println(request);
+        int userId = 4;      // TODO    получать настоящий  userID
         //String userId = (String)request.getSession().getAttribute("userName");
         
         Part filePart = request.getPart("file");
-        String fullFileName = filePart.getSubmittedFileName();;
+        String fullFileName = filePart.getSubmittedFileName();
         InputStream fileStream = filePart.getInputStream();
+        
+        System.out.println("Файл - :"+filePart);
         
         PrintWriter resp = response.getWriter();
         EntityFile entityFile = new EntityFile(); 
@@ -64,19 +75,19 @@ public class FilesUploadServlet extends HttpServlet {
             enityFileController.storeEntityFile(entityFile);             
             diskUtils.storeFile(fileStream, entityFile.getHash());    // TODO добавить откат если сохранение не удалось
         }catch(SQLException e){            
-            resp.print("ERROR");
+            System.out.println("FileUploadServlet: "+e.getMessage());
             return;
         }catch(BackingStoreException |IOException e){   
             try {
                 enityFileController.deleteFileFromDB(entityFile.getOwner(),entityFile.getId());                        // TODO уточнить удаление файла, если он уже был создан
             } catch (SQLException ex) {
                 Logger.getLogger(FilesUploadServlet.class.getName()).log(Level.SEVERE, null, ex);
-                resp.print("ERROR");
+                System.out.println("ERROR1");
                 return;
             }
-            resp.print("ERROR");
+            System.out.println("ERROR2");
             return;
         }             
-        resp.print("OK");
+        System.out.println("OK");
     };     
 }

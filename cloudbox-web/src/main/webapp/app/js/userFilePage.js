@@ -1,4 +1,4 @@
-SiteRootName = "http://localhost:8081/cloudbox-web";
+SiteRootName = "http://192.168.1.212:8080/cloudbox-web";
 
 function preparePage() {
     $(document).ready(function () {

@@ -407,7 +407,7 @@ public class EntityFileController {
      * EntityFile
      * @throws SQLException
      */
-    public ArrayList<EntityFile> getUserFiles(String userId) throws SQLException {
+    public ArrayList<EntityFile> getUserFiles(Integer userId) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
         preparedStatement = null;
         String sqlQuery = "select * from cb_file f "
@@ -419,7 +419,7 @@ public class EntityFileController {
         try {
             connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setString(1, userId);
+            preparedStatement.setInt(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 EntityFile entityFile = new EntityFile();
@@ -461,7 +461,7 @@ public class EntityFileController {
      * EntityFile
      * @throws SQLException
      */
-    public ArrayList<EntityFile> getUserFilesInTrash(String userId) throws SQLException {
+    public ArrayList<EntityFile> getUserFilesInTrash(Integer userId) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
         preparedStatement = null;
         String sqlQuery = "select * from cb_file f "
@@ -473,7 +473,7 @@ public class EntityFileController {
         try {
             connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setString(1, userId);
+            preparedStatement.setInt(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
@@ -564,7 +564,7 @@ public class EntityFileController {
      * @return ArrayList&lt;EntityFile&gt;
      * @throws SQLException
      */
-    public ArrayList<EntityFile> getSharedUserFiles(String userId) throws SQLException {
+    public ArrayList<EntityFile> getSharedUserFiles(Integer userId) throws SQLException {
         ArrayList<EntityFile> entityFileList = new ArrayList();
         preparedStatement = null;
         String sqlQuery = "select f.* from cb_userfile uf, cb_file f "
@@ -574,7 +574,7 @@ public class EntityFileController {
         try {
             connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setString(1, userId);
+            preparedStatement.setInt(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {

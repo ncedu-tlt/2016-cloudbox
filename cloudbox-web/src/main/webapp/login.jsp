@@ -49,15 +49,10 @@
                                     <input class="form-control" id="userPass" name="userPass" placeholder="Password" type="password">
                                 </div>
                             </div>
-                            <div class="col-lg-2 center-block" style="float: none;">
-                                <div class="col-lg-6">
+                            <div class="col-lg-3 center-block" style="float: none;">
                                     <input class="btn btn-default col-lg-12" type="submit" name="commit" value="Вход" >
-                                </div>
-                                <div class="col-lg-6">
                                     <!--<input class="btn btn-default col-lg-12"name="registr" value="Регистрация">-->
                                     <a  class="btn btn-default col-lg-12" href="registr.jsp">Регистрация</a>
-                                </div>
-
                             </div>
                         </form>
                     </div>

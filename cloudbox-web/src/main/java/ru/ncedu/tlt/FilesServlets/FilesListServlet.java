@@ -30,7 +30,7 @@ public class FilesListServlet extends HttpServlet{
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {  
         
-        String userId = "5";      // TODO    получать настоящий  userID
+        Integer userId = 4;      // TODO    получать настоящий  userID
         //String userId = (String)request.getSession().getAttribute("userName");
         
         String typeFilesList = request.getRequestURI().split("/")[request.getRequestURI().split("/").length -1];
