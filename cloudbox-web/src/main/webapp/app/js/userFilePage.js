@@ -64,7 +64,7 @@ function loadFileToServer(event) {
                 ;
             };
 
-    xmlhttp.open("POST",SiteRootName + "/uploadFiles", true);
+    xmlhttp.open("POST",/*SiteRootName +*/ "uploadFiles", true);
     xmlhttp.send(formData);
 
 }
@@ -299,7 +299,7 @@ function getMainTableSelectedRows(){
 
     for (i; i < rowsLen; i++) {
         console.log("num: " + i);
-        if (rows[i].className === "selected")
+        if (rows[i].classList.contains("selected"));
             arr.push(rows[i].id);
     };
     

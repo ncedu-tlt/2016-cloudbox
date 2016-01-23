@@ -87,6 +87,7 @@ public class FilesUploadServlet extends HttpServlet {
             System.out.println("ERROR2");
             return;
         }
-        System.out.println("OK");
+        System.out.println("File uploaded");
+        resp.print("OK");
     }
 }
