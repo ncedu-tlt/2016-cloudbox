@@ -311,10 +311,12 @@ public class EntityFileController {
             Statement statement = connection.createStatement();
             String sqlQuery_1 = "SELECT FILEID FROM CB_FILE ORDER BY FILEID DESC";
             ResultSet queryResult = statement.executeQuery(sqlQuery_1);
-            queryResult.next();            
-            int maxFileID = queryResult.getInt("fileid");
-            entityFile.setId(maxFileID+1);
-            //
+            if (queryResult.next()) {
+                int maxFileID = queryResult.getInt("fileid");
+                entityFile.setId(maxFileID + 1);
+            } else {
+                entityFile.setId(1);
+            }
             
             preparedStatement.setString(1, entityFile.getName());
             preparedStatement.setString(2, entityFile.getExt());

@@ -79,12 +79,15 @@ public class FilesListServlet extends HttpServlet{
         }
 
         StringBuffer filesJson = new StringBuffer("[");
-        for(EntityFile file: filesList){                    
-            filesJson.append(file.getJSON());
-            filesJson.append(",");               
+        if (!filesList.isEmpty()) {
+            for (EntityFile file : filesList) {
+                filesJson.append(file.getJSON());
+                filesJson.append(",");
+            }
+            filesJson.deleteCharAt(filesJson.length() - 1);
         }
-        filesJson.deleteCharAt(filesJson.length()-1).append("]");
+        filesJson.append("]");      
         rs.print(filesJson.toString());
 
-    }    
+    }
 }

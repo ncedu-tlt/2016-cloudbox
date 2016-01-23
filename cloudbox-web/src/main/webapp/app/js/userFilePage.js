@@ -117,20 +117,10 @@ function markFilesAsGarbage(event) {
 };
 
 function restoreFilesFromGarbage(event) {
-    // ищем выделенные строки в таблице
-    var rows = document.getElementById('mainTable').children[1].children;
-    var rowsLen = rows.length;
-    var arr = new Array();
-    var i = 0;
+    var fileArr = getMainTableSelectedRows();
 
-    for (i; i < rowsLen; i++) {
-        console.log("num: " + i);
-        if (rows[i].className === "selected")
-            arr.push(rows[i].id);
-    }
-    ;
-    if (arr.length > 0) {
-        var idFilesToDelete = JSON.stringify(arr);
+    if (fileArr.length > 0) {
+        var idFilesToDelete = JSON.stringify(fileArr);
 
         var formData = new FormData();
 
@@ -336,7 +326,7 @@ function updateFileTable(type){
 //                    console.log(xmlhttp.readyState + "    "+ xmlhttp.responseText);                    
                 }
             };
-    xmlhttp.open("GET", "getFileList/"+type, false);
+    xmlhttp.open("GET", "getFileList/" + type, true); //?
     xmlhttp.send();
 };
 
