@@ -42,7 +42,7 @@ public class GetFileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        int userId = 5;      // TODO    получать настоящий  userID
+        Integer userId = (Integer) request.getSession().getAttribute("userId");
 
         EntityFile file;
                 
@@ -51,8 +51,8 @@ public class GetFileServlet extends HttpServlet {
             if(!entityFileController.isOwner(userId, fileId)){
                 response.getWriter().print("ERROR");
                 return;
-            };            
-             file = entityFileController.getEntityFile(fileId);            
+            }            
+            file = entityFileController.getEntityFile(fileId);            
         } catch(NumberFormatException e){
             Logger.getLogger(GetFileServlet.class.getName()).log(Level.SEVERE, null, e);
             response.getWriter().print("NO_PARAMETER");
@@ -61,7 +61,7 @@ public class GetFileServlet extends HttpServlet {
             Logger.getLogger(GetFileServlet.class.getName()).log(Level.SEVERE, null, e);
             response.getWriter().print("ERROR");
             return;
-        };
+        }
         
         ServletContext ctx = getServletContext();
         String fileFullName = file.getName()+"."+file.getExt();
@@ -76,7 +76,7 @@ public class GetFileServlet extends HttpServlet {
         } catch (BackingStoreException ex) {
             Logger.getLogger(GetFileServlet.class.getName()).log(Level.SEVERE, null, ex);
             response.getWriter().print("ERROR");
-        }finally{
+        } finally {
             outStream.flush();
             outStream.close();             
         }

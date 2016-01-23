@@ -40,6 +40,255 @@ public class EntityFileController {
     
     PreparedStatement preparedStatement;
     Connection connection;
+    
+        /**
+     * Метод возвращает EntityFile по id.
+     *
+     * @param fileId
+     * @return EntityFile
+     * @throws SQLException
+     */
+    public EntityFile getEntityFile(Integer fileId) throws SQLException {
+        EntityFile entityFile = new EntityFile();
+        connection = dataSource.getConnection();
+        preparedStatement = null;
+        String sqlQuery = "select * from cb_file where fileid = ?";
+        try {
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, fileId);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                entityFile.setId(rs.getInt("fileid"));
+                entityFile.setName(rs.getString("filename"));
+                entityFile.setExt(rs.getString("fileext"));
+                entityFile.setDate(rs.getTimestamp("filedate"));
+                entityFile.setHash(rs.getString("filehash"));
+                entityFile.setOwner(rs.getInt("fileuserid"));
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR! getEntityFile: " + e.getMessage());
+            throw new SQLException(e);
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return entityFile;
+    }
+    
+        /**
+     * Метод возващает список файлов загруженных пользователем. Исключая файлы
+     * из корзины (удалённые).
+     *
+     * @param userId
+     * @return ArrayList&lt;EntityFile&gt; - список файлов в виде коллекции
+     * EntityFile
+     * @throws SQLException
+     */
+    public ArrayList<EntityFile> getUserFiles(Integer userId) throws SQLException {
+        ArrayList<EntityFile> entityFileList = new ArrayList();
+        preparedStatement = null;
+        String sqlQuery = "select * from cb_file f "
+                + "join cb_userfile uf on f.fileid = uf.uf_fileid "
+                + "where uf.uf_userid = ? " 
+                + "and uf.uf_del is null " 
+                + "and f.fileuserid = uf.uf_userid "
+                + "order by f.filename";
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, userId);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                EntityFile entityFile = new EntityFile();
+                entityFile.setId(rs.getInt("fileid"));
+                entityFile.setName(rs.getString("filename"));
+                entityFile.setExt(rs.getString("fileext"));
+                entityFile.setDate(rs.getTimestamp("filedate"));
+                entityFile.setHash(rs.getString("filehash"));
+                entityFile.setOwner(rs.getInt("fileuserid"));
+                entityFileList.add(entityFile);
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR! getUserFiles: " + e.getMessage());
+            throw new SQLException(e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return entityFileList;
+    }
+
+    /**
+     * Метод возващает список файлов пользователя находящихся в корзине.
+     *
+     * @param userId
+     * @return ArrayList&lt;EntityFile&gt; - список файлов в виде коллекции
+     * EntityFile
+     * @throws SQLException
+     */
+    public ArrayList<EntityFile> getUserFilesInTrash(Integer userId) throws SQLException {
+        ArrayList<EntityFile> entityFileList = new ArrayList();
+        preparedStatement = null;
+        String sqlQuery = "select * from cb_file f "
+                + "join cb_userfile uf on f.fileid = uf.uf_fileid "
+                + "where uf.uf_userid = ? " 
+                + "and uf.uf_del is not null " 
+                + "and f.fileuserid = uf.uf_userid "
+                + "order by f.filename";
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, userId);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                EntityFile entityFile = new EntityFile();
+                entityFile.setId(rs.getInt("fileid"));
+                entityFile.setName(rs.getString("filename"));
+                entityFile.setExt(rs.getString("fileext"));
+                entityFile.setDate(rs.getTimestamp("filedate"));
+                entityFile.setHash(rs.getString("filehash"));
+                entityFile.setOwner(rs.getInt("fileuserid"));
+                entityFileList.add(entityFile);
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR! getFilesList: " + e.getMessage());
+            throw new SQLException(e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return entityFileList;
+    }
+
+    /**
+     * Возвращает список всех файлов из таблицы CB_USER. Используется на
+     * странице админки
+     *
+     * @return ArrayList&lt;EntityFile&gt; - список файлов в виде коллекции
+     * EntityFile
+     * @throws SQLException
+     */
+    public ArrayList<EntityFile> getAllFiles() throws SQLException {
+        ArrayList<EntityFile> entityFileList = new ArrayList();
+        preparedStatement = null;
+        String sqlQuery = "select * from cb_file";
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                EntityFile entityFile = new EntityFile();
+                entityFile.setId(rs.getInt("fileid"));
+                entityFile.setName(rs.getString("filename"));
+                entityFile.setExt(rs.getString("fileext"));
+                entityFile.setDate(rs.getTimestamp("filedate"));
+                entityFile.setHash(rs.getString("filehash"));
+                entityFile.setOwner(rs.getInt("fileuserid"));
+                entityFileList.add(entityFile);
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR! getAllFiles: " + e.getMessage());
+            throw new SQLException(e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return entityFileList;
+    }
+
+    /**
+     * Метод возвращает файлы, которые расшарили пользователю
+     *
+     * @param userId
+     * @return ArrayList&lt;EntityFile&gt;
+     * @throws SQLException
+     */
+    public ArrayList<EntityFile> getSharedUserFiles(Integer userId) throws SQLException {
+        ArrayList<EntityFile> entityFileList = new ArrayList();
+        preparedStatement = null;
+        String sqlQuery = "select f.* from cb_userfile uf, cb_file f "
+                + "where uf.uf_fileid = f.fileid "
+                + "and uf.uf_userid = ? "
+                + "and uf.uf_userid != f.fileuserid";
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, userId);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                EntityFile entityFile = new EntityFile();
+                entityFile.setId(rs.getInt("fileid"));
+                entityFile.setName(rs.getString("filename"));
+                entityFile.setExt(rs.getString("fileext"));
+                entityFile.setDate(rs.getTimestamp("filedate"));
+                entityFile.setHash(rs.getString("filehash"));
+                entityFile.setOwner(rs.getInt("fileuserid"));
+                entityFileList.add(entityFile);
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR! getSharedUserFiles : " + e.getMessage());
+            throw new SQLException(e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return entityFileList;
+    }
 
     /**
      * Метод помещает запись об entityFile в БД. Неявно вызывает метод
@@ -58,7 +307,7 @@ public class EntityFileController {
             connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
             
-            // Полуучение максимального ID
+            // Получение максимального ID, костыль :)
             Statement statement = connection.createStatement();
             String sqlQuery_1 = "SELECT FILEID FROM CB_FILE ORDER BY FILEID DESC";
             ResultSet queryResult = statement.executeQuery(sqlQuery_1);
@@ -397,256 +646,7 @@ public class EntityFileController {
             }
         }
     }
-
-    /**
-     * Метод возващает список файлов загруженных пользователем. Исключая файлы
-     * из корзины (удалённые).
-     *
-     * @param userId
-     * @return ArrayList&lt;EntityFile&gt; - список файлов в виде коллекции
-     * EntityFile
-     * @throws SQLException
-     */
-    public ArrayList<EntityFile> getUserFiles(Integer userId) throws SQLException {
-        ArrayList<EntityFile> entityFileList = new ArrayList();
-        preparedStatement = null;
-        String sqlQuery = "select * from cb_file f "
-                + "join cb_userfile uf on f.fileid = uf.uf_fileid "
-                + "where uf.uf_userid = ? " 
-                + "and uf.uf_del is null " 
-                + "and f.fileuserid = uf.uf_userid "
-                + "order by f.filename";
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, userId);
-            ResultSet rs = preparedStatement.executeQuery();
-            while (rs.next()) {
-                EntityFile entityFile = new EntityFile();
-                entityFile.setId(rs.getInt("fileid"));
-                entityFile.setName(rs.getString("filename"));
-                entityFile.setExt(rs.getString("fileext"));
-                entityFile.setDate(rs.getTimestamp("filedate"));
-                entityFile.setHash(rs.getString("filehash"));
-                entityFile.setOwner(rs.getInt("fileuserid"));
-                entityFileList.add(entityFile);
-            }
-        } catch (Exception e) {
-            System.out.println("ERROR! getUserFiles: " + e.getMessage());
-            throw new SQLException(e);
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-        return entityFileList;
-    }
-
-    /**
-     * Метод возващает список файлов пользователя находящихся в корзине.
-     *
-     * @param userId
-     * @return ArrayList&lt;EntityFile&gt; - список файлов в виде коллекции
-     * EntityFile
-     * @throws SQLException
-     */
-    public ArrayList<EntityFile> getUserFilesInTrash(Integer userId) throws SQLException {
-        ArrayList<EntityFile> entityFileList = new ArrayList();
-        preparedStatement = null;
-        String sqlQuery = "select * from cb_file f "
-                + "join cb_userfile uf on f.fileid = uf.uf_fileid "
-                + "where uf.uf_userid = ? " 
-                + "and uf.uf_del is not null " 
-                + "and f.fileuserid = uf.uf_userid "
-                + "order by f.filename";
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, userId);
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                EntityFile entityFile = new EntityFile();
-                entityFile.setId(rs.getInt("fileid"));
-                entityFile.setName(rs.getString("filename"));
-                entityFile.setExt(rs.getString("fileext"));
-                entityFile.setDate(rs.getTimestamp("filedate"));
-                entityFile.setHash(rs.getString("filehash"));
-                entityFile.setOwner(rs.getInt("fileuserid"));
-                entityFileList.add(entityFile);
-            }
-        } catch (Exception e) {
-            System.out.println("ERROR! getFilesList: " + e.getMessage());
-            throw new SQLException(e);
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-        return entityFileList;
-    }
-
-    /**
-     * Возвращает список всех файлов из таблицы CB_USER. Используется на
-     * странице админки
-     *
-     * @return ArrayList&lt;EntityFile&gt; - список файлов в виде коллекции
-     * EntityFile
-     * @throws SQLException
-     */
-    public ArrayList<EntityFile> getAllFiles() throws SQLException {
-        ArrayList<EntityFile> entityFileList = new ArrayList();
-        preparedStatement = null;
-        String sqlQuery = "select * from cb_file";
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(sqlQuery);
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                EntityFile entityFile = new EntityFile();
-                entityFile.setId(rs.getInt("fileid"));
-                entityFile.setName(rs.getString("filename"));
-                entityFile.setExt(rs.getString("fileext"));
-                entityFile.setDate(rs.getTimestamp("filedate"));
-                entityFile.setHash(rs.getString("filehash"));
-                entityFile.setOwner(rs.getInt("fileuserid"));
-                entityFileList.add(entityFile);
-            }
-        } catch (Exception e) {
-            System.out.println("ERROR! getAllFiles: " + e.getMessage());
-            throw new SQLException(e);
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-        return entityFileList;
-    }
-
-    /**
-     * Метод возвращает файлы, которые расшарили пользователю
-     *
-     * @param userId
-     * @return ArrayList&lt;EntityFile&gt;
-     * @throws SQLException
-     */
-    public ArrayList<EntityFile> getSharedUserFiles(Integer userId) throws SQLException {
-        ArrayList<EntityFile> entityFileList = new ArrayList();
-        preparedStatement = null;
-        String sqlQuery = "select f.* from cb_userfile uf, cb_file f "
-                + "where uf.uf_fileid = f.fileid "
-                + "and uf.uf_userid = ? "
-                + "and uf.uf_userid != f.fileuserid";
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, userId);
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                EntityFile entityFile = new EntityFile();
-                entityFile.setId(rs.getInt("fileid"));
-                entityFile.setName(rs.getString("filename"));
-                entityFile.setExt(rs.getString("fileext"));
-                entityFile.setDate(rs.getTimestamp("filedate"));
-                entityFile.setHash(rs.getString("filehash"));
-                entityFile.setOwner(rs.getInt("fileuserid"));
-                entityFileList.add(entityFile);
-            }
-        } catch (Exception e) {
-            System.out.println("ERROR! getSharedUserFiles : " + e.getMessage());
-            throw new SQLException(e);
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-        return entityFileList;
-    }
-
-    /**
-     * Метод возвращает EntityFile по id.
-     *
-     * @param fileId
-     * @return EntityFile
-     * @throws SQLException
-     */
-    public EntityFile getEntityFile(Integer fileId) throws SQLException {
-        EntityFile entityFile = new EntityFile();
-        connection = dataSource.getConnection();
-        preparedStatement = null;
-        String sqlQuery = "select * from cb_file where fileid = ?";
-        try {
-            preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, fileId);
-            ResultSet rs = preparedStatement.executeQuery();
-            while (rs.next()) {
-                entityFile.setId(rs.getInt("fileid"));
-                entityFile.setName(rs.getString("filename"));
-                entityFile.setExt(rs.getString("fileext"));
-                entityFile.setDate(rs.getTimestamp("filedate"));
-                entityFile.setHash(rs.getString("filehash"));
-                entityFile.setOwner(rs.getInt("fileuserid"));
-            }
-        } catch (Exception e) {
-            System.out.println("ERROR! getEntityFile: " + e.getMessage());
-            throw new SQLException(e);
-        } finally {
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
-        }
-        return entityFile;
-    }
-    
+   
     /**
      * Обновление данных о файле
      * Используется на странице администратора
@@ -687,7 +687,5 @@ public class EntityFileController {
                 }
             }
         }
-    }   
-    
-    
+    }        
 }

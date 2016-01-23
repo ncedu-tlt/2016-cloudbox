@@ -50,9 +50,9 @@
                                 </div>
                             </div>
                             <div class="col-lg-3 center-block" style="float: none;">
-                                    <input class="btn btn-default col-lg-12" type="submit" name="commit" value="Вход" >
+                                    <input class="btn btn-default" type="submit" name="commit" value="Вход" >
                                     <!--<input class="btn btn-default col-lg-12"name="registr" value="Регистрация">-->
-                                    <a  class="btn btn-default col-lg-12" href="registr.jsp">Регистрация</a>
+                                    <a  class="btn btn-default" href="registr.jsp">Регистрация</a>
                             </div>
                         </form>
                     </div>

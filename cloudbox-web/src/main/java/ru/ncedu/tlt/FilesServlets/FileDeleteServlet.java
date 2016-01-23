@@ -39,9 +39,8 @@ public class FileDeleteServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        int userId = 5;  // TODO сменить на реальный из сессии
-        //int userID = Integer.getInteger((String)request.getSession().getAttribute("userName")); 
-        
+        Integer userId = (Integer) request.getSession().getAttribute("userId");
+       
         ArrayList<Integer> listFileId = Service.getIntListFromJSONlist(request.getHeader("listIdFiles")); // TODO to standart library
         PrintWriter resp = response.getWriter();        
   
@@ -67,5 +66,5 @@ public class FileDeleteServlet extends HttpServlet {
             }            
         }
         resp.print("OK");
-    };
+    }
 }

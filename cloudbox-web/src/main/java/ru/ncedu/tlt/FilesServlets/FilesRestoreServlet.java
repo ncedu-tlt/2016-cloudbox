@@ -32,8 +32,7 @@ public class FilesRestoreServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        String userId = "5";  // TODO сменить на реальный из сессии
-        //int userID = Integer.getInteger((String)request.getSession().getAttribute("userName")); 
+        Integer userId = (Integer) request.getSession().getAttribute("userId");
         
         ArrayList<Integer> listFileId = Service.getIntListFromJSONlist(request.getHeader("listIdFiles")); // TODO to standart library
         PrintWriter resp = response.getWriter(); 
@@ -44,12 +43,12 @@ public class FilesRestoreServlet extends HttpServlet {
         }
         
         for(int fileId: listFileId){
-            if(!entityFileController.isOwner(Integer.parseInt(userId), fileId)){
+            if(!entityFileController.isOwner(userId, fileId)){
                 resp.print("ERROR");
                 return;
             }else{ 
                 try{
-                    entityFileController.restoreFromTrash(Integer.parseInt(userId),fileId);
+                    entityFileController.restoreFromTrash(userId, fileId);
                 }catch(SQLException e){
                    resp.print("ERROR");
                    return;

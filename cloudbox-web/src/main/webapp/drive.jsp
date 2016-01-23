@@ -103,6 +103,7 @@
 <!--                    <a href="#" class="btn btn-danger col-lg-12">Загрузить файл <i class="fa fa-cloud-upload"></i></a>   -->
                     <a onclick="updateFileTable('ownedFiles')" class="btn btn-link col-lg-12" id="toOwnedFilesList">Мои файлы</a>
                     <a href="#" class="btn btn-link col-lg-12" id="toSharedFilesList">Доступные мне</a>
+                    <a href="#" class="btn btn-link col-lg-12" id="toSharedFromUserFilesList">Расшаренные мной</a>
                     <a href="#" class="btn btn-link col-lg-12" id="toGarbageFilesList">Корзина <i class="fa fa-trash"></i></a>
                 </div>
 

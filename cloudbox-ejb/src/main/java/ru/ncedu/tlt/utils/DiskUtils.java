@@ -35,10 +35,10 @@ public class DiskUtils {
     private int STORAGE_SPACE_BYTES;
     private int FILE_OPERATING_BUFFER_SIZE;
         
-    public DiskUtils() throws IOException{
+    public DiskUtils() throws IOException {
         Properties property = new Properties(); 
         try {
-            try (InputStream in = new FileInputStream("C:/tretyakovpe/CloudBox/cloudbox-ejb/src/main/java/ru/ncedu/tlt/utils/StorageProperties.properties")) {
+            try (InputStream in = new FileInputStream("/home/victori/NetBeansProjects/Git/cloudBox/cloudbox-ejb/src/main/java/ru/ncedu/tlt/utils/StorageProperties.properties")) {
                 property.load(in);
             }
             STORAGE_FOLDER_PATH = property.getProperty("STORAGE_FOLDER_PATH");
@@ -65,7 +65,7 @@ public class DiskUtils {
         return freeSpace;
     }
     
-    public  void  deleteFile (String uuidName) throws BackingStoreException{
+    public  void  deleteFile (String uuidName) throws BackingStoreException {
         String newFileName = STORAGE_FOLDER_PATH+uuidName;
         boolean fileDeleted = false;
         try{
@@ -74,14 +74,14 @@ public class DiskUtils {
         }catch(SecurityException e){
             throw new BackingStoreException("No such file");
         }        
-    };
+    }
     
     private BufferedInputStream  getFileStream (String uuidName) throws FileNotFoundException{
         String newFileName = STORAGE_FOLDER_PATH + uuidName;
         FileInputStream fos;
         fos = new FileInputStream(newFileName);
         return new BufferedInputStream(fos);
-    };
+    }
     
     public void writeFileToOutStream(OutputStream outStream, String fileName) throws BackingStoreException{        
         BufferedInputStream fileStream;        
@@ -141,7 +141,7 @@ public class DiskUtils {
         finally{
             return shortFileName;
         }
-    };
+    }
 
 //--------Проверяет наличие файла на диске    
     public boolean checkFileOnDisk(String uuidName)
@@ -150,4 +150,4 @@ public class DiskUtils {
         File file = new File(newFileName);
         return file.exists();
     }
-};
+}

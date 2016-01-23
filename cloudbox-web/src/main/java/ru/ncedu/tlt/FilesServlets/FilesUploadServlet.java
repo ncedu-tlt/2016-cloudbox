@@ -52,8 +52,7 @@ public class FilesUploadServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         System.out.println(request);
-        int userId = 4;      // TODO    получать настоящий  userID
-        //String userId = (String)request.getSession().getAttribute("userName");
+        Integer userId = (Integer) request.getSession().getAttribute("userId");
         
         Part filePart = request.getPart("file");
         String fullFileName = filePart.getSubmittedFileName();
@@ -71,13 +70,13 @@ public class FilesUploadServlet extends HttpServlet {
         entityFile.setHash(Service.getRandomUUID());
         entityFile.setOwner(userId);        
         
-        try{    
-            enityFileController.storeEntityFile(entityFile);             
+        try {                            
             diskUtils.storeFile(fileStream, entityFile.getHash());    // TODO добавить откат если сохранение не удалось
-        }catch(SQLException e){            
+            enityFileController.storeEntityFile(entityFile);
+        } catch(SQLException e){            
             System.out.println("FileUploadServlet: "+e.getMessage());
             return;
-        }catch(BackingStoreException |IOException e){   
+        } catch(BackingStoreException |IOException e) {   
             try {
                 enityFileController.deleteFileFromDB(entityFile.getOwner(),entityFile.getId());                        // TODO уточнить удаление файла, если он уже был создан
             } catch (SQLException ex) {
@@ -87,7 +86,7 @@ public class FilesUploadServlet extends HttpServlet {
             }
             System.out.println("ERROR2");
             return;
-        }             
+        }
         System.out.println("OK");
-    };     
+    }
 }
