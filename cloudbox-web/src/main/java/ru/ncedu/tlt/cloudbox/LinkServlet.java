@@ -31,7 +31,7 @@ public class LinkServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        int userId = 5;  // TODO сменить на реальный из сессии
+        int userId = (Integer) request.getSession().getAttribute("userId");
         //int userID = Integer.getInteger((String)request.getSession().getAttribute("userName")); 
         
         String queryType = request.getRequestURI().split("/")[request.getRequestURI().split("/").length -1];
