@@ -34,23 +34,25 @@ public class FileMarkAsGarbageServlet extends HttpServlet {
         PrintWriter resp = response.getWriter(); 
         
         if(listFileId.isEmpty()){
-            resp.print("NO_PARAMETER");
+            resp.print("NO_PARAMETERS");
             return;
         }
         
-        for(int fileId: listFileId){
-            if(!entityFileController.isOwner(userId, fileId)){
-                resp.print("ERROR");
-                return;
-            }else{                
-                try{
-                    entityFileController.markEntryFileAsTrash(userId,fileId);
-                }catch(SQLException e){
-                   resp.print("ERROR");
-                   return;
-                }
-            }            
-        }
-        resp.print("OK");        
+        entityFileController.markEntryFileAsTrash(listFileId, userId);
+//        
+//        for(int fileId: listFileId){
+//            if(!entityFileController.isOwner(userId, fileId)){
+//                resp.print("NOT AN OWNER");
+//                return;
+//            }else{                
+//                try{
+//                    entityFileController.markEntryFileAsTrash(userId,fileId);
+//                }catch(SQLException e){
+//                   resp.print("CANT MARK AS DELETED."+e.getMessage());
+//                   return;
+//                }
+//            }            
+//        }
+//        resp.print("OK");        
     };
 }
