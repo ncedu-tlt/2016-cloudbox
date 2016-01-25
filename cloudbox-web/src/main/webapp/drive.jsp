@@ -37,6 +37,15 @@
             preparePage ();
         </script>        
     </head>
+
+            <div id="alertMessage" class="container">
+                <div class="row" id="message-container" style="display: none;">
+                    <div class="span12">  
+                        <div id="alert" class = "alert alert-success"><span id="message-text">Test Text</span></div>
+                    </div>
+                </div>
+            </div>
+
     <body>
 
         <div class="container">
@@ -143,8 +152,8 @@
     </body>
     <template  id="ownFileRightPanel">
                     <form id="loader" onsubmit="loadFileToServer()" method="post" enctype="multipart/form-data">
-                        <input type="file" name="file"/>
-                        <input type="submit"/>
+                        <input class="btn btn-info" type="file" name="file"/>
+                        <input class="btn btn-success" type="submit"/>
                     </form>                    
                     <p></p>
                     <a href="#" id="getFileButton" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>                   

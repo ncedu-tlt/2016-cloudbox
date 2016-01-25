@@ -118,8 +118,6 @@ public class FileControllerServlet extends HttpServlet{
             try {
                 Integer fileId = Integer.valueOf(request.getParameter("fileId"));
                 EntityFile file = entityFileController.getEntityFile(fileId);
-                System.out.println("Проверяем наличие файла: "+file.getHash());
-                System.out.print(diskUtils.checkFileOnDisk(file.getHash()));
                 rs.print(diskUtils.checkFileOnDisk(file.getHash()));
                 break;
             } catch (SQLException ex) {
