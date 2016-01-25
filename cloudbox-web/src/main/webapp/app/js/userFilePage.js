@@ -1,4 +1,15 @@
 SiteRootName = "http://192.168.1.21:8080/cloudbox-web";
+function showAlertMessage(message, type)
+{
+    $('#alert').removeClass();
+    $('#alert').addClass('alert alert-'+type);
+    $('#message-text').text(message);
+    $('#message-container').fadeIn('slow');
+    window.setTimeout(function () {
+        $("#message-container").slideUp(750, function () {
+        });
+    }, 1000);
+}
 
 function preparePage() {
     $(document).ready(function () {
@@ -51,20 +62,20 @@ function loadFileToServer(event) {
                 console.log("ansver receved");
                 if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                     if (xmlhttp.responseText === "OK") {
-                        alert("file loaded");
+                        showAlertMessage("file loaded",'success');
                         updateFileTable("ownedFiles");
                     } else {
                         console.log("Server fail load fail" + xmlhttp.responseText);
-                        alert("Server fail load fail" + xmlhttp.responseText);
+                        showAlertMessage("Server fail load fail" + xmlhttp.responseText,'danger');
                     }
 
                 } else if (xmlhttp.readyState === 4) {
-                    alert("Fail while loading file");
+                    showAlertMeggase("Fail while loading file",'danger');
                 }
                 ;
             };
 
-    xmlhttp.open("POST",/*SiteRootName +*/ "uploadFiles", true);
+    xmlhttp.open("POST","uploadFiles", true);
     xmlhttp.send(formData);
 
 }
@@ -99,14 +110,14 @@ function markFilesAsGarbage(event) {
                     console.log("ansver receved");
                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                         if (xmlhttp.responseText == "OK") {
-                            alert("file in garbage");
+                            showAlertMessage("Файлы удалены в корзину",'success');
                             updateFileTable("ownedFiles");
                         } else {
                             console.log("Server fail" + xmlhttp.responseText);
-                            alert("Server fail");
+                            showAlertMessage("Server fail",'danger');
                         }
                     } else if (xmlhttp.readyState === 4) {
-                        alert("Server fail");
+                        showAlertMessage("Server fail",'danger');
                     };
                 };
         xmlhttp.open("POST", "markFilesAsGarbage", true);
@@ -131,14 +142,14 @@ function restoreFilesFromGarbage(event) {
                     console.log("ansver receved");
                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                         if (xmlhttp.responseText === "OK") {
-                            alert("file restored");
+                            showAlertMessage("Файл восстановлен",'success');
                             updateFileTable("deletedFiles");
                         } else {
                             console.log(xmlhttp.responseText);
-                            alert("Server fail load fail");
+                            showAlertMessage("Ошибка сервера при восстановлении",'danger');
                         }
                     } else if (xmlhttp.readyState === 4) {
-                        alert("Fail while loading file");
+                            showAlertMessage("Ошибка загрузки файла",'danger');
                     }
                     ;
                 };
@@ -148,7 +159,7 @@ function restoreFilesFromGarbage(event) {
         xmlhttp.setRequestHeader("listIdFiles", idFilesToDelete);
         xmlhttp.send(formData);
     } else {
-        alert("No files is chosen");
+        showAlertMessage("Нужно выбрать файл",'warning');
     }
 };
 
@@ -281,6 +292,17 @@ function createLink(event) {
 };
 
 
+function getMainTableSelectedRows()
+{
+    var arr=[];
+    $('.selected').each(function()
+    {
+        arr.push(this.id);
+    });
+    return arr;
+}
+
+/*
 function getMainTableSelectedRows(){
     var rows = document.getElementById('mainTable').children[1].children;
     var rowsLen = rows.length;
@@ -294,10 +316,10 @@ function getMainTableSelectedRows(){
     };
     
     if (arr.length > 0 ) {return arr;}
-    else{ alert("no row is chosen");
+    else{showAlertMessage("Необходимо выбрать файл",'warning');
           return null;};     
 };
-
+*/
 //******************  Update table method *******************
 
 function updateFileTable(type){
