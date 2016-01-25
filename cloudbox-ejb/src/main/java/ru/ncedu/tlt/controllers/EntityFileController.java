@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -408,7 +407,7 @@ public class EntityFileController {
      * @param userId - id пользователя
      * @throws SQLException
      */
-    public void markEntryFileAsTrash(ArrayList<Integer> fileList, Integer userId){
+    public void markEntryFileAsTrash(ArrayList<Integer> fileList, Integer userId) throws SQLException {
         try {
             String sqlQuery = "update cb_userfile "
                             + "set uf_del = ? "
@@ -427,6 +426,7 @@ public class EntityFileController {
             preparedStatement.executeBatch();
         } catch (SQLException e) {
             System.out.println("ERROR! markEntryFileAsTrash : " + e.getMessage());
+            throw new SQLException(e);
         } finally {
             if (preparedStatement != null) {
                 try {

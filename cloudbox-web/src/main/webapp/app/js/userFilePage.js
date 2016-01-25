@@ -111,7 +111,6 @@ function markFilesAsGarbage(event) {
                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                         if (xmlhttp.responseText == "OK") {
                             showAlertMessage("Файлы удалены в корзину",'success');
-                            updateFileTable("ownedFiles");
                         } else {
                             console.log("Server fail" + xmlhttp.responseText);
                             showAlertMessage("Ошибка сервера при помещении в корзину",'danger');
@@ -119,6 +118,7 @@ function markFilesAsGarbage(event) {
                     } else if (xmlhttp.readyState === 4) {
                         showAlertMessage("Не удалось поместить в корзину",'danger');
                     };
+                    updateFileTable("ownedFiles"); //Поместил эту строчку пока что сюда
                 };
         xmlhttp.open("POST", "markFilesAsGarbage", true);
         //formData.append("listIdFiles", idFilesToDelete);

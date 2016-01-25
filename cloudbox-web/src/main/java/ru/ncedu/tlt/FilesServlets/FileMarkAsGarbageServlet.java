@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -37,8 +39,12 @@ public class FileMarkAsGarbageServlet extends HttpServlet {
             resp.print("NO_PARAMETERS");
             return;
         }
-        
-        entityFileController.markEntryFileAsTrash(listFileId, userId);
+        try {
+            entityFileController.markEntryFileAsTrash(listFileId, userId);
+        } catch (SQLException ex) {
+            System.out.println("ERROR FileMarkAsGarbageServlet: "+ ex);
+        }
+        resp.print("OK");
 //        
 //        for(int fileId: listFileId){
 //            if(!entityFileController.isOwner(userId, fileId)){
@@ -54,5 +60,5 @@ public class FileMarkAsGarbageServlet extends HttpServlet {
 //            }            
 //        }
 //        resp.print("OK");        
-    };
+    }
 }
