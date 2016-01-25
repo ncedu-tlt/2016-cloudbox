@@ -62,15 +62,15 @@ function loadFileToServer(event) {
                 console.log("ansver receved");
                 if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                     if (xmlhttp.responseText === "OK") {
-                        showAlertMessage("file loaded",'success');
+                        showAlertMessage("Файл успешно загружен!",'success');
                         updateFileTable("ownedFiles");
                     } else {
                         console.log("Server fail load fail" + xmlhttp.responseText);
-                        showAlertMessage("Server fail load fail" + xmlhttp.responseText,'danger');
+                        showAlertMessage("Сервер не смог принять файл " + xmlhttp.responseText,'danger');
                     }
 
                 } else if (xmlhttp.readyState === 4) {
-                    showAlertMeggase("Fail while loading file",'danger');
+                    showAlertMeggase("Ошибка загрузки файла ",'danger');
                 }
                 ;
             };
@@ -114,10 +114,10 @@ function markFilesAsGarbage(event) {
                             updateFileTable("ownedFiles");
                         } else {
                             console.log("Server fail" + xmlhttp.responseText);
-                            showAlertMessage("Server fail",'danger');
+                            showAlertMessage("Ошибка сервера при помещении в корзину",'danger');
                         }
                     } else if (xmlhttp.readyState === 4) {
-                        showAlertMessage("Server fail",'danger');
+                        showAlertMessage("Не удалось поместить в корзину",'danger');
                     };
                 };
         xmlhttp.open("POST", "markFilesAsGarbage", true);
@@ -180,15 +180,15 @@ function deleteFileFromServer(event) {
                     console.log("ansver receved");
                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                         if (xmlhttp.responseText === "OK") {
-                            alert("file deleted");
+                            showAlertMessage("Файл успешно удален",'success');
                             updateFileTable("deletedFiles");
                         } else {
                             console.log("Server fail" + xmlhttp.responseText);
-                            alert("Server fail" + xmlhttp.responseText);
+                            showAlertMessage("Ошибка сервера " + xmlhttp.responseText,'danger');
                         }
                         
                     } else if (xmlhttp.readyState === 4) {
-                        alert("Fail while loading file");
+                        showAlertMessage("Ошибка удаления файла",'danger');
                     }
                     ;
                 };
@@ -226,14 +226,14 @@ function deleteLink(event) {
                     console.log("ansver receved");
                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                         if (xmlhttp.responseText === "OK") {
-                            alert("file in garbage");
+                            showAlertMessage("Ссылка удалена",'warning');
                             updateOwnedFilesTable();
                         } else {
                             console.log("Server fail load fail" + xmlhttp.responseText);
-                            alert("Server fail load fail");
+                            showAlertMessage("Ошибка сервера при удалении ссылки",'danger');
                         }
                     } else if (xmlhttp.readyState === 4) {
-                        alert("Fail while loading file");
+                        showAlertMessage("Ошибка удаления ссылки",'danger');
                     };
                 };
                 
@@ -242,7 +242,7 @@ function deleteLink(event) {
         xmlhttp.setRequestHeader("listIdFiles", idFilesToDelete);
         xmlhttp.send(formData);
     } else {
-        alert("No files is chosen");
+        showAlertMessage("Нет выбранных файлов",'warning');
     }
 };
 
