@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -400,13 +401,50 @@ public class EntityFileController {
     }
 
     /**
-     * Помечает файл как удалённый в таблице CB_USERFILE, устанавливая текущую
-     * дату в поле UF_DEL.
+     * Помечает файл из списка как удалённый в таблице CB_USERFILE, 
+     * устанавливая текущую дату в поле UF_DEL.
      *
+     * @param fileList - список файлов
      * @param userId - id пользователя
-     * @param fileId - id файла
      * @throws SQLException
      */
+    public void markEntryFileAsTrash(ArrayList<Integer> fileList, Integer userId){
+        try {
+            String sqlQuery = "update cb_userfile "
+                            + "set uf_del = ? "
+                            + "where uf_fileid = ? "
+                            + "and uf_userid = ? ";
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            System.out.println(fileList.size());
+            for(Integer fileId : fileList)
+            {
+                preparedStatement.setTimestamp(1,new Timestamp(System.currentTimeMillis())); //устанавливаю текущее время
+                preparedStatement.setInt(2, +fileId);
+                preparedStatement.setInt(3, userId);
+                preparedStatement.addBatch();
+            }
+            preparedStatement.executeBatch();
+        } catch (SQLException e) {
+            System.out.println("ERROR! markEntryFileAsTrash : " + e.getMessage());
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
     public void markEntryFileAsTrash(Integer userId, Integer fileId) throws SQLException {
         preparedStatement = null;
         String sqlQuery = "update cb_userfile "
@@ -531,6 +569,24 @@ public class EntityFileController {
         } catch (SQLException e) {
             System.out.println("ERROR! checkOwner : " + e.getMessage());
             return false;
+        }
+        finally {
+            if (preparedStatement != null) 
+            {
+            try {
+                preparedStatement.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            }
+            if (connection != null) 
+            {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }   
         }
     }
 
