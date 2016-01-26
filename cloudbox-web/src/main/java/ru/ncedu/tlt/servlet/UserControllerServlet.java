@@ -75,6 +75,17 @@ public class UserControllerServlet extends HttpServlet {
                 }
                 break;
             }
+            case "getFileUsers": {
+                Gson gson = new Gson();
+                Integer fileId = Integer.valueOf(request.getParameter("fileId"));
+                try {
+                    String json = gson.toJson(userController.getUsersByFile(fileId));
+                    rs.print(json);
+                } catch (Exception ex) {
+                    System.out.println("UserControllerServlet, getFileUsers: "+ex);
+                }
+                break;
+            }
             case "getUserLoggedData": {
                 Integer userId = (Integer) request.getSession().getAttribute("userId");
                 User user;
