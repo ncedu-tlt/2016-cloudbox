@@ -479,6 +479,50 @@ public class EntityFileController {
             }
         }
     }
+    /**
+     * Обнуляет поле uf_del в записи по userId, fileId в таблице CB_USERFILE.
+     * Тем самым восстанавливая файл из корзины.
+     * 
+     * @param userId
+     * @param fileList
+     * @throws SQLException 
+     */
+    public void restoreFromTrash(Integer userId, ArrayList<Integer> fileList) throws SQLException 
+    {
+        try {
+            String sqlQuery = "update cb_userfile "
+                            + "set uf_del = null "
+                            + "where uf_fileid = ? "
+                            + "and uf_userid = ? ";
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            for(Integer fileId : fileList)
+            {
+                preparedStatement.setInt(1, +fileId);
+                preparedStatement.setInt(2, userId);
+                preparedStatement.addBatch();
+            }
+            preparedStatement.executeBatch();
+        } catch (SQLException e) {
+            System.out.println("ERROR! Восстановление из корзины: " + e.getMessage());
+            throw new SQLException(e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
 
     /**
      * Обнуляет поле uf_del в записи по userId, fileId в таблице CB_USERFILE.

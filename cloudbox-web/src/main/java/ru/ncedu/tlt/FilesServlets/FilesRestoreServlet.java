@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -42,20 +44,26 @@ public class FilesRestoreServlet extends HttpServlet {
             return;
         }
         
-        for(int fileId: listFileId){
-            if(!entityFileController.isOwner(userId, fileId)){
-                resp.print("ERROR");
-                return;
-            }else{ 
-                try{
-                    entityFileController.restoreFromTrash(userId, fileId);
-                }catch(SQLException e){
-                   resp.print("ERROR");
-                   return;
-                }
-                System.out.println(" FilesRestoreServlet restore ");
-            }            
+        try {
+            entityFileController.restoreFromTrash(userId, listFileId);
+            resp.print("OK");        
+        } catch (SQLException ex) {
+            System.out.println("FileRestoreServlet ошибка восстановления:" + ex.getMessage());
         }
-        resp.print("OK");        
+//        
+//        for(int fileId: listFileId){
+//            if(!entityFileController.isOwner(userId, fileId)){
+//                resp.print("ERROR");
+//                return;
+//            }else{ 
+//                try{
+//                    entityFileController.restoreFromTrash(userId, fileId);
+//                }catch(SQLException e){
+//                   resp.print("ERROR");
+//                   return;
+//                }
+//                System.out.println(" FilesRestoreServlet restore ");
+//            }            
+//        }
     };
 }
