@@ -172,7 +172,6 @@ public class UserController {
         PreparedStatement statement;
         try {
             connection=dataSource.getConnection();
-//            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             String query = "SELECT USERID, USERNAME "
                     + "FROM CB_USER "
                     + "INNER JOIN CB_USERROLE "
@@ -199,8 +198,41 @@ public class UserController {
         }
         return userList;
     }
-//------
 
+    /**
+    * Выбор пользователей в базе по файлу
+    * @param fileId
+    * @return список юзеров имеющих доступ к файлу
+    */
+//------
+    public ArrayList<User> getUsersByFile(Integer fileId){
+        User user;
+        ArrayList<User> userList = new ArrayList<>();
+        try {
+            connection=dataSource.getConnection();
+            String query = "SELECT USERID, USERNAME "
+                    + "FROM CB_USER "
+                    + "INNER JOIN CB_USERFILE "
+                    + "ON CB_USERFILE.UF_USERID = CB_USER.USERID "
+                    + "WHERE CB_USERFILE.UF_FILEID = ? "
+                    + "ORDER BY USERNAME";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, fileId);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                user = new User();
+                user.setId(rs.getInt("USERID"));
+                user.setName(rs.getString("USERNAME"));
+                userList.add(user);
+            }
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException ex) {
+            System.out.println("БИН ВЫДАЛ: "+ex.getMessage());
+        }
+        return userList;
+    }
+//------
     /**
      * Поиск пользователя в базе по имени
      * @param userName
@@ -211,7 +243,6 @@ public class UserController {
         String query = "SELECT * FROM CB_USER WHERE USERNAME = ?";
         try {
             connection=dataSource.getConnection();
-//            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = null;
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, userName);
