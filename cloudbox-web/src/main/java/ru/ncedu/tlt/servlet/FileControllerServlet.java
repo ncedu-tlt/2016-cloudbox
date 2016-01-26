@@ -100,6 +100,19 @@ public class FileControllerServlet extends HttpServlet{
                     System.out.println(ex);
                 }
             }
+            case "getSharedUserFiles":
+            {
+                try 
+                {
+                    Integer userId = Integer.valueOf(request.getParameter("userId"));
+                    Gson gson = new Gson();
+                    rs.print(gson.toJson(entityFileController.getSharedUserFiles(userId)));
+                    break;
+                } catch (SQLException ex) 
+                {
+                    System.out.println(ex);
+                }
+            }
             case "getFileData":
             {
                 try 
