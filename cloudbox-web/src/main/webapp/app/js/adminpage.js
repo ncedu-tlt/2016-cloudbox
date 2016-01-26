@@ -3,12 +3,21 @@
             var rolesList = getAllRoles();
 
             $(document).ready(function(){
-                showAllUsers('all');
-                showAllFiles('all');
+                
+                $('#rolesButtons').append('<a data-roleId="all"> Все </a>');
                 for(var key in rolesList)
                 {
-                    $('#menu').append('<li onclick="showAllUsers('+rolesList[key].id+')"><a>'+rolesList[key].name+'</a></li>');
-                };
+                    $('#rolesButtons').append('<a data-roleId="'+rolesList[key].id+'">'+rolesList[key].name+'</a>');
+                };                
+                $('#rolesButtons>a').addClass('btn').click(function(){
+                    $('#rolesButtons>a').removeClass('btn-primary');
+                    $(this).toggleClass('btn-primary');
+                    var roleId=$(this).attr('data-roleid');
+                    getAllUsers(roleId);
+                    
+                });
+                getAllUsers('all');
+                getAllFiles('all');
             });
 //--------- Получает список UserRoles из базы
             function getAllRoles()
@@ -45,7 +54,55 @@
                             url: url, 
                             async:false
                         }).responseText);
-                return usersList;
+                showUsersList(usersList);
+            }
+
+//--------- Получает список User имеющих доступ к файлу, 
+            function getFileUsers(fileId)
+            {
+                var url = "./userProcess/getFileUsers?fileId="+fileId; 
+                var usersList = JSON.parse(
+                        $.ajax({
+                            url: url, 
+                            async:false
+                        }).responseText);
+                $('#filesTable>tbody>tr').removeClass('info');       
+                $('#fileId'+fileId).addClass('info');
+                showUsersList(usersList);
+            }
+//---------
+            function getAllFiles(userId)
+            {
+                var filesList;
+                var url = "./fileProcess/getAllFiles";
+                if(userId !== 'all')
+                {
+                    $('#filesPanelHead').text('Файлы пользователя - '+userId);
+                    url = "./fileProcess/getUserFiles?userId="+userId;
+                    var ownFilesList = JSON.parse(
+                            $.ajax({
+                                url: url, 
+                                async:false
+                            }).responseText);
+                    url = "./fileProcess/getSharedUserFiles?userId="+userId;
+                    var sharedFilesList = JSON.parse(
+                            $.ajax({
+                                url: url, 
+                                async:false
+                            }).responseText);
+                            
+                    filesList = ownFilesList.concat(sharedFilesList);
+                }
+                else
+                {
+                    $('#filesPanelHead').text('Все файлы');
+                    filesList = JSON.parse(
+                            $.ajax({
+                                url: url, 
+                                async:false
+                            }).responseText);
+                }
+                showFilesList(filesList);
             }
 
 //--------- Рисует проперти аккаунта           
@@ -68,8 +125,6 @@
                 infoHTML += '<span class="label label-default">Комментарий</span>';
                 infoHTML += '<input class="form-control" onchange="updateUserData()" id="USERNOTES" type="text" value="' + paramList.note + '">';
                 $('#paramsTable').html(infoHTML);
-                //Роли прилетают в виде массива, перебираем его и  
-                //проставляем галочки в соответствии с ролями
                 for(var key in rolesList)
                 {
                     rolesString = '<input type="checkbox" id="'
@@ -97,7 +152,7 @@
                       data: {userId:userId, roleId:roleId, is:value},
                       success: function(){
                                 showAlertMessage("Роль изменена");
-                                showAllUsers(roleId);
+                                getAllUsers(roleId);
                       }
                     });
                 });
@@ -105,27 +160,44 @@
             }
 
 //--------- Рисует список юзеров соответствующей роли, либо 'all'
-            function showAllUsers(roleId)
+            function showUsersList(usersList)
             {
-                $('#rolesButtons').children().removeClass('btn-primary');
-                $('#rolesButtons').children().addClass('btn-success');
-                $('#rolesButtons').children('#id'+roleId).removeClass('btn-success');
-                $('#rolesButtons').children('#id'+roleId).addClass('btn-primary');
-                var usersList = getAllUsers(roleId);
                 $('#usersTable').empty();
                 for(var key in usersList)
                 {
-                    d = '<tr class="row">' 
+                    var d = '<tr class="row">' 
                             + '<td class=""><img class="img-thumbnail" src="app/img/userpic.png" width="32"></td>'
                             + '<td class="" data-toggle="modal" data-target="#popup" onclick="showUserProperties('
                             + usersList[key].id + ')">'+usersList[key].name + '</td>'
-                            + '<td class="" onclick="showAllFiles('+usersList[key].id+')" align="right">'
-                            +'<div class="btn glyphicon glyphicon-filter"></div></td>'
+                            + '<td class="" align="right">'
+                            +'<div class="btn glyphicon glyphicon-filter" onclick="getAllFiles('+usersList[key].id+')"></div></td>'
                     +"</tr>";
                     $('#usersTable').append(d);
                 }
             }
-            
+//---------            
+            function showFilesList(filesList)
+            {
+                $('#filesTable').empty();
+                for(var key in filesList)
+                {
+                    var file = filesList[key];
+                    var current = 'fileId'+file.id;
+                    $('#filesTable').append('<tr id="'+current+'">');
+                    var exist = $.ajax({url: "fileProcess/checkFile?fileId="+file.id, async:false}).responseText;
+                    if(exist==='false')
+                    {
+                        $('#'+current).addClass('warning');
+                    }
+                    var d = '<td><img alt="icon" src="app/img/filetypes/png/'+file.ext + '.png" style="width:32px;"></td>'
+                            + '<td  data-toggle="modal" data-target="#popup" onclick="showFileProperties('+file.id+')">'+file.name +'.'+ file.ext + '</td>'
+                            + '<td>'+file.date + '</td>'
+                            + '<td class="" onclick="getFileUsers('+filesList[key].id+')" align="right">'
+                            +'<div class="btn glyphicon glyphicon-filter"></div></td>';
+                    $('#'+current).append(d);
+                }
+            }
+
 //--------- Рисует проперти файла
             function showFileProperties(fileId)
             {
@@ -149,7 +221,6 @@
                 infoHTML += '<input readonly class="form-control" id="FILEHASH" value="' + paramList.hash + '">';
                 $('#paramsTable').html(infoHTML);
             }
-
 //---------
             function updateUserData()
             {
@@ -163,46 +234,9 @@
                   data: {userId:userId, column:column, value:value},
                   success: function(){
                             showAlertMessage("Данные пользователя обновлены");
-                            showAllUsers('all');
+                            showUsersList('all');
                   }
                 });
-            }
-//---------
-            function getAllFiles(userId)
-            {
-                var url = "./fileProcess/getAllFiles";
-                if(userId !== 'all')
-                {
-                    url = "./fileProcess/getUserFiles?userId="+userId;
-                }
-                var filesList = JSON.parse(
-                        $.ajax({
-                            url: url, 
-                            async:false
-                        }).responseText);
-                return filesList;
-            }
-//---------            
-            function showAllFiles(userId)
-            {
-                var filesList = getAllFiles(userId);
-                $('#filesTable').empty();
-                for(var key in filesList)
-                {
-                    var c='class=""';
-                    var exist = $.ajax({url: "fileProcess/checkFile?fileId="+filesList[key].id, async:false}).responseText;
-                    if(exist==='false')
-                    {
-                        c = 'class="warning"';
-                    }
-                    d = '<tr '+c+' data-toggle="modal" data-target="#popup" onclick="showFileProperties('
-                            + filesList[key].id + ')">'
-                            + '<td><img alt="icon" src="app/img/filetypes/png/'+filesList[key].ext + '.png" style="width:32px;"></td>'
-                            + '<td>'+filesList[key].name + '</td>'
-                            + '<td>'+filesList[key].ext + '</td>'
-                            + '<td>'+filesList[key].date + '</td>';
-                    $('#filesTable').append(d);
-                }
             }
 //---------
             function updateFileData()

@@ -76,12 +76,8 @@
             <div class="row">
                 <div class="col-lg-6">
                     <div class="panel panel-default">
-                        <div class="panel-heading">Пользователи</div>
+                        <div id="usersPanelHead" class="panel-heading">Пользователи</div>
                         <div id="rolesButtons" class="btn-group btn-group-justified">
-                            <a id="idall" class="btn btn-success" onclick="showAllUsers('all')"> Все </a>
-                            <a id="id1" class="btn btn-success" onclick="showAllUsers(1)"> Администратор </a>
-                            <a id="id2" class="btn btn-success" onclick="showAllUsers(2)"> Модератор </a>
-                            <a id="id3" class="btn btn-success" onclick="showAllUsers(3)"> Пользователь </a>
                         </div>
                         <table id="usersTable" class="table table-hover " cellspacing="0" width="100%">
                         </table>                      
@@ -89,12 +85,12 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="panel panel-default">
-                        <div class="panel-heading">
+                        <div id="filesPanelHead" class="panel-heading">
                             Файлы
                         </div>
                         <div class="">
                             <div class="btn-group btn-group-justified">
-                                <a class="btn btn-success" onclick="showAllFiles('all')"> Все </a>
+                                <a class="btn" onclick="getAllFiles('all')"> Все </a>
                             </div>
                         </div>
                         <table id="filesTable" class="table table-hover " cellspacing="0" width="100%">
