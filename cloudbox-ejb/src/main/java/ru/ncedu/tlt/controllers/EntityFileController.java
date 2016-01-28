@@ -6,7 +6,6 @@
 package ru.ncedu.tlt.controllers;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,7 +21,6 @@ import javax.ejb.Stateless;
 import javax.sql.DataSource;
 import ru.ncedu.tlt.entity.EntityFile;
 import ru.ncedu.tlt.hash.HashGenerator;
-import ru.ncedu.tlt.properties.PropertiesCB;
 
 /**
  *
@@ -41,7 +39,7 @@ public class EntityFileController {
     PreparedStatement preparedStatement;
     Connection connection;
     
-        /**
+    /**
      * Метод возвращает EntityFile по id.
      *
      * @param fileId
@@ -79,7 +77,98 @@ public class EntityFileController {
         return entityFile;
     }
     
-        /**
+    /**
+     * Создание TempLink.
+     *
+     * @param fileId
+     * @param url - url-путь
+     * @throws SQLException
+     */
+    public void createTempLink (Integer fileId, String url) throws SQLException {
+        connection = dataSource.getConnection();
+        preparedStatement = null;
+        String sqlQuery = "insert into cb_templink"
+                + "(tlinkid, tlinkfileid, tlinkpath, tlinkexpire) values"
+                + "(?,?,?, to_char(sysdate+7,'dd/mm/yyyy'))"; // установка срока действия ссылки на + 7 дней
+        try {
+            // Получение максимального ID, костыль :)
+            int maxLinkID;
+            try {
+                Statement statement = connection.createStatement();
+                String sqlQuery_1 = "SELECT MAX(TLINKID) FROM CB_TEMPLINK";
+                ResultSet queryResult = statement.executeQuery(sqlQuery_1);
+                if (queryResult.next()) {
+                    maxLinkID = queryResult.getInt("fileid");
+                } else {
+                    maxLinkID = 1;
+                }
+            } catch (Exception e) {
+                System.out.println("Generation id for TLINK crash - "+ e);
+                throw new SQLException(e);
+            }
+            
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, maxLinkID);
+            preparedStatement.setInt(2, fileId);
+            preparedStatement.setString(3, url);        
+            preparedStatement.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("ERROR! createTempLink: " + e.getMessage());
+            throw new SQLException(e);
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+    }
+    
+    /**
+     * Получение id файла по пути url.
+     *
+     * @param url - url-путь
+     * @return Integer - id файла
+     * @throws SQLException
+     */
+    public Integer getIdEntityFileByLink(String url) throws SQLException {
+        connection = dataSource.getConnection();
+        preparedStatement = null;
+        Integer idFile = -1;
+        String sqlQuery = "select tlinkfileid "
+                        + "from cb_templink "
+                        + "where tlinkpath = ?";
+        try { 
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1, url);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                idFile = rs.getInt("tlinkfileid");
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR! getIdEntityFileByLink: " + e.getMessage());
+            throw new SQLException(e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(EntityFileController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return idFile;
+    }
+    
+     /**
      * Метод возващает список файлов загруженных пользователем. Исключая файлы
      * из корзины (удалённые).
      *
@@ -647,7 +736,7 @@ public class EntityFileController {
                 + "where uf_fileid = ? "
                 + "and uf_userid = ?";
         try {
-            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
+            connection = dataSource.getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, fileId);
             preparedStatement.setInt(2, userId);           

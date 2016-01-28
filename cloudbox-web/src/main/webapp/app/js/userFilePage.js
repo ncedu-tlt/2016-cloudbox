@@ -118,7 +118,7 @@ function markFilesAsGarbage(event) {
                     } else if (xmlhttp.readyState === 4) {
                         showAlertMessage("Не удалось поместить в корзину",'danger');
                     };
-                    updateFileTable("ownedFiles"); //Поместил эту строчку пока что сюда
+                    updateFileTable("ownedFiles");
                 };
         xmlhttp.open("POST", "markFilesAsGarbage", true);
         //formData.append("listIdFiles", idFilesToDelete);
@@ -143,15 +143,15 @@ function restoreFilesFromGarbage(event) {
                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                         if (xmlhttp.responseText === "OK") {
                             showAlertMessage("Файл восстановлен",'success');
-                            updateFileTable("deletedFiles");
+                            
                         } else {
                             console.log(xmlhttp.responseText);
                             showAlertMessage("Ошибка сервера при восстановлении",'danger');
                         }
                     } else if (xmlhttp.readyState === 4) {
                             showAlertMessage("Ошибка загрузки файла",'danger');
-                    }
-                    ;
+                    };
+                    updateFileTable("deletedFiles");
                 };
 
         xmlhttp.open("POST", "FilesRestoreServlet", true);
@@ -181,7 +181,7 @@ function deleteFileFromServer(event) {
                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                         if (xmlhttp.responseText === "OK") {
                             showAlertMessage("Файл успешно удален",'success');
-                            updateFileTable("deletedFiles");
+                            
                         } else {
                             console.log("Server fail" + xmlhttp.responseText);
                             showAlertMessage("Ошибка сервера " + xmlhttp.responseText,'danger');
@@ -189,8 +189,8 @@ function deleteFileFromServer(event) {
                         
                     } else if (xmlhttp.readyState === 4) {
                         showAlertMessage("Ошибка удаления файла",'danger');
-                    }
-                    ;
+                    };
+                    updateFileTable("deletedFiles");
                 };
 
         xmlhttp.open("POST", "deleteFiles", true);
@@ -198,8 +198,7 @@ function deleteFileFromServer(event) {
         xmlhttp.setRequestHeader("listIdFiles", idFilesToDelete);
         xmlhttp.send(formData);
     }
-}
-;
+};
 
 function deleteLink(event) {
     // ищем выделенные строки в таблице
@@ -226,8 +225,7 @@ function deleteLink(event) {
                     console.log("ansver receved");
                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                         if (xmlhttp.responseText === "OK") {
-                            showAlertMessage("Ссылка удалена",'warning');
-                            updateOwnedFilesTable();
+                            showAlertMessage("Ссылка удалена",'warning');                           
                         } else {
                             console.log("Server fail load fail" + xmlhttp.responseText);
                             showAlertMessage("Ошибка сервера при удалении ссылки",'danger');
@@ -235,6 +233,7 @@ function deleteLink(event) {
                     } else if (xmlhttp.readyState === 4) {
                         showAlertMessage("Ошибка удаления ссылки",'danger');
                     };
+                    updateOwnedFilesTable();
                 };
                 
         xmlhttp.open("POST", SiteRootName + "/linkServlet/delete", true);
@@ -271,8 +270,7 @@ function createLink(event) {
                     console.log("ansver receved");
                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                         if (xmlhttp.responseText === "OK") {
-                            alert("file in garbage");
-                            updateOwnedFilesTable();
+                            alert("file in garbage");   
                         } else {
                             console.log("Server fail load fail" + xmlhttp.responseText);
                             alert("Server fail load fail");
@@ -280,8 +278,8 @@ function createLink(event) {
                     } else if (xmlhttp.readyState === 4) {
                         alert("Fail while loading file");
                     };
-                };
-                
+                    updateOwnedFilesTable();
+                };             
         xmlhttp.open("POST", SiteRootName + "/linkServlet/create", true);
         //formData.append("listIdFiles", idFilesToDelete);
         xmlhttp.setRequestHeader("listIdFiles", idFilesToDelete);

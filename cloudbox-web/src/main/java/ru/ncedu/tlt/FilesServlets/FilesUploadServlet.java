@@ -58,14 +58,32 @@ public class FilesUploadServlet extends HttpServlet {
         String fullFileName = filePart.getSubmittedFileName();
         InputStream fileStream = filePart.getInputStream();
         
-        System.out.println("Файл - :"+filePart);
+        System.out.println("FilesUploadServlet message: Файл - :"+filePart);
         
         PrintWriter resp = response.getWriter();
         EntityFile entityFile = new EntityFile(); 
+          
+        // фильтрация ошибок с именами файлов типа ".file", "file.", "file", "."
+        if (fullFileName.equals(".")) { //"." => name="" ,ext=""
+            entityFile.setName("");
+            entityFile.setExt("");
+        } else if (fullFileName.contains(".")) { //".file" => name="" ,ext=".file"
+            if (fullFileName.lastIndexOf('.') == 0) {
+                entityFile.setName("");
+                entityFile.setExt(fullFileName);
+            } else if (fullFileName.lastIndexOf('.') == fullFileName.length()) { //"file." => name="file" ,ext=""
+                entityFile.setName(fullFileName);
+                entityFile.setExt("");
+            }  else { // "file.txt" => name="file" ,ext="txt"
+                int indexOfFileExt = fullFileName.lastIndexOf('.');
+                entityFile.setName(fullFileName.substring(0, indexOfFileExt));
+                entityFile.setExt(fullFileName.substring(indexOfFileExt + 1, fullFileName.length()));
+            }
+        } else { // "file" => name="file" ,ext=""
+            entityFile.setName(fullFileName);
+            entityFile.setExt("");
+        }
         
-        int indexOfFileExt = fullFileName.lastIndexOf('.');
-        entityFile.setName(fullFileName.substring(0, indexOfFileExt));
-        entityFile.setExt(fullFileName.substring(indexOfFileExt+1, fullFileName.length()));
         entityFile.setDate(Service.getCurrentTimeStamp());
         entityFile.setHash(Service.getRandomUUID());
         entityFile.setOwner(userId);        
