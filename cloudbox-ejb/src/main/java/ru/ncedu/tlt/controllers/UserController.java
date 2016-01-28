@@ -55,14 +55,15 @@ public class UserController {
         preparedStatement = null;
 
         String insertTableSQL = "INSERT INTO CB_USER"
-                + "(USERMAIL, USERPASSHASH, USERSALT, USERNAME, USERNOTES, USERPIC) VALUES"
-                + "(?,?,?,?,?,?)";
+                + "(USERID, USERMAIL, USERPASSHASH, USERSALT, USERNAME, USERNOTES, USERPIC) VALUES"
+                + "(CB_USER_SEQ.NEXTVAL,?,?,?,?,?,?)";
 
         int key = 0;
         try {
+            String generatedColumns[] = { "USERID" };
             connection = dataSource.getConnection();
 //            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
-            preparedStatement = connection.prepareStatement(insertTableSQL, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement = connection.prepareStatement(insertTableSQL, generatedColumns);
 
             preparedStatement.setString(1, user.getEmail());
             preparedStatement.setString(2, user.getHash());
@@ -72,13 +73,28 @@ public class UserController {
             preparedStatement.setString(6, "user.getPic");
 
             // execute insert SQL stetement
-            preparedStatement.executeUpdate();
+//            preparedStatement.executeUpdate();
+//            try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
+//                keys.next();
+//                System.out.println("Полученный ключ: "+keys.next());
+//                user.setId(keys.getInt(1));
+//            }
+            // execute the insert statement, if success get the primary key value
+            if (preparedStatement.executeUpdate() > 0) {
+                System.out.println("retriving new id for user");
+                // getGeneratedKeys() returns result set of keys that were auto
+                // generated
+                // in our case student_id column
+                ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
 
-            System.out.println("retriving new id for user");
-            try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
-                keys.next();
-                System.out.println("Полученный ключ: "+keys.next());
-                user.setId(keys.getInt(1));
+                // if resultset has data, get the primary key value
+                // of last inserted record
+                if (null != generatedKeys && generatedKeys.next()) {
+
+                    // voila! we got student id which was generated from sequence
+                    user.setId(generatedKeys.getInt(1));
+                }
+
             }
 
 //            if (rs.next()) {
@@ -89,7 +105,7 @@ public class UserController {
             System.out.println("Record is inserted into CB_USER table!");
 
         } catch (SQLException e) {
-            System.out.println("User NOT added, cause - "+e.getMessage());
+            System.out.println("User NOT added, cause - " + e.getMessage());
             return null;
         } finally {
 
@@ -129,17 +145,17 @@ public class UserController {
     }
 
 //------
-
     /**
-     * Метод возвращает список пользователей формата ID - NAME 
-     * используется на странице администратора
+     * Метод возвращает список пользователей формата ID - NAME используется на
+     * странице администратора
+     *
      * @return список пользователей из базы для страницы администратора
      * @throws SQLException
      */
     public ArrayList<User> getAllUsers() throws SQLException {
         User user;
         ArrayList<User> userList = new ArrayList<>();
-        connection=dataSource.getConnection();
+        connection = dataSource.getConnection();
 //        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         preparedStatement = null;
         String query = "SELECT USERID, USERNAME FROM CB_USER ORDER BY USERNAME";
@@ -166,12 +182,13 @@ public class UserController {
         return userList;
     }
 //------
-    public ArrayList<User> getUsersByRole(Integer roleId){
+
+    public ArrayList<User> getUsersByRole(Integer roleId) {
         User user;
         ArrayList<User> userList = new ArrayList<>();
         PreparedStatement statement;
         try {
-            connection=dataSource.getConnection();
+            connection = dataSource.getConnection();
             String query = "SELECT USERID, USERNAME "
                     + "FROM CB_USER "
                     + "INNER JOIN CB_USERROLE "
@@ -194,22 +211,23 @@ public class UserController {
                 connection.close();
             }
         } catch (SQLException ex) {
-            System.out.println("БИН ВЫДАЛ: "+ex.getMessage());
+            System.out.println("БИН ВЫДАЛ: " + ex.getMessage());
         }
         return userList;
     }
 
     /**
-    * Выбор пользователей в базе по файлу
-    * @param fileId
-    * @return список юзеров имеющих доступ к файлу
-    */
+     * Выбор пользователей в базе по файлу
+     *
+     * @param fileId
+     * @return список юзеров имеющих доступ к файлу
+     */
 //------
-    public ArrayList<User> getUsersByFile(Integer fileId){
+    public ArrayList<User> getUsersByFile(Integer fileId) {
         User user;
         ArrayList<User> userList = new ArrayList<>();
         try {
-            connection=dataSource.getConnection();
+            connection = dataSource.getConnection();
             String query = "SELECT USERID, USERNAME "
                     + "FROM CB_USER "
                     + "INNER JOIN CB_USERFILE "
@@ -228,13 +246,15 @@ public class UserController {
             preparedStatement.close();
             connection.close();
         } catch (SQLException ex) {
-            System.out.println("БИН ВЫДАЛ: "+ex.getMessage());
+            System.out.println("БИН ВЫДАЛ: " + ex.getMessage());
         }
         return userList;
     }
 //------
+
     /**
      * Поиск пользователя в базе по имени
+     *
      * @param userName
      * @return
      */
@@ -242,7 +262,7 @@ public class UserController {
         User user = null;
         String query = "SELECT * FROM CB_USER WHERE USERNAME = ?";
         try {
-            connection=dataSource.getConnection();
+            connection = dataSource.getConnection();
             preparedStatement = null;
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, userName);
@@ -279,15 +299,17 @@ public class UserController {
         return user;
     }
 //------
+
     /**
      * Поиск юзера в базе по ID
+     *
      * @param userId
      * @return
      * @throws SQLException
      */
     public User findUser(Integer userId) throws SQLException {
         User user = null;
-        connection=dataSource.getConnection();
+        connection = dataSource.getConnection();
 //        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         PreparedStatement statement = null;
         String query = "SELECT * FROM CB_USER WHERE USERID = ?";
@@ -329,17 +351,15 @@ public class UserController {
 //------    
 
     /**
-     * Обновление данных пользователя
-     * Используется на странице администратора
-     * 
+     * Обновление данных пользователя Используется на странице администратора
+     *
      * @param userId
      * @param column поле в БД которое требует апдейта
-     * @param value новое значение поля 
+     * @param value новое значение поля
      * @throws SQLException
      */
-    public void updateUserData(Integer userId, String column, String value) throws SQLException 
-    {
-        connection=dataSource.getConnection();
+    public void updateUserData(Integer userId, String column, String value) throws SQLException {
+        connection = dataSource.getConnection();
 //        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         Statement statement = connection.createStatement();
         String query = "UPDATE CB_USER"
@@ -368,33 +388,31 @@ public class UserController {
         }
     }
 //------    
+
     /**
      * Включение-отключение роли пользователя
      *
      * @param userId
-     * @param roleId 
-     * @param value может быть false и true. Но строковое. Если true то добавляем роль, если false то удаляем
+     * @param roleId
+     * @param value может быть false и true. Но строковое. Если true то
+     * добавляем роль, если false то удаляем
      * @throws SQLException
      */
-    public void updateUserRole(Integer userId, Integer roleId, String value) throws SQLException 
-    {
-        connection=dataSource.getConnection();
+    public void updateUserRole(Integer userId, Integer roleId, String value) throws SQLException {
+        connection = dataSource.getConnection();
 //        connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
         Statement statement = connection.createStatement();
         String query;
-        if("false".equals(value))
-        {
+        if ("false".equals(value)) {
             query = "DELETE FROM CB_USERROLE"
                     + " WHERE "
-                    + "UR_ROLEID="+roleId
+                    + "UR_ROLEID=" + roleId
                     + " AND "
                     + "UR_USERID=" + userId;
-        }
-        else
-        {
+        } else {
             query = "INSERT INTO CB_USERROLE (UR_USERID, UR_ROLEID) "
                     + "VALUES ("
-                    + userId+", "
+                    + userId + ", "
                     + roleId
                     + ")";
         }
