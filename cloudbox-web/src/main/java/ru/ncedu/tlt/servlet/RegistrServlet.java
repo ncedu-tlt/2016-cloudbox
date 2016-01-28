@@ -55,17 +55,24 @@ public class RegistrServlet extends HttpServlet {
         String userEmailNew = request.getParameter("regEmail");
 
         if (userNameNew == null || userPassNew == null || userPassNew2 == null || userEmailNew == null || "".equals(userNameNew) || "".equals(userPassNew) || "".equals(userPassNew2) || "".equals(userEmailNew)) {
+////            response.sendError(400);
+
+        request.setAttribute("message", "Заполните все поля");
             request.getRequestDispatcher("registr.jsp").forward(request, response);
+
         }
 
         if (!userPassNew.equals(userPassNew2)) {
+//            response.sendError(400);
+             request.setAttribute("message", "Пароли не совпадают");
             request.getRequestDispatcher("registr.jsp").forward(request, response);
         }
 
 //        UserControllerOld uC = UserControllerOld.getInstance();
-
-        if (ucEjb.findUser(userNameNew)!=null) {
-            request.getRequestDispatcher("registr.jsp").forward(request, response);
+        if (ucEjb.findUser(userNameNew) != null) {
+           request.setAttribute("message", "Пользователь " + userNameNew + " уже существует");
+//            response.sendError(400);
+              request.getRequestDispatcher("registr.jsp").forward(request, response);
         } else {
             User user = new User();
 
@@ -74,9 +81,11 @@ public class RegistrServlet extends HttpServlet {
             user.setEmail(userEmailNew);
 
             user = ucEjb.createUser(user);
-            if(user==null) 
-            {
+            if (user == null) {
+//                response.sendError(400);
+                 request.setAttribute("message", "Не получилось создать пользователя " + userNameNew);
                 request.getRequestDispatcher("registr.jsp").forward(request, response);
+
             }
 
             System.out.println("New user " + user.toString());

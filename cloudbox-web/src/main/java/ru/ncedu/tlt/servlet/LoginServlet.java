@@ -79,6 +79,7 @@ public class LoginServlet extends HttpServlet {
 
             response.sendRedirect("drive.jsp");
         } else {
+            request.setAttribute("message", "Не удалось авторизоваться");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }
     }

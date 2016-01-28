@@ -6,7 +6,6 @@
 package ru.ncedu.tlt.controllers;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,7 +21,6 @@ import javax.sql.DataSource;
 import ru.ncedu.tlt.entity.User;
 import ru.ncedu.tlt.entity.UserRole;
 import ru.ncedu.tlt.hash.HashGenerator;
-import ru.ncedu.tlt.properties.PropertiesCB;
 
 /**
  *

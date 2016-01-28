@@ -5,6 +5,7 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -33,15 +34,15 @@
                     <div class="row">
 
                         <form method="post" action="registr" method="post">
-                            
-                             <div class="col-lg-2 center-block" style="float: none;" >
+
+                            <div class="col-lg-2 center-block" style="float: none;" >
                                 <div class="panel panel-default">
 
 
                                     <input class="form-control" id="regEmail" name="regEmail" placeholder="e-mail" type="text">
                                 </div>
                             </div>
-                            
+
                             <div class="col-lg-2 center-block" style="float: none;" >
                                 <div class="panel panel-default">
 
@@ -73,7 +74,16 @@
                                 </div>
 
                             </div>
+                            
                         </form>
+                        <div class="col-lg-2 center-block" style="float: none;" style="margin-top: 50px">
+                                <c:if test="${not empty message}">
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <button type="button" class="close" data-dismiss="alert">X</button>
+                                        <strong>${message}</strong>
+                                    </div>
+                                </c:if>
+                            </div>
                     </div>
 
                 </div>
