@@ -11,9 +11,9 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Cloudbox</title>
-        
+
         <link rel="import" href="app/HTMLtemplates/sharedFileRightPanel.html">
-        
+
         <link rel="icon" href="app/ico/cloudbox.ico" type="image/x-icon" />
         <!--<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>-->
         <link href="lib/bootstrap/css/bootstrap-paper.min.css" rel="stylesheet"/>
@@ -23,7 +23,7 @@
 
         <script src="lib/jquery/jquery.min.js"></script>
         <script src="lib/bootstrap/js/bootstrap.min.js"></script>
-        
+
         <!-- about loader -->
         <script src="http://malsup.github.com/jquery.form.js"></script>
         <!-- about table -->
@@ -31,20 +31,20 @@
         <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
 
-        
+
         <script src="app/js/userFilePage.js"></script>
         <script>
-            preparePage ();
+            preparePage();
         </script>        
     </head>
 
-            <div id="alertMessage" class="container">
-                <div class="row" id="message-container" style="display: none;">
-                    <div class="span12">  
-                        <div id="alert" class = "alert alert-success"><span id="message-text">Test Text</span></div>
-                    </div>
-                </div>
+    <div id="alertMessage" class="container">
+        <div class="row" id="message-container" style="display: none;">
+            <div class="span12">  
+                <div id="alert" class = "alert alert-success"><span id="message-text">Test Text</span></div>
             </div>
+        </div>
+    </div>
 
     <body>
 
@@ -66,7 +66,11 @@
 
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <ul class="nav navbar-nav">
-                            <li class="active"><a href="#">Мой диск<span class="sr-only">(current)</span></a></li>
+                            <c:set var="theString" value="${userroles}"/>
+                            <c:if test="${fn:contains(theString,'2')||fn:contains(theString,'3')}">
+                                <li class="active"><a href="#">Мой диск<span class="sr-only">(current)</span></a></li>
+                                </c:if>
+
                             <!--                            <li class="active">-->
 
 
@@ -86,7 +90,7 @@
                             <c:set var="theString" value="${userroles}"/>
                             <c:if test="${fn:contains(theString, '1')}">
                                 <li><a href="adminpage_1.jsp">Администрирование</a></li>
-                            </c:if>
+                                </c:if>
 
                         </ul>
 
@@ -109,7 +113,7 @@
 
             <div class="row">
                 <div class="col-lg-2" id="leftButtonPanel">
-<!--                    <a href="#" class="btn btn-danger col-lg-12">Загрузить файл <i class="fa fa-cloud-upload"></i></a>   -->
+                    <!--                    <a href="#" class="btn btn-danger col-lg-12">Загрузить файл <i class="fa fa-cloud-upload"></i></a>   -->
                     <a onclick="updateFileTable('ownedFiles')" class="btn btn-link col-lg-12" id="toOwnedFilesList">Мои файлы</a>
                     <a href="#" class="btn btn-link col-lg-12" id="toSharedFilesList">Доступные мне</a>
                     <a href="#" class="btn btn-link col-lg-12" id="toSharedFromUserFilesList">Расшаренные мной</a>
@@ -141,7 +145,7 @@
                 </div>
 
                 <div class="col-lg-2" id="rightButtonPanel">
- 
+
                 </div>
 
             </div>
@@ -151,33 +155,33 @@
 
     </body>
     <template  id="ownFileRightPanel">
-                    <form id="loader" onsubmit="loadFileToServer()" method="post" enctype="multipart/form-data">
-                        <input class="btn btn-info" type="file" name="file"/>
-                        <input class="btn btn-success" type="submit"/>
-                    </form>                    
-                    <p></p>
-                    <a href="#" id="getFileButton" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>                   
-                    <p></p>
-                    <a href="#" id="putToGarbageButton" class="btn btn-warning col-lg-12">Удалить <i class="glyphicon glyphicon-remove"></i></a>
-                    <a href="TestFileServlet" id="hidden_link_get_file" download hidden></a>
-                    <a href="#" id="shareButton" class="btn btn-primary col-lg-12">Поделиться <i class="glyphicon glyphicon-share-alt"></i></a>
-                    <a href="#" id="deleteLinkButton" class="btn btn-primary col-lg-12">Создать ссылку <i class="glyphicon glyphicon-share"></i></a>
+        <form id="loader" onsubmit="loadFileToServer()" method="post" enctype="multipart/form-data">
+            <input class="btn btn-info" type="file" name="file"/>
+            <input class="btn btn-success" type="submit"/>
+        </form>                    
+        <p></p>
+        <a href="#" id="getFileButton" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>                   
+        <p></p>
+        <a href="#" id="putToGarbageButton" class="btn btn-warning col-lg-12">Удалить <i class="glyphicon glyphicon-remove"></i></a>
+        <a href="TestFileServlet" id="hidden_link_get_file" download hidden></a>
+        <a href="#" id="shareButton" class="btn btn-primary col-lg-12">Поделиться <i class="glyphicon glyphicon-share-alt"></i></a>
+        <a href="#" id="deleteLinkButton" class="btn btn-primary col-lg-12">Создать ссылку <i class="glyphicon glyphicon-share"></i></a>
 
-                            <div class="form-group">
-                                <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
-                                <div class="col-lg-12"style="padding: 0px">
-                                    <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
-                                </div>
-                            </div>  
+        <div class="form-group">
+            <label for="downloadLink" class="col-lg-12 control-label">Ссылка на файл</label>
+            <div class="col-lg-12"style="padding: 0px">
+                <input type="text" class="form-control" id="downloadLink" placeholder="downloadLink">
+            </div>
+        </div>  
     </template>
     <template  id="sharedFileRightPanel">
-                    <a href="#" id="getFileButton" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>                   
-                    <p></p>
-                    <a href="#" id="deleteLinkButton" class="btn btn-warning col-lg-12">Удалить шару<i class="glyphicon glyphicon-remove"></i></a>  
+        <a href="#" id="getFileButton" class="btn btn-success col-lg-12">Скачать <i class="fa fa-cloud-download"></i></a>                   
+        <p></p>
+        <a href="#" id="deleteLinkButton" class="btn btn-warning col-lg-12">Удалить шару<i class="glyphicon glyphicon-remove"></i></a>  
     </template>
     <template  id="garbageFilesRightPanel">
-                    <a href="#" id="restoreFileButton" class="btn btn-success col-lg-12">Восстановить <i class="fa fa-cloud-download"></i></a>                   
-                    <p></p>
-                    <a href="#" id="deleteButton" class="btn btn-warning col-lg-12">Удалить <i class="glyphicon glyphicon-remove"></i></a>  
+        <a href="#" id="restoreFileButton" class="btn btn-success col-lg-12">Восстановить <i class="fa fa-cloud-download"></i></a>                   
+        <p></p>
+        <a href="#" id="deleteButton" class="btn btn-warning col-lg-12">Удалить <i class="glyphicon glyphicon-remove"></i></a>  
     </template>
 </html>

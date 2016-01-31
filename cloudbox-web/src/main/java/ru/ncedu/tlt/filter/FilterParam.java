@@ -15,7 +15,8 @@ public class FilterParam {
     public static final String LOGOUT = "logout";
     
     public static final String LOGIN_JSP = "/login.jsp";
-    public static final String DRIVE_JSP = "/drive.jsp";
+     public static final String REGISTR_JSP = "/registr.jsp";
+//    public static final String DRIVE_JSP = "/drive.jsp";
     
     public static final String FILTER_FILE_SETTINGS_XML = "site_map_settings.xml";
 }

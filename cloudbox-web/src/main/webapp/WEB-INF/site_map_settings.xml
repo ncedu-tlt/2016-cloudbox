@@ -2,29 +2,27 @@
 <cloudbox>
     <group>
         <name>nologin</name>
+        <id>0</id>
+        <basepage>login.jsp</basepage>
         <page>login</page>
         <page>registr</page>
-        <page>app</page>
-        <page>lib</page>        
-        <page>getFileList</page>
-        <page>linkServlet</page>
-        <page>getSharedFile</page>
-        <page>getFile</page>
-        <page>uploadFiles</page>
-        <page>FilesRestoreServlet</page>
-        <page>markFilesAsGarbage</page>
-        <page>deleteFiles</page>
-    </group>
-    <group>
-        <name>user</name>
-        <page>login</page>
-        <page>registr</page>
-        <page>drive</page>
-        <page>usersettings</page>
-        <page>getAllRoles</page>
-        <page>getUserLoggedData</page>
         <page>app</page>
         <page>lib</page>
+    </group>
+    <group>
+        <name>admin</name>
+        <id>1</id>
+        <basepage>adminpage_1.jsp</basepage>
+        <page>login</page>
+        <page>registr</page>
+        <page>app</page>
+        <page>lib</page>
+        <page>usersettings</page>
+        <page>userProcess</page>
+        <page>fileProcess</page>
+        <page>getAllRoles</page>
+        <page>getUserLoggedData</page>
+        <page>adminpage_1</page>
         <page>getFileList</page>
         <page>linkServlet</page>
         <page>getSharedFile</page>
@@ -36,6 +34,8 @@
     </group>
     <group>
         <name>moderator</name>
+        <id>2</id>
+        <basepage>drive.jsp</basepage>
         <page>login</page>
         <page>registr</page>
         <page>usersettings</page>
@@ -51,16 +51,15 @@
         <page>deleteFiles</page>
     </group>
     <group>
-        <name>admin</name>
+        <name>user</name>
+        <id>3</id>
+        <basepage>drive.jsp</basepage>
         <page>login</page>
         <page>registr</page>
-        <page>app</page>
-        <page>lib</page>
         <page>drive</page>
         <page>usersettings</page>
-        <page>userProcess</page>
-        <page>fileProcess</page>
-        <page>adminpage</page>
+        <page>app</page>
+        <page>lib</page>
         <page>getFileList</page>
         <page>linkServlet</page>
         <page>getSharedFile</page>

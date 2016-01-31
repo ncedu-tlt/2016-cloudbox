@@ -19,6 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ru.ncedu.tlt.controllers.UserController;
 import ru.ncedu.tlt.entity.User;
+import ru.ncedu.tlt.filter.FilterParam;
+import ru.ncedu.tlt.filter.FilterSettingsXML;
 
 /**
  *
@@ -29,6 +31,9 @@ public class RegistrServlet extends HttpServlet {
 
     @EJB
     UserController ucEjb;
+
+    @EJB
+    FilterSettingsXML filtSettings;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -42,37 +47,41 @@ public class RegistrServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException, NoSuchAlgorithmException {
 
-        String userName = request.getParameter("userName");
-        String userId = request.getParameter("userId");
+//        String userNameNew = request.getParameter("regUserName");
+        String userNameNew = new String(request.getParameter("regUserName").getBytes(
+                "iso-8859-1"), "UTF-8");
+//        String userPassNew = request.getParameter("regUserPass");
+        String userPassNew = new String(request.getParameter("regUserPass").getBytes(
+                "iso-8859-1"), "UTF-8");
 
-        if (userName != null && userId != null) {
-            response.sendRedirect("drive.jsp");
+//         String userPassNew2 = request.getParameter("regUserPass2");
+        String userPassNew2 = new String(request.getParameter("regUserPass2").getBytes(
+                "iso-8859-1"), "UTF-8");
+
+//        String userEmailNew = request.getParameter("regEmail");
+        String userEmailNew = new String(request.getParameter("regEmail").getBytes(
+                "iso-8859-1"), "UTF-8");
+
+        if (userNameNew == null || userPassNew == null || userPassNew2 == null || userEmailNew == null || userNameNew.length() == 0 || userPassNew.length() == 0 || userPassNew2.length() == 0 || userEmailNew.length() == 0) {
+            request.setAttribute("message", "Заполните все поля");
+
+            request.getRequestDispatcher(FilterParam.REGISTR_JSP).forward(request, response);
+            return;
+//            response.sendRedirect(FilterParam.REGISTR_JSP);
         }
 
-        String userNameNew = request.getParameter("regUserName");
-        String userPassNew = request.getParameter("regUserPass");
-        String userPassNew2 = request.getParameter("regUserPass2");
-        String userEmailNew = request.getParameter("regEmail");
-
-        if (userNameNew == null || userPassNew == null || userPassNew2 == null || userEmailNew == null || "".equals(userNameNew) || "".equals(userPassNew) || "".equals(userPassNew2) || "".equals(userEmailNew)) {
-////            response.sendError(400);
-
-        request.setAttribute("message", "Заполните все поля");
-            request.getRequestDispatcher("registr.jsp").forward(request, response);
-
+        if (!userPassNew.equals(userPassNew2) || userPassNew.length() == 0) {
+            request.setAttribute("message", "Пароли не совпадают");
+            request.getRequestDispatcher(FilterParam.REGISTR_JSP).forward(request, response);
+            return;
+//            response.sendRedirect(FilterParam.REGISTR_JSP);
         }
 
-        if (!userPassNew.equals(userPassNew2)) {
-//            response.sendError(400);
-             request.setAttribute("message", "Пароли не совпадают");
-            request.getRequestDispatcher("registr.jsp").forward(request, response);
-        }
-
-//        UserControllerOld uC = UserControllerOld.getInstance();
         if (ucEjb.findUser(userNameNew) != null) {
-           request.setAttribute("message", "Пользователь " + userNameNew + " уже существует");
-//            response.sendError(400);
-              request.getRequestDispatcher("registr.jsp").forward(request, response);
+            request.setAttribute("message", "Пользователь " + userNameNew + " уже существует");
+            request.getRequestDispatcher(FilterParam.REGISTR_JSP).forward(request, response);
+            return;
+//            response.sendRedirect(FilterParam.REGISTR_JSP);
         } else {
             User user = new User();
 
@@ -82,10 +91,10 @@ public class RegistrServlet extends HttpServlet {
 
             user = ucEjb.createUser(user);
             if (user == null) {
-//                response.sendError(400);
-                 request.setAttribute("message", "Не получилось создать пользователя " + userNameNew);
-                request.getRequestDispatcher("registr.jsp").forward(request, response);
-
+                request.setAttribute("message", "Не получилось создать пользователя " + userNameNew);
+                request.getRequestDispatcher(FilterParam.REGISTR_JSP).forward(request, response);
+                return;
+//                response.sendRedirect(FilterParam.REGISTR_JSP);
             }
 
             System.out.println("New user " + user.toString());
@@ -93,7 +102,7 @@ public class RegistrServlet extends HttpServlet {
             request.getSession().setAttribute("userId", user.getId());
             request.getSession().setAttribute("logged", true);
             request.getSession().setAttribute("userroles", user.rolesToString());
-            response.sendRedirect("drive.jsp");
+            response.sendRedirect(filtSettings.getFirstAllowebPage(user));
         }
     }
 

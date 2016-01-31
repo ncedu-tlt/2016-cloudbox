@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ru.ncedu.tlt.controllers.UserController;
 import ru.ncedu.tlt.entity.User;
+import ru.ncedu.tlt.filter.FilterSettingsXML;
 
 /**
  *
@@ -34,8 +35,9 @@ public class LoginServlet extends HttpServlet {
 
     @EJB
     UserController ucEjb;
-    
-    
+
+    @EJB
+    FilterSettingsXML filtSettings;
 
     /**
      * Handles the HTTP <code>POST</code> method.
@@ -77,7 +79,7 @@ public class LoginServlet extends HttpServlet {
             request.getSession().setAttribute("logged", true);
             request.getSession().setAttribute("userroles", user.rolesToString());
 
-            response.sendRedirect("drive.jsp");
+            response.sendRedirect(filtSettings.getFirstAllowebPage(user));
         } else {
             request.setAttribute("message", "Не удалось авторизоваться");
             request.getRequestDispatcher("login.jsp").forward(request, response);

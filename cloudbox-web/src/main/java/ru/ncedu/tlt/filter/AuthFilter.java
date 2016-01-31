@@ -86,11 +86,13 @@ public class AuthFilter implements Filter {
         user.setUserRoles(userRoles);
 
         String url = wrappedRequest.getRequestURI();
-        
-        if(url.contains(FilterParam.LOGOUT)){
-             chain.doFilter(wrappedRequest, wrappedResponse);
-        }else  if (logged && (url.contains(FilterParam.LOGIN) || url.contains(FilterParam.REGISTR))) {
-            wrappedResponse.sendRedirect(wrappedRequest.getServletContext().getContextPath() + FilterParam.DRIVE_JSP);
+
+        if (url.contains(FilterParam.LOGOUT)) {
+            chain.doFilter(wrappedRequest, wrappedResponse);
+        } else if (!logged && (url.contains(FilterParam.LOGIN) || url.contains(FilterParam.REGISTR))) {
+            chain.doFilter(wrappedRequest, wrappedResponse);
+        } else if (logged && (url.contains(FilterParam.LOGIN) || url.contains(FilterParam.REGISTR))) {
+            wrappedResponse.sendRedirect(wrappedRequest.getServletContext().getContextPath() + "/" + filtSettings.getFirstAllowebPage(user));
         } else if (filtSettings.checkUserAccess(wrappedRequest, user)) {
             chain.doFilter(wrappedRequest, wrappedResponse);
         } else {

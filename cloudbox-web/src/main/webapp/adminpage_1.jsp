@@ -4,6 +4,8 @@
     Author     : pavel.tretyakov
 --%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -21,7 +23,7 @@
         <script src="lib/bootstrap/js/bootstrap.min.js"></script>
         <script src="app/js/adminpage.js"></script>
     </head>
-    
+
     <div id="alertMessage" class="container">
         <div class="row" id="message-container" style="display: none;">
             <div class="span12">  
@@ -51,7 +53,11 @@
 
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <ul class="nav navbar-nav">
-                            <li ><a href="drive.jsp">Мой диск<span class="sr-only">(current)</span></a></li>
+                            <c:set var="theString" value="${userroles}"/>
+                            <c:if test="${fn:contains(theString,'2')||fn:contains(theString,'3')}">
+                                <!--<li class="active"><a href="#">Мой диск<span class="sr-only">(current)</span></a></li>-->
+                                <li ><a href="drive.jsp">Мой диск<span class="sr-only">(current)</span></a></li>
+                                </c:if>
 
                             <li class="active"><a href="adminpage_1.jsp">Администрирование</a></li>
 
@@ -100,22 +106,22 @@
             </div>
         </div>
 
-    <div id="popup" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 id="popupTitle" class="modal-title"></h4>
-          </div>
-          <div id="properties" class="modal-body">
+        <div id="popup" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 id="popupTitle" class="modal-title"></h4>
+                    </div>
+                    <div id="properties" class="modal-body">
 
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
-          </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
     </body>
 
