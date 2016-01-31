@@ -31,6 +31,7 @@
         <page>FilesRestoreServlet</page>
         <page>markFilesAsGarbage</page>
         <page>deleteFiles</page>
+        <page>updateUserSettings</page>
     </group>
     <group>
         <name>moderator</name>
@@ -49,6 +50,7 @@
         <page>FilesRestoreServlet</page>
         <page>markFilesAsGarbage</page>
         <page>deleteFiles</page>
+        <page>updateUserSettings</page>
     </group>
     <group>
         <name>user</name>
@@ -68,5 +70,6 @@
         <page>FilesRestoreServlet</page>
         <page>markFilesAsGarbage</page>
         <page>deleteFiles</page>
+        <page>updateUserSettings</page>
     </group>
 </cloudbox>

@@ -58,7 +58,7 @@ public class UserController {
 
         int key = 0;
         try {
-            String generatedColumns[] = { "USERID" };
+            String generatedColumns[] = {"USERID"};
             connection = dataSource.getConnection();
 //            connection = DriverManager.getConnection(PropertiesCB.CB_JDBC_URL);
             preparedStatement = connection.prepareStatement(insertTableSQL, generatedColumns);
@@ -436,5 +436,6 @@ public class UserController {
             }
         }
     }
+
 
 }

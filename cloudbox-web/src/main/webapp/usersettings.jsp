@@ -79,26 +79,75 @@
                 </div>
             </nav>
 
+            <!--            <div class="row">
+            
+                            <div class="col-lg-2">
+                                <div class="btn btn-link col-lg-12" onclick="getAllUsers()">Пользователи</div>                   
+                            </div>
+            
+                            <div class="col-lg-4">
+                                <div class="panel panel-default">
+                                    <table id="contentTable" class="table table-striped table-hover " cellspacing="0" width="80%">
+                                        <tbody>
+                                        </tbody>
+                                    </table>                      
+                                </div>
+                            </div>
+            
+                            <div class="col-lg-6">
+                                <div id="properties" class="panel panel-default">
+                                </div>
+                            </div>
+                        </div>-->
+
             <div class="row">
 
-                <div class="col-lg-2">
-                    <!--<div class="btn btn-link col-lg-12" onclick="getAllUsers()">Пользователи</div>-->                   
-                </div>
+                <form method="post" action="usersettings" method="post">
 
-                <div class="col-lg-4">
-                    <div class="panel panel-default">
-                        <table id="contentTable" class="table table-striped table-hover " cellspacing="0" width="80%">
-                            <tbody>
-                            </tbody>
-                        </table>                      
+                    <div class="col-lg-6 center-block" style="float: none;" >
+                        E-mail:
+                        <div class="panel panel-default">
+                            <c:choose>
+                                <c:when test="${not empty usermail}">
+                                    <input class="form-control" id="regEmail" name="regEmail" placeholder="e-mail" type="text" value="${usermail}">
+                                </c:when>
+                                <c:otherwise>
+                                   <input class="form-control" id="regEmail" name="regEmail" placeholder="e-mail" type="text">
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-lg-6">
-                    <div id="properties" class="panel panel-default">
+                    <div class="col-lg-6 center-block" style="float: none;" >
+                        Новый пароль:
+                        <div class="panel panel-default">
+
+
+                            <input class="form-control" id="regEmail" name="regPass" placeholder="password" type="text">
+                        </div>
                     </div>
-                </div>
+
+                    <div class="col-lg-6 center-block" style="float: none;">
+                        <div class="col-lg-6">
+                            <input class="btn btn-default col-lg-12" type="submit" name="commit" value="Сохранить изменения" >
+                        </div>
+
+
+                    </div>
+
+
+
+                </form>
+                <!--                        <div class="col-lg-2 center-block" style="float: none;" style="margin-top: 50px">
+                <c:if test="${not empty message}">
+                    <div class="alert alert-dismissible alert-danger">
+                        <button type="button" class="close" data-dismiss="alert">X</button>
+                        <strong>${message}</strong>
+                    </div>
+                </c:if>
+            </div>-->
             </div>
+
         </div>
 
 
